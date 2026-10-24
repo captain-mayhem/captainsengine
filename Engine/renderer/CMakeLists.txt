@@ -11,6 +11,7 @@ SET(Engine_renderer_SRCS
 	${PRE}/renderdevice.cpp
 	${PRE}/scene.cpp
 	${PRE}/scenenode.cpp
+	${PRE}/screentext.cpp
 	${PRE}/shaderlibrary.cpp
 	${PRE}/spritebatch.cpp
 	${PRE}/textureatlas.cpp
@@ -31,6 +32,7 @@ SET(RENDERER_HDRS_CORE
 	${PRE}/renderdevice.h
 	${PRE}/scene.h
 	${PRE}/scenenode.h
+	${PRE}/screentext.h
 	${PRE}/shaderlibrary.h
 	${PRE}/spritebatch.h
 	${PRE}/textureatlas.h

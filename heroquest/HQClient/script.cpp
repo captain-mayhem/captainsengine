@@ -34,7 +34,7 @@ using std::string;
 using std::vector;
 using std::cerr;
 
-#define line *CGE::Engine::instance()->getFont(0)
+#define line *CGE::Engine::instance()->getScreenText(0)
 
 //using namespace CGE;
 #ifdef _CLIENT_

@@ -29,7 +29,7 @@
 
 namespace CGE{
 class AppWindow;
-class Font;
+class ScreenText;
 class Forms;
 class Console;
 namespace Gfx{
@@ -126,7 +126,8 @@ class CGE_API Engine{
     //! the virtual resolution of the GUI pass and the input events
     /*! Its window size is updated from the window on every call. */
     CGE::VirtualScreen& getVirtualScreen();
-    inline CGE::Font* getFont(int idx) {return fnt_[idx].get();}
+    //! the engine's screen texts 0 to 2, drawn over each frame (status and debug lines)
+    inline CGE::ScreenText* getScreenText(int idx) {return texts_[idx].get();}
     //! Get the standard forms
     inline CGE::Forms* getForms() {return forms_.get();}
     //! batched sprites on the draw context (not without graphics)
@@ -163,10 +164,10 @@ class CGE_API Engine{
     void frame(bool update);
     //! renders the application and the GUI and presents the frame
     void renderFrame();
-    //! draws the texts of the fonts in their own pass
-    void renderFonts();
+    //! draws the screen texts in their own pass
+    void renderScreenTexts();
     //! creates the engine's objects on the render device: the draw context,
-    //! the fonts, the forms and the sprite batch
+    //! the forms and the sprite batch
     void createDeviceObjects();
     //! deletes them before the device goes
     void destroyDeviceObjects();
@@ -189,8 +190,8 @@ class CGE_API Engine{
 
     //! the virtual resolution
     CGE::VirtualScreen virtual_;
-    //! The fonts
-    std::array<std::unique_ptr<CGE::Font>, 3> fnt_;
+    //! the screen texts
+    std::array<std::unique_ptr<CGE::ScreenText>, 3> texts_;
     //! Stadard forms
     std::unique_ptr<CGE::Forms> forms_;
     //! the sprite batch on draw_

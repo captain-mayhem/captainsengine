@@ -6,7 +6,7 @@
 #include <fstream>
 #include <iostream>
 #ifdef _CLIENT_
-#include "renderer/font.h"
+#include "renderer/screentext.h"
 #endif
 #include "item.h"
 
@@ -58,7 +58,7 @@ class Trade{
     vector<Item> items_;
 #ifdef _CLIENT_
     //! the font
-    CGE::Font* fnt_;
+    CGE::ScreenText* fnt_;
     //! the inventory page to be displayed
     unsigned short invPage_;
     //! the shop page to be displayed

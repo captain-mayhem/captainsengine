@@ -151,7 +151,7 @@ void Hero::createFromGui(Gui::GuiElement*){
   tmp << ", Movement dice: " << heroe.getMovement();
   //tmp << ", Spell types: " << heroe.getSpellClasses();
   
-  CGE::Font* fnt = CGE::Engine::instance()->getFont(1);
+  CGE::ScreenText* fnt = CGE::Engine::instance()->getScreenText(1);
   fnt->deleteText(1);
   fnt->setId(1);
   fnt->setColor(1,1,1);

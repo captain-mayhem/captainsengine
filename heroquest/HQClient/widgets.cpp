@@ -9,7 +9,7 @@
 #include "system/engine.h"
 #include "renderer/drawcontext.h"
 #include "renderer/forms.h"
-#include "renderer/font.h"
+#include "renderer/screentext.h"
 
 using std::string;
 using std::list;
@@ -63,7 +63,8 @@ bool GuiElement::beginWindow(const Vector2D& pos, const Vector2D& span, bool inp
   //the text vertically centred in the element
   const float fontSize = FONT_SIZE*scale();
   ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4*scale(), (span.y*scale() - fontSize)/2));
-  ImGui::PushFont(widgets.getFont(), FONT_SIZE*scale());
+  //ImGui scales fonts by the content scale itself, and fontSize is in window pixels already
+  ImGui::PushFont(widgets.getFont(), fontSize/ImGui::GetStyle().FontScaleDpi);
   ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoSavedSettings
     | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoBringToFrontOnFocus;
   if (!inputs)
@@ -303,9 +304,9 @@ void Manager::deleteElements(){
 }
 
 void Manager::clearTexts(){
-  CGE::Engine::instance()->getFont(0)->clear();
-  CGE::Engine::instance()->getFont(1)->clear();
-  CGE::Engine::instance()->getFont(2)->clear();
+  CGE::Engine::instance()->getScreenText(0)->clear();
+  CGE::Engine::instance()->getScreenText(1)->clear();
+  CGE::Engine::instance()->getScreenText(2)->clear();
 }
 
 void Manager::remove(int idx, bool immediate){

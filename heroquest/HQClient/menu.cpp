@@ -17,14 +17,14 @@ using std::list;
 
 //to compile on windows
 #undef MessageBox
-using CGE::Font;
+using CGE::ScreenText;
 using Gui::GuiElement;
 using Gui::InputField;
 using Gui::Button;
 using Gui::MessageBox;
 using Gui::DropDownButton;
 
-#define line *CGE::Engine::instance()->getFont(0)
+#define line *CGE::Engine::instance()->getScreenText(0)
 
 extern string home;
 
@@ -115,14 +115,14 @@ void Menu::setupLogin(){
   if (msg.isConnected()){
     widgets.clear();
 
-    CGE::Engine::instance()->getFont(0)->setColor(1, 1, 1);
-    CGE::Engine::instance()->getFont(0)->print(120, 450, "User name:", 1, (float)HUGE_VAL);
+    CGE::Engine::instance()->getScreenText(0)->setColor(1, 1, 1);
+    CGE::Engine::instance()->getScreenText(0)->print(120, 450, "User name:", 1, (float)HUGE_VAL);
     InputField* in = new InputField();
     in->setPosition(Vector2D(220, 450));
     in->setText(msg.getSetting(2));
     widgets.add(in);
 
-    CGE::Engine::instance()->getFont(0)->print(120, 400, "Password:", 1, (float)HUGE_VAL);
+    CGE::Engine::instance()->getScreenText(0)->print(120, 400, "Password:", 1, (float)HUGE_VAL);
     InputField* in2 = new InputField();
     in2->setPosition(Vector2D(220, 400));
     in2->setHidden();
@@ -296,8 +296,8 @@ void Menu::play(GuiElement*){
   }
 
   //Reset GUI
-  CGE::Engine::instance()->getFont(0)->clear();
-  CGE::Engine::instance()->getFont(1)->clear();
+  CGE::Engine::instance()->getScreenText(0)->clear();
+  CGE::Engine::instance()->getScreenText(1)->clear();
   widgets.remove("Play");
   widgets.remove("Playname");
   /*widgets.clear();
@@ -773,7 +773,7 @@ void Menu::createHero(GuiElement*){
   MessageBox* mb = new MessageBox();
   mb->setCbFunc(chexec);
   widgets.add(mb);
-  Font* fnt = CGE::Engine::instance()->getFont(1);
+  ScreenText* fnt = CGE::Engine::instance()->getScreenText(1);
   fnt->setColor(1,1,1);
   
   fnt->setId(2);
@@ -800,7 +800,7 @@ void Menu::createHero(GuiElement*){
 // create hero execute button
 void Menu::chexec(GuiElement*){
   //fonts
-  CGE::Font* fnt = CGE::Engine::instance()->getFont(1);
+  CGE::ScreenText* fnt = CGE::Engine::instance()->getScreenText(1);
   fnt->deleteText(1);
   fnt->deleteText(2);
   

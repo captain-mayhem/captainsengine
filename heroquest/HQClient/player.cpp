@@ -31,7 +31,7 @@ using std::ios;
 using std::ifstream;
 using std::ostringstream;
 
-#define line *CGE::Engine::instance()->getFont(0)
+#define line *CGE::Engine::instance()->getScreenText(0)
 
 extern ClientSocket* sock;
 extern string path;

@@ -106,6 +106,9 @@ enum class BuiltinShader{
   //! SpriteBatch's instanced quads (renderer/spritebatch.h), with the
   //! texture in SLOT_TEXTURE
   Sprite,
+  //! SpriteBatch's quads with a distance field in the texture's alpha and
+  //! the edge in cge_color.x (SpriteBatch::setDistanceField)
+  SpriteDistanceField,
 };
 
 //! Shader sources and the built-in shaders

@@ -131,6 +131,11 @@ ShaderDesc ShaderLibrary::getBuiltinDesc(BuiltinShader shader){
     case BuiltinShader::Sprite:
       desc.name = "engine/sprite";
       break;
+    case BuiltinShader::SpriteDistanceField:
+      //the sprites' vertex shader
+      loadDesc("engine/sprite.vert", "engine/sprite_distance.frag", desc);
+      desc.name = "engine/sprite_distance";
+      return desc;
   }
   //the built-in files are part of the engine library, so this can't fail
   loadDesc(desc.name+".vert", desc.name+".frag", desc);

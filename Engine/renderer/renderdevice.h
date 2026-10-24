@@ -176,6 +176,8 @@ public:
   bool beginPass(const PassDesc& desc);
   void endPass();
   bool isInPass() const {return state_ == State::InPass;}
+  //! the viewport of the current or last pass, in pixels
+  const Viewport& getViewport() const {return viewport_;}
 
   // --- inside a pass ---
 
@@ -246,6 +248,7 @@ private:
   bool indexBufferSet_;
   uint64_t frameCount_;
   bool windowReleased_;
+  Viewport viewport_;
 };
 
 }

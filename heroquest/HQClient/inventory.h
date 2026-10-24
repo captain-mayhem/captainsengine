@@ -8,7 +8,7 @@
 //#include "array.hh"
 #ifdef _CLIENT_
 //#include "renderer/vertexbuffer.h"
-#include "renderer/font.h"
+#include "renderer/screentext.h"
 #endif
 #include "item.h"
 
@@ -17,7 +17,7 @@ using std::vector;
 using std::ifstream;
 using std::ofstream;
 
-//using CGE::Font;
+//using CGE::ScreenText;
 
 class Inventory{
   public:
@@ -84,7 +84,7 @@ class Inventory{
     int breast_;
 #ifdef _CLIENT_
     //! the font
-    CGE::Font* fnt_;
+    CGE::ScreenText* fnt_;
     //! the item page to be displayed
     unsigned short page_;
     //! the chosen item

@@ -4,7 +4,7 @@
 
 #include "system/engine.h"
 #include "renderer/renderer.h"
-#include "renderer/font.h"
+#include "renderer/screentext.h"
 #include "renderer/forms.h"
 #include "math/vector.h"
 #include "gui/messagebox.h"
@@ -22,7 +22,7 @@ AdventureCore::AdventureCore(SQL* sql){
   m_sql = sql;
   cursor = Vector2D(CURSOR_X, CURSOR_Y);
   second_cursor = Vector2D(SECOND_CURSOR_X, SECOND_CURSOR_Y);
-  CGE::Font* fnt = CGE::Engine::instance()->getFont(0);
+  CGE::ScreenText* fnt = CGE::Engine::instance()->getScreenText(0);
   fnt->setColor(CGE::Color(0,1,0,1));
   chid_ = "0";
   action_ = None;
@@ -50,7 +50,7 @@ void AdventureCore::printWord(std::string txt){
   if (cursor.x/CHAR_WIDTH + txt.size() > MAX_CHARS){
     newline();
   }
-  CGE::Font* fnt = CGE::Engine::instance()->getFont(0);
+  CGE::ScreenText* fnt = CGE::Engine::instance()->getScreenText(0);
   txt += " ";
   fnt->print(cursor.x, cursor.y, txt.c_str(), 0, FLT_MAX);
   cursor.x += txt.size()*CHAR_WIDTH;
@@ -62,7 +62,7 @@ void AdventureCore::newline(){
 }
 
 void AdventureCore::printLine(std::string txt){
-  CGE::Font* fnt = CGE::Engine::instance()->getFont(0);
+  CGE::ScreenText* fnt = CGE::Engine::instance()->getScreenText(0);
   fnt->print(cursor.x,cursor.y, txt.c_str(), 0, FLT_MAX);
   cursor.y -= LINE_SPACING;
   cursor.x = CURSOR_X;
@@ -108,13 +108,13 @@ std::string AdventureCore::transformUtf8(std::string txt){
 
 void AdventureCore::clearDisplay(){
   cursor = Vector2D(CURSOR_X, CURSOR_Y);
-  CGE::Font* fnt = CGE::Engine::instance()->getFont(0);
+  CGE::ScreenText* fnt = CGE::Engine::instance()->getScreenText(0);
   fnt->clear();
 }
 
 void AdventureCore::clearSecondDisplay(){
   second_cursor = Vector2D(SECOND_CURSOR_X, SECOND_CURSOR_Y);
-  CGE::Font* fnt = CGE::Engine::instance()->getFont(1);
+  CGE::ScreenText* fnt = CGE::Engine::instance()->getScreenText(1);
   fnt->clear();
   actionids_.clear();
   action_ = None;
@@ -130,7 +130,7 @@ void AdventureCore::showWays(){
 
 //displays a choosable option
 void AdventureCore::displayOption(Action act, std::string id, std::string txt){
-  CGE::Font* fnt = CGE::Engine::instance()->getFont(1);
+  CGE::ScreenText* fnt = CGE::Engine::instance()->getScreenText(1);
   fnt->setColor(CGE::Color(0,0,1,1));
   fnt->print(second_cursor.x, second_cursor.y, transform(txt).c_str(), 0, FLT_MAX);
   second_cursor.y -= LINE_SPACING;

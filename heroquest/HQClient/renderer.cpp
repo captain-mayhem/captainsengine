@@ -1,4 +1,4 @@
-#include "renderer/font.h"
+#include "renderer/screentext.h"
 #include "renderer/forms.h"
 #include "renderer/drawcontext.h"
 #include "renderer/renderdevice.h"
@@ -23,7 +23,7 @@
 #include "renderer.h"
 #include "registerHeroquestShaders.h"
 
-#define line *CGE::Engine::instance()->getFont(0)
+#define line *CGE::Engine::instance()->getScreenText(0)
 
 using Gui::InputField;
 using Gui::Button;
@@ -251,8 +251,8 @@ void HQRenderer::buttonDown_(int x, int y, int buttons){
     clickedField_.y = (int)(y*dy);
 
     //buttons to add a hero at this position
-    CGE::Engine::instance()->getFont(0)->setColor(1,1,1);
-    CGE::Engine::instance()->getFont(0)->print(250, 500, "Hero name:", 1, (float)HUGE_VAL);
+    CGE::Engine::instance()->getScreenText(0)->setColor(1,1,1);
+    CGE::Engine::instance()->getScreenText(0)->print(250, 500, "Hero name:", 1, (float)HUGE_VAL);
     InputField* in = new InputField();
     in->setName("Playname");
     in->setPosition(Vector2D(400, 500));
@@ -407,7 +407,7 @@ void HQRenderer::paint_(){
 
   if (wrld.isLoaded()){
     //number of moves in the upper right corner
-    engine->getFont(0)->print(1000, 750, std::to_string(game.getMoves()).c_str(), 1);
+    engine->getScreenText(0)->print(1000, 750, std::to_string(game.getMoves()).c_str(), 1);
     //get the nearest vertices and check them for camera collision
     //Vector3D** worldCollision = wrld.getWorld();
     //cam.checkCameraCollision(worldCollision, wrld.getNumberOfVerts());
@@ -460,7 +460,7 @@ void HQRenderer::paint_(){
     plyr.getTrade()->update();
   }
 
-  CGE::Font *f = engine->getFont(0);
+  CGE::ScreenText *f = engine->getScreenText(0);
   f->setColor(0,1,0);
   f->print(20, 720, ("Current Frames Per Second: "+std::to_string(engine->getFPS())).c_str(), 0);
 

@@ -12,7 +12,7 @@
 #ifdef _CLIENT_
 #include "textureManager.h"
 #include "camera.h"
-#include "renderer/font.h"
+#include "renderer/screentext.h"
 #include "renderer/forms.h"
 #include "renderer/drawcontext.h"
 #include "math/matrixstack.h"
@@ -395,8 +395,8 @@ void World::render(){
 	ostringstream fields;
 	unsigned size = (unsigned)canSee_.size();
 	fields << size << " of " << (width_*height_) << " Fields rendered";
-  CGE::Engine::instance()->getFont(0)->setColor(0,1,0);
-  CGE::Engine::instance()->getFont(0)->print(20,680, fields.str().c_str(), 0, 0);
+  CGE::Engine::instance()->getScreenText(0)->setColor(0,1,0);
+  CGE::Engine::instance()->getScreenText(0)->print(20,680, fields.str().c_str(), 0, 0);
 
 	//reset furniture
 	for (unsigned i = 0; i < furniture_.size(); i++){

@@ -54,7 +54,7 @@ using std::endl;
 using Gui::Button;
 using Gui::DropDownButton;
 
-#define line *CGE::Engine::instance()->getFont(0)
+#define line *CGE::Engine::instance()->getScreenText(0)
 
 extern string path;
 extern string home;

@@ -154,10 +154,12 @@ std::vector<std::string> Filesystem::getFiles(const std::string& path){
 std::string Filesystem::getCwd(){
   char cwd[2048];
 #ifdef WIN32
-  _getcwd(cwd, 2048);
+  if (!_getcwd(cwd, 2048))
+    return "";
 #endif
 #ifdef UNIX
-  getcwd(cwd, 2048);
+  if (!getcwd(cwd, 2048))
+    return "";
 #endif
   return string(cwd) + "/";
 }

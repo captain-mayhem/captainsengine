@@ -3,6 +3,7 @@
 #include "GeoGen.h"
 #include <mesh/SimpleMesh.h>
 #include <renderer/drawcontext.h>
+#include <renderer/screentext.h>
 
 using namespace CGE;
 
@@ -56,7 +57,7 @@ void MapChunk::render(CGE::Gfx::DrawContext& ctx, const CGE::Camera* cam){
   mStreets.traverse(&traversal);
   char tmp[32];
   sprintf(tmp,"Map nodes rendered: %i", drawCount);
-  CGE::Engine::instance()->getFont(0)->print(20,700,tmp,0);
+  CGE::Engine::instance()->getScreenText(0)->print(20,700,tmp,0);
 }
 
 CGE::OctreeStatic<SimpleMesh*>::TraversalState MapChunk::renderCB(const std::vector<SimpleMesh*>& values, const CGE::BBox& box, uint8 flags, void* data){

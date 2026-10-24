@@ -88,6 +88,14 @@ void Thread::sleep(int milliseconds){
 }
 
 void Thread::setPriority(Priority priority){
+  //not for a thread that wasn't created (pthread_setschedprio crashes on it)
+#ifdef WIN32
+  if (thread_ == INVALID_HANDLE_VALUE)
+    return;
+#else
+  if (!thread_)
+    return;
+#endif
 #ifdef WIN32
   int winprio = 0;
   switch(priority){

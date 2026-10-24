@@ -3,7 +3,7 @@
 
 #include "TerrainChunk.h"
 #include <renderer/drawcontext.h>
-#include <renderer/font.h>
+#include <renderer/screentext.h>
 #include <system/engine.h>
 
 using namespace CGE;
@@ -69,7 +69,7 @@ void Terrain::render(CGE::Gfx::DrawContext& ctx, const CGE::Camera& cam){
   mChunks.traverse(&traversal);
   char buf[256];
   sprintf(buf, "Terrain chunks rendered: %i", count);
-  CGE::Font* fnt = CGE::Engine::instance()->getFont(0);
+  CGE::ScreenText* fnt = CGE::Engine::instance()->getScreenText(0);
   fnt->print(20,720,buf,0);
 }
 

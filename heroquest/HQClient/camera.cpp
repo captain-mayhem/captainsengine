@@ -12,7 +12,7 @@
 #include <cmath>
 
 #include <mesh/mesh.h>
-#include <renderer/font.h>
+#include <renderer/screentext.h>
 #include "math.h"
 #include "renderer.h"
 //#include "font.hh"
@@ -261,8 +261,8 @@ void Camera::update(){
   //Print position
   char temp[100];
   sprintf(temp, "Coordinates(2D): x: %d y: %d", modelPos_.x, modelPos_.y);
-  CGE::Engine::instance()->getFont(0)->setColor(0, 1, 0);
-  CGE::Engine::instance()->getFont(0)->print(20, 700, temp, 0);
+  CGE::Engine::instance()->getScreenText(0)->setColor(0, 1, 0);
+  CGE::Engine::instance()->getScreenText(0)->print(20, 700, temp, 0);
 }
 
 

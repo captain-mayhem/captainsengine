@@ -17,7 +17,7 @@
 #include "world.h"
 #include "renderer.h"
 #include "textureManager.h"
-#include "renderer/font.h"
+#include "renderer/screentext.h"
 #include "message.h"
 #include "ui/console.h"
 #include "script.h"
@@ -33,7 +33,7 @@ using std::cerr;
 using Gui::InputField;
 using Gui::Button;
 using Gui::DropDownButton;
-using CGE::Font;
+using CGE::ScreenText;
 
 TR_CHANNEL(HQ_Client_Gamestate);
 
@@ -66,7 +66,7 @@ bool GameState::start(){
   cam.setCameraRadius(1);
   
   //start screen with GUI
-  Font* f = CGE::Engine::instance()->getFont(0);
+  ScreenText* f = CGE::Engine::instance()->getScreenText(0);
   f->setColor(1.0,1.0,1.0);
   f->print(120, 450, "Server:", 1, (float)HUGE_VAL);
   InputField* in = new InputField();
@@ -114,7 +114,7 @@ void GameState::end(){
   wrld.unload();
   //wrld.deInit();
   //re-setup GUI to choose level
-  Font* f = CGE::Engine::instance()->getFont(0);
+  ScreenText* f = CGE::Engine::instance()->getScreenText(0);
   widgets.clear(false);
 	//only the player with admin status can create games
 	if (plyr.getStatus() == 2){

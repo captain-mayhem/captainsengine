@@ -17,6 +17,7 @@ add_executable(cge_tests
 	test_services.cpp
 	test_settings.cpp
 	test_sprites.cpp
+	test_text.cpp
 	test_userdirs.cpp
 	test_zip.cpp
 	testenv.h
@@ -25,8 +26,8 @@ add_executable(cge_tests
 target_link_libraries(cge_tests PRIVATE CGE::Engine GTest::gtest)
 # the test files are read from the source tree, independent of the working directory
 target_compile_definitions(cge_tests PRIVATE CGE_TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")
-# the engine's bitmap font, for the Font tests
-target_compile_definitions(cge_tests PRIVATE CGE_TEST_FONT="${CMAKE_CURRENT_SOURCE_DIR}/../Engine/textures/font/font.bmp")
+# the engine's folder and its fonts, for the Font and ScreenText tests
+target_compile_definitions(cge_tests PRIVATE CGE_TEST_ENGINE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../Engine" CGE_TEST_FONTS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../Engine/fonts")
 # a shader folder compiled in, for ShaderLibrary::addFiles
 cge_embed_shaders(cge_tests ${CMAKE_CURRENT_SOURCE_DIR}/data/embedded test/ registerTestShaders)
 # CGE.dll and the render backend plugins next to the executable

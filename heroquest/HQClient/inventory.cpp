@@ -24,7 +24,7 @@ Inventory::Inventory(){
   belt_ = 0;
   breast_ = 0;
 #ifdef _CLIENT_
-  fnt_ = CGE::Engine::instance()->getFont(0);
+  fnt_ = CGE::Engine::instance()->getScreenText(0);
   //fnt_.setBase(text.getBase());
   //fnt_.setColor(0,1,1);
   page_ = 1;

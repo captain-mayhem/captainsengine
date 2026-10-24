@@ -174,13 +174,12 @@ IF(DISABLE_EFX)
   target_compile_definitions(AdventureBase PUBLIC DISABLE_EFX)
 ENDIF()
 
+# OpenAL is optional on every platform until the sound moves to the engine's
+# audio module (miniaudio, jewelhunter's PLAN.md, Phase 1c step 7); without
+# it the Adventure is silent, and the StoryDesigner's runtime package
+# (engine2.dat) has no OpenAL32.dll
 find_package(OpenAL)
 if (NOT OPENAL_FOUND)
-	if (OS STREQUAL "windows")
-		# the StoryDesigner's runtime packages (engine2.dat) contain OpenAL32.dll
-		message(FATAL_ERROR "The Adventure needs OpenAL on Windows: set OPENAL_LIBRARY and OPENAL_INCLUDE_DIR, "
-			"or turn the Adventure off (PROJECT_ADVENTURE=OFF)")
-	endif()
 	message(WARNING "Setting option DISABLE_SOUND as OpenAL was not found")
 	set(DISABLE_SOUND ON CACHE BOOL "" FORCE)
 endif()
@@ -302,14 +301,18 @@ endif()
 
 if (OS STREQUAL windows)
 #openal
+set(OPENAL_PACK)
+if (NOT DISABLE_SOUND)
 get_filename_component(OPENAL_PATH ${OPENAL_LIBRARY} PATH)
 set (OPENAL_PATH ${OPENAL_PATH}/../bin)
 set(OPENAL_FILE OpenAL32.dll)
 set(OPENAL_DLL "${OPENAL_PATH}/${OPENAL_FILE}")
 message(STATUS "OpenAL: ${OPENAL_DLL}")
+set(OPENAL_PACK -C ${OPENAL_PATH} ${OPENAL_FILE})
+endif()
 
 add_custom_command(OUTPUT engine2.dat
-COMMAND ${Java_JAR_EXECUTABLE} cfM engine2.dat -C ${OPENAL_PATH} ${OPENAL_FILE}
+COMMAND ${Java_JAR_EXECUTABLE} cfM engine2.dat ${OPENAL_PACK}
 -C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU} avcodec-55.dll
 -C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU} avformat-55.dll
 -C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU} avutil-52.dll
@@ -324,7 +327,9 @@ ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/swscale-2.dll
 
 add_custom_target(pack_engine_deps ALL DEPENDS engine2.dat)
 
+if (NOT DISABLE_SOUND)
 INSTALL(FILES ${OPENAL_DLL} DESTINATION adventure)
+endif()
 
 #ffmpeg
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avcodec-55.dll

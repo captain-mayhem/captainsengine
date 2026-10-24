@@ -88,6 +88,14 @@ public:
       to the edge. */
   void setSampler(Sampler* sampler);
   Sampler* getSampler() const;
+  //! draws the sprites drawn next as distance fields, with their edge at edge; negative for normal sprites (the start)
+  /*! The texture's alpha is then the distance to a shape's edge, more
+      inside, e.g. FreeType's distance field glyphs (Font). Where it is
+      edge, the sprite's edge is drawn, smoothed over about a pixel; the
+      sprite's colour fills the shape. A smaller edge makes the shape
+      bolder, which draws outlines. */
+  void setDistanceField(float edge);
+  float getDistanceField() const;
 
   //! the unit quad from (0, 0) to (1, 1) in a 2D transformation
   /*! The quad's corner (0, 0) gets (rect.u0, rect.v0) and its corner (1, 1)

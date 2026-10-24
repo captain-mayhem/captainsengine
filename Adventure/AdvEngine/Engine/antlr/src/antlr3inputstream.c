@@ -32,7 +32,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include    <antlr3input.h>
-int toupper ( int c );
+#include <ctype.h>
 
 
 // INT Stream API

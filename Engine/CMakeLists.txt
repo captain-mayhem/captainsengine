@@ -110,12 +110,15 @@ target_include_directories(Engine PUBLIC
 if (OS STREQUAL "windows")
 	target_compile_definitions(Engine PUBLIC _CRT_SECURE_NO_DEPRECATE)
 	target_link_libraries(Engine PUBLIC wsock32 winmm)
-	# user folders (SHGetKnownFolderPath) and ShellExecute
-	target_link_libraries(Engine PRIVATE shell32 ole32)
+	# user folders (SHGetKnownFolderPath), ShellExecute and the system fonts (GDI)
+	target_link_libraries(Engine PRIVATE shell32 ole32 gdi32)
 elseif (OS STREQUAL "linux")
 	target_compile_definitions(Engine PUBLIC UNIX LINUX __STDC_LIMIT_MACROS)
 	find_package(Threads REQUIRED)
 	target_link_libraries(Engine PUBLIC Threads::Threads rt)
+	# the system fonts (SystemFonts)
+	find_package(Fontconfig REQUIRED)
+	target_link_libraries(Engine PRIVATE Fontconfig::Fontconfig)
 elseif (OS STREQUAL "android")
 	# the engine and the application are two libraries that share STL objects
 	if (NOT ANDROID_STL STREQUAL "c++_shared")
@@ -317,15 +320,21 @@ function(cge_copy_runtime target)
 	endif()
 endfunction()
 
-# installs the engine library and the backend plugins for an application
-# installed to <destination>: next to the executable on Windows, in lib/
-# (found through RPATH) elsewhere
+# the engine's fonts (Font::getDefaultPath, ScreenText), for the applications'
+# assets: installed by cge_install_runtime, preloaded or packed by the web and
+# Android builds
+set(CGE_FONTS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/fonts CACHE INTERNAL "")
+
+# installs the engine library, the backend plugins and the engine's fonts
+# (in fonts/) for an application installed to <destination>: next to the
+# executable on Windows, in lib/ (found through RPATH) elsewhere
 function(cge_install_runtime target destination)
 	if (WIN32)
 		install(TARGETS Engine RUNTIME DESTINATION ${destination} ${ARGN})
 		if (TARGET EngineGL)
 			install(TARGETS EngineGL LIBRARY DESTINATION ${destination} ${ARGN})
 		endif()
+		install(DIRECTORY ${CGE_FONTS_DIR}/ DESTINATION ${destination}/fonts ${ARGN})
 	elseif (EMSCRIPTEN)
 		# the engine is linked in; the page's other files go with its .html
 		set(base $<TARGET_FILE_DIR:${target}>/$<TARGET_FILE_BASE_NAME:${target}>)
@@ -336,6 +345,7 @@ function(cge_install_runtime target destination)
 		if (TARGET EngineGL)
 			install(TARGETS EngineGL LIBRARY DESTINATION ${destination}/lib ${ARGN})
 		endif()
+		install(DIRECTORY ${CGE_FONTS_DIR}/ DESTINATION ${destination}/fonts ${ARGN})
 		set_target_properties(${target} PROPERTIES INSTALL_RPATH "$ORIGIN/lib")
 	endif()
 endfunction()
@@ -425,4 +435,4 @@ function(cge_web_package name)
 	install(FILES ${out}.data ${out}.js DESTINATION ${WEB_DESTINATION} ${component})
 endfunction()
 INSTALL(FILES engine.ini DESTINATION Engine)
-INSTALL(FILES textures/font/font.bmp DESTINATION Engine/textures/font)
+INSTALL(DIRECTORY fonts/ DESTINATION Engine/fonts)
