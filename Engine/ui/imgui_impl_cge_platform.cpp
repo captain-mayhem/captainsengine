@@ -173,6 +173,11 @@ void ImGui_ImplCGE_Platform_AddMouseButton(int button, bool down){
     ImGui::GetIO().AddMouseButtonEvent(button, down);
 }
 
+void ImGui_ImplCGE_Platform_AddMouseSource(bool touch){
+  if (getData())
+    ImGui::GetIO().AddMouseSourceEvent(touch ? ImGuiMouseSource_TouchScreen : ImGuiMouseSource_Mouse);
+}
+
 void ImGui_ImplCGE_Platform_AddMouseWheel(float x, float y){
   if (getData())
     ImGui::GetIO().AddMouseWheelEvent(x, y);
@@ -206,19 +211,7 @@ void ImGui_ImplCGE_Platform_AddModifiers(bool ctrl, bool shift, bool alt, bool s
 void ImGui_ImplCGE_Platform_AddChar(unsigned int ch){
   if (!getData() || ch < 0x20 || ch == 0x7f)
     return;
-  ImGuiIO& io = ImGui::GetIO();
-#if defined(WIN32)
-  //the window is an ANSI window, so its characters are in the ANSI code page
-  if (ch >= 0x80){
-    char byte = (char)ch;
-    wchar_t wide = 0;
-    if (MultiByteToWideChar(CP_ACP, 0, &byte, 1, &wide, 1) == 1)
-      io.AddInputCharacterUTF16((ImWchar16)wide);
-    return;
-  }
-#endif
-  //Latin-1 on X11, which are the first 256 Unicode code points; code points on the web
-  io.AddInputCharacter(ch);
+  ImGui::GetIO().AddInputCharacter(ch);
 }
 
 void ImGui_ImplCGE_Platform_AddFocus(bool focused){

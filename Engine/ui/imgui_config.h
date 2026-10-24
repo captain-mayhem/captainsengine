@@ -10,4 +10,7 @@
 
 #define IMGUI_API CGE_API
 
+// 32-bit ImWchar: typed characters and fonts beyond the BMP (U+10000 and up)
+#define IMGUI_USE_WCHAR32
+
 #endif

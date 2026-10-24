@@ -18,8 +18,8 @@ namespace CGE{
     one (see runApplication). Its size is checked every frame, since a
     rotation or a resize of a split screen changes it without an event the
     engine waits for. Touches and the mouse go to the engine's input and
-    ImGui like the other platforms' events: a single finger acts as the left
-    mouse button. The back button is KEY_ESCAPE. */
+    ImGui like the other platforms' events (the touches to Input::Touch).
+    The back button is KEY_ESCAPE. */
 class CGE_API AndroidWindow : public AppWindow{
 public:
   AndroidWindow(Gfx::RenderDevice* device, const Gfx::DeviceDesc& desc);

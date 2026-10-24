@@ -3,8 +3,10 @@
 #include <X11/Xatom.h>
 #include <X11/Xresource.h>
 #include <algorithm>
+#include <clocale>
 #include <cstdlib>
 #include <cstring>
+#include <string>
 #include "../system/engine.h"
 #include "../renderer/renderdevice.h"
 #include "nativeLinux.h"
@@ -18,6 +20,8 @@ X11Window::X11Window(Gfx::RenderDevice* device, const Gfx::DeviceDesc& desc) : A
   win_ = 0;
   screen_ = 0;
   contentScale_ = 0;
+  im_ = nullptr;
+  ic_ = nullptr;
   wmProtocols_ = None;
   wmDelete_ = None;
 }
@@ -58,6 +62,30 @@ void X11Window::init(const std::string& name){
   XSetWMProtocols(disp_, win_, &wmDelete_, 1);
   XSetStandardProperties(disp_, win_, name.c_str(), name.c_str(),
       None, nullptr, 0, nullptr);
+  //an input method for the typed characters (keyboard layouts, dead keys,
+  //compose), opened in the user's locale; the C library's locale stays
+  std::string locale = setlocale(LC_CTYPE, nullptr);
+  setlocale(LC_CTYPE, "");
+  XSetLocaleModifiers("");
+  im_ = XOpenIM(disp_, nullptr, nullptr, nullptr);
+  if (!im_){
+    //the one named by XMODIFIERS isn't running: X's own
+    XSetLocaleModifiers("@im=none");
+    im_ = XOpenIM(disp_, nullptr, nullptr, nullptr);
+  }
+  setlocale(LC_CTYPE, locale.c_str());
+  if (im_){
+    ic_ = XCreateIC(im_, XNInputStyle, XIMPreeditNothing | XIMStatusNothing,
+      XNClientWindow, win_, XNFocusWindow, win_, nullptr);
+  }
+  if (ic_){
+    //the events the input method needs, too
+    long filter = 0;
+    XGetICValues(ic_, XNFilterEvents, &filter, nullptr);
+    XSelectInput(disp_, win_, attr.event_mask | filter);
+  }
+  else
+    TR_WARN("No X input method: characters are typed without the keyboard layout's dead keys");
   //before the window is mapped, fullscreen is a property
   if (fullscreen_){
     fullscreen_ = false;
@@ -149,6 +177,12 @@ bool X11Window::isCloseRequest(const XEvent& event) const{
 void X11Window::kill(){
   TR_USE(CGE_Window);
   TR_INFO("Killing window");
+  if (ic_)
+    XDestroyIC(ic_);
+  if (im_)
+    XCloseIM(im_);
+  ic_ = nullptr;
+  im_ = nullptr;
   XCloseDisplay(disp_);
 }
 

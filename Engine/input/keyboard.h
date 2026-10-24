@@ -3,6 +3,7 @@
 
 #include <cge_export.h>
 
+#include <cstddef>
 #include <list>
 
 #ifdef WIN32
@@ -152,7 +153,11 @@ public:
   inline static void release() {SAFE_DELETE(key_);}
   void keyDown(int key);
   void keyUp(int key);
-  void ascii(unsigned char key);
+  //! a typed character (a Unicode code point); control characters are ignored
+  void character(unsigned int ch);
+  //! typed text in UTF-8: character() for each of its code points (an input
+  //! method may commit several at once); invalid sequences are skipped
+  void text(const char* utf8, size_t length);
   //! is the key held down?
   bool isPressed(int key) const;
   void enableBuitInConsole(bool doit) { mBuiltInConsole = doit; }

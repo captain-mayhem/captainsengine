@@ -9,6 +9,7 @@
 #include "../system/script.h"
 #include "../input/mouse.h"
 #include "../input/keyboard.h"
+#include "../input/touch.h"
 #include "../io/TraceManager.h"
 #include "../ui/imgui_impl_cge_platform.h"
 #include "nativeEmscripten.h"
@@ -23,8 +24,6 @@ namespace{
 EmscriptenWindow* eventWindow = nullptr;
 //! the buttons held down (MB_ bits)
 int buttonState = 0;
-//! the touch that acts as the mouse, -1 for none
-long mouseTouch = -1;
 //! the mouse is outside the canvas (ImGui was told so)
 bool mouseOutside = true;
 
@@ -143,35 +142,36 @@ EM_BOOL onWheel(int, const EmscriptenWheelEvent* event, void*){
   return EM_TRUE;
 }
 
-// --- touch: one finger is the left mouse button ---
+// --- touch ---
 
+//! the fingers go to Input::Touch (which makes the first one ImGui's mouse,
+//! and the application's left mouse button with its mouse emulation)
 EM_BOOL onTouch(int type, const EmscriptenTouchEvent* event, void*){
   EmscriptenWindow* wnd = activeWindow();
-  if (!wnd)
+  Input::Touch* touch = Input::Touch::instance();
+  if (!wnd || !touch)
     return EM_FALSE;
   for (int i = 0; i < event->numTouches; ++i){
-    const EmscriptenTouchPoint& touch = event->touches[i];
-    if (!touch.isChanged)
+    const EmscriptenTouchPoint& point = event->touches[i];
+    if (!point.isChanged)
       continue;
+    //the browser keeps an identifier for a touch until it ends
+    int id = (int)point.identifier;
     int x, y;
-    wnd->toWindow(touch.clientX, touch.clientY, x, y);
-    if (type == EMSCRIPTEN_EVENT_TOUCHSTART){
-      if (mouseTouch != -1)
-        continue;
-      mouseTouch = touch.identifier;
-      modifiers(false, false, false, false);
-      move(x, y, buttonState);
-      press(x, y, MB_LEFT);
-    }
-    else if (touch.identifier == mouseTouch){
-      if (type == EMSCRIPTEN_EVENT_TOUCHMOVE)
-        move(x, y, buttonState);
-      else{
-        release(x, y, MB_LEFT);
-        mouseTouch = -1;
-        //the finger is gone, so ImGui shouldn't keep hovering there
-        ImGui_ImplCGE_Platform_AddMouseLeave();
-      }
+    wnd->toWindow(point.clientX, point.clientY, x, y);
+    switch (type){
+      case EMSCRIPTEN_EVENT_TOUCHSTART:
+        touch->down(id, x, y);
+        break;
+      case EMSCRIPTEN_EVENT_TOUCHMOVE:
+        touch->move(id, x, y);
+        break;
+      case EMSCRIPTEN_EVENT_TOUCHEND:
+        touch->up(id, x, y);
+        break;
+      default:
+        touch->cancel(id);
+        break;
     }
   }
   //no scrolling or zooming, and no mouse events made from the touches
@@ -236,12 +236,8 @@ EM_BOOL onKeyDown(int, const EmscriptenKeyboardEvent* event, void*){
   //the character comes with the key down; preventing its default also
   //prevents the keypress event
   unsigned ch;
-  if (typedChar(event, ch)){
-    if (ch < 0x100)
-      Input::Keyboard::instance()->ascii((unsigned char)ch);
-    else
-      ImGui_ImplCGE_Platform_AddChar(ch);
-  }
+  if (typedChar(event, ch))
+    Input::Keyboard::instance()->character(ch);
   return !isBrowserKey(event);
 }
 
@@ -367,7 +363,6 @@ void EmscriptenWindow::kill(){
   emscripten_html5_remove_all_event_listeners();
   eventWindow = nullptr;
   buttonState = 0;
-  mouseTouch = -1;
 }
 
 Gfx::NativeWindow EmscriptenWindow::getNativeWindow() const{

@@ -1,6 +1,7 @@
 #include "engine.h"
 #include "../input/mouse.h"
 #include "../input/keyboard.h"
+#include "../input/touch.h"
 #include "../window/nativeWindows.h"
 #include "../window/nativeLinux.h"
 #include "../window/nativeAndroid.h"
@@ -173,6 +174,10 @@ void Engine::startup(int argc, char** argv){
   createDeviceObjects();
   Input::Keyboard::init();
   Input::Mouse::init(graphics_);
+  Input::Touch::init();
+  //the first finger is the left mouse button unless the application handles touches itself
+  bool touchAsMouse = Script::instance()->getBoolSetting("touchAsMouse", &exists);
+  Input::Touch::instance()->setMouseEmulation(touchAsMouse || !exists);
   
   if (graphics_)
     startupImGui();
@@ -264,6 +269,7 @@ void Engine::shutdown(){
     isUp_ = false;
     Input::Keyboard::release();
     Input::Mouse::release();
+    Input::Touch::release();
     console_.reset();
     //its textures are on the device
     shutdownImGui();
@@ -495,9 +501,10 @@ void Engine::resume(){
 #ifdef WIN32
 void Engine::processEvents(){
   MSG msg;
-  while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)){
+  //the W functions, so that a Unicode window's WM_CHAR stays UTF-16
+  while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)){
     TranslateMessage(&msg);
-    DispatchMessage(&msg);
+    DispatchMessageW(&msg);
     if (msg.message == WM_QUIT)
       break;
   }
@@ -519,6 +526,30 @@ namespace{
 void imguiModifiers(unsigned state){
   ImGui_ImplCGE_Platform_AddModifiers((state & ControlMask) != 0, (state & ShiftMask) != 0,
     (state & Mod1Mask) != 0, (state & Mod4Mask) != 0);
+}
+
+//! the characters a key press types, through the window's input method
+void typeCharacters(CGE::X11Window* win, XKeyEvent& event){
+  XIC ic = win->getInputContext();
+  if (!ic){
+    //Latin-1 without an input method
+    char ch;
+    if (XLookupString(&event, &ch, 1, nullptr, nullptr) == 1)
+      Input::Keyboard::instance()->character((unsigned char)ch);
+    return;
+  }
+  //Status is undefined by imgui.h
+  int status;
+  char buffer[64];
+  int length = Xutf8LookupString(ic, &event, buffer, sizeof(buffer), nullptr, &status);
+  if (status == XBufferOverflow){
+    std::string text(length, '\0');
+    length = Xutf8LookupString(ic, &event, &text[0], length, nullptr, &status);
+    if (status == XLookupChars || status == XLookupBoth)
+      Input::Keyboard::instance()->text(text.c_str(), length);
+  }
+  else if (status == XLookupChars || status == XLookupBoth)
+    Input::Keyboard::instance()->text(buffer, length);
 }
 
 //! passes an X11 button event on to ImGui: buttons 1-3, or wheel notches (4-7)
@@ -550,6 +581,11 @@ void Engine::processEvents(){
   while (x > 0){
     x--;
     XNextEvent(disp, &event);
+    //the input method's events, and the keys it composes characters from:
+    //those are still keys
+    bool filtered = XFilterEvent(&event, None) == True;
+    if (filtered && event.type != KeyPress && event.type != KeyRelease)
+      continue;
     switch (event.type){
     case ConfigureNotify:
       //compared with the device: changeSize sets the window's size before the event arrives
@@ -571,14 +607,14 @@ void Engine::processEvents(){
         win->setFullscreen(!win->isFullscreen());
         break;
       }
+      //the key without modifiers, as for its release (Shift+A is KEY_A, too)
+      KeySym key = XLookupKeysym(&event.xkey, 0);
       imguiModifiers(event.xkey.state);
-      ImGui_ImplCGE_Platform_AddKey((int)XLookupKeysym(&event.xkey, 0), true);
-      char ascii;
-      KeySym key;
-      int num = XLookupString(&event.xkey, &ascii, 1, &key, nullptr);
+      ImGui_ImplCGE_Platform_AddKey((int)key, true);
       Input::Keyboard::instance()->keyDown(key);
-      if (num > 0)
-        Input::Keyboard::instance()->ascii(ascii);
+      //a key the input method took (e.g. a dead key) types nothing yet
+      if (!filtered)
+        typeCharacters(win, event.xkey);
       break;
     }
     case KeyRelease:
@@ -608,9 +644,13 @@ void Engine::processEvents(){
       ImGui_ImplCGE_Platform_AddMouseLeave();
       break;
     case FocusIn:
+      if (win->getInputContext())
+        XSetICFocus(win->getInputContext());
       ImGui_ImplCGE_Platform_AddFocus(true);
       break;
     case FocusOut:
+      if (win->getInputContext())
+        XUnsetICFocus(win->getInputContext());
       ImGui_ImplCGE_Platform_AddFocus(false);
       break;
     case ClientMessage:

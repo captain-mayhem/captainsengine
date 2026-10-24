@@ -52,8 +52,10 @@ public:
   virtual void onKeyDown(int key);
   //! a key was released
   virtual void onKeyUp(int key) {}
-  //! a printable character was typed
-  virtual void onChar(unsigned char ch) {}
+  //! a printable character was typed, as a Unicode code point
+  /*! Typed characters, not keys: they come with the keyboard layout, dead
+      keys and the input method applied. */
+  virtual void onChar(unsigned int ch) {}
   //! a mouse button was pressed at (x,y)
   /*! All mouse positions are in virtual coordinates (Engine::getVirtualScreen()). */
   virtual void onMouseDown(int x, int y, int button) {}
@@ -65,6 +67,20 @@ public:
   virtual void onMouseMove(int x, int y, int buttons) {}
   //! the mouse wheel turned by delta notches at (x,y)
   virtual void onMouseWheel(int x, int y, int delta) {}
+
+  //! a finger touched the screen at (x,y) (Android and the web)
+  /*! id is the finger's until it is lifted; positions are virtual
+      coordinates. With Input::Touch's mouse emulation (the default) the first
+      finger also makes mouse events, so applications that only need clicks
+      can ignore the touch events. */
+  virtual void onTouchDown(int id, int x, int y) {}
+  //! a finger moved to (x,y)
+  virtual void onTouchMove(int id, int x, int y) {}
+  //! a finger was lifted at (x,y)
+  virtual void onTouchUp(int id, int x, int y) {}
+  //! the system took a finger over (e.g. for a gesture): it's gone, but it
+  //! wasn't lifted, so it shouldn't count as a tap
+  virtual void onTouchCancel(int id) {}
 };
 
 //! starts the engine with app and runs the main loop until the application quits
