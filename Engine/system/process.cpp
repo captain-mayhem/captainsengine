@@ -41,8 +41,9 @@ bool Process::start(){
   pid_t pid = fork();
   if (pid == 0){
     //child
-    if (!mWD.empty())
-      chdir(mWD.c_str());
+    //not in the wrong folder
+    if (!mWD.empty() && chdir(mWD.c_str()) != 0)
+      _exit(1);
     char* args[3];
     args[0] = (char*)mName.c_str();
     args[1] = (char*)mArguments.c_str();

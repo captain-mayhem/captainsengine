@@ -9,6 +9,7 @@
 #include "script.h"
 #include "../renderer/drawcontext.h"
 #include "../renderer/font.h"
+#include "../renderer/screentext.h"
 #include "../renderer/forms.h"
 #include "../renderer/spritebatch.h"
 #include "../math/matrixstack.h"
@@ -18,6 +19,7 @@
 #include "../platform/platform_internal.h"
 
 #include <algorithm>
+#include <cstring>
 #include <atomic>
 #include <chrono>
 #include <thread>
@@ -60,6 +62,8 @@ Engine* Engine::eng = nullptr;
 
 //! the most time the updates catch up with after a long frame
 static const double MAX_UPDATE_LAG = 0.25;
+//! ImGui's font size at a content scale of 1 (its own font has 13 pixels)
+static const float IMGUI_FONT_SIZE = 15.0f;
 
 Engine::Engine(){
   TR_USE(CGE_Engine);
@@ -171,6 +175,8 @@ void Engine::startup(int argc, char** argv){
     win_->setWidth(device_->getWidth());
     win_->setHeight(device_->getHeight());
   }
+  for (auto& text : texts_)
+    text = std::make_unique<CGE::ScreenText>();
   createDeviceObjects();
   Input::Keyboard::init();
   Input::Mouse::init(graphics_);
@@ -194,15 +200,16 @@ void Engine::createDeviceObjects(){
   draw_ = std::make_unique<Gfx::DrawContext>(*device_);
   if (!graphics_)
     return;
-  for (auto& fnt : fnt_)
-    fnt = std::make_unique<CGE::Font>(*device_);
   forms_ = std::make_unique<CGE::Forms>(*device_);
   sprites_ = std::make_unique<Gfx::SpriteBatch>(*draw_);
 }
 
 void Engine::destroyDeviceObjects(){
-  for (auto& fnt : fnt_)
-    fnt.reset();
+  //the texts stay, their fonts are loaded again
+  for (auto& text : texts_){
+    if (text)
+      text->releaseFonts();
+  }
   forms_.reset();
   sprites_.reset();
   draw_.reset();
@@ -242,6 +249,16 @@ void Engine::startupImGui(){
   //applications that want ImGui's window settings saved set a file name
   io.IniFilename = nullptr;
   ImGui::StyleColorsDark();
+  //the engine's font through FreeType (imgui_freetype), which renders the
+  //glyphs a text needs when it is first drawn; ImGui's own font if it's missing
+  std::vector<uint8> font;
+  if (CGE::Font::loadDefaultData(font)){
+    void* data = IM_ALLOC(font.size());
+    memcpy(data, font.data(), font.size());
+    io.Fonts->AddFontFromMemoryTTF(data, (int)font.size(), IMGUI_FONT_SIZE);
+  }
+  else
+    TR_WARN("ImGui uses its own font: %s is missing", CGE::Font::getDefaultPath());
   ImGui_ImplCGE_Platform_Init(win_.get());
   //the context stays without a working renderer, so applications can still call ImGui
   if (!ImGui_ImplCGE_Render_Init(*device_))
@@ -387,7 +404,7 @@ void Engine::renderFrame(){
   if (app_)
     app_->render();
 
-  renderFonts();
+  renderScreenTexts();
 
   //ImGui on top of everything, the console last
   if (imgui_){
@@ -399,10 +416,10 @@ void Engine::renderFrame(){
   rendering_ = false;
 }
 
-void Engine::renderFonts(){
+void Engine::renderScreenTexts(){
   bool texts = false;
-  for (auto& fnt : fnt_)
-    texts = texts || !fnt->isEmpty();
+  for (auto& text : texts_)
+    texts = texts || !text->isEmpty();
   if (!texts)
     return;
   Gfx::PassDesc pass;
@@ -410,16 +427,18 @@ void Engine::renderFonts(){
   pass.depthLoad = Gfx::LoadAction::Load;
   if (!device_->beginPass(pass))
     return;
-  //in the virtual screen with y up, added onto the frame
-  draw_->setProjection(getVirtualScreen().ortho(*device_));
+  //in the virtual screen with y down, over the frame
+  VirtualScreen& screen = getVirtualScreen();
+  draw_->setProjection(screen.ortho(*device_, true));
   draw_->setView(Matrix(Matrix::Identity));
   draw_->model().load(Matrix(Matrix::Identity));
-  draw_->setBlend(Gfx::BlendMode::Additive);
   draw_->setDepth(false, false);
-  draw_->setCull(Gfx::CullMode::Off);
-  for (auto& fnt : fnt_)
-    fnt->render(*draw_, frameInterval_);
-  draw_->setBlend(Gfx::BlendMode::Opaque);
+  Gfx::BlendMode blend = sprites_->getBlend();
+  sprites_->setBlend(Gfx::BlendMode::Alpha);
+  for (auto& text : texts_)
+    text->render(*sprites_, (float)screen.getHeight(), frameInterval_);
+  sprites_->flush();
+  sprites_->setBlend(blend);
   device_->endPass();
 }
 

@@ -17,7 +17,8 @@
 #include <platform/assets.h>
 #include <renderer/camera.h>
 #include <renderer/drawcontext.h>
-#include <renderer/font.h>
+#include <renderer/screentext.h>
+#include <renderer/spritebatch.h>
 #include <renderer/forms.h>
 #include <renderer/light.h>
 #include <renderer/renderdevice.h>
@@ -33,7 +34,7 @@ using namespace CGE;
 using namespace CGE::Gfx;
 
 // The engine's drawing code on a render device: the matrix stack, the
-// uniform stream, the draw context, Forms, Font, Mesh, Scene and the render
+// uniform stream, the draw context, Forms, ScreenText, Mesh, Scene and the render
 // techniques. The GL tests draw into render targets on a hidden window and
 // read the pixels back.
 
@@ -682,29 +683,27 @@ TEST_F(Drawing, LightPrepassHidesTransparentSurfacesBehindOpaqueOnes){
 }
 
 
-TEST_F(Drawing, FontDrawsItsTextsInTheirColours){
-  //the font is the asset textures/font/font.bmp
-  std::filesystem::path dir = std::filesystem::temp_directory_path()/"cge_test_font";
-  std::filesystem::create_directories(dir/"textures"/"font");
-  std::filesystem::copy_file(CGE_TEST_FONT, dir/"textures"/"font"/"font.bmp", std::filesystem::copy_options::overwrite_existing);
-  std::string root = Assets::getRoot();
-  Assets::setRoot(dir.string());
-  //CGE:: because of X11's Font
-  CGE::Font font(*device_);
-  Assets::setRoot(root);
-
+TEST_F(Drawing, ScreenTextDrawsItsTextsInTheirColours){
+  //the font is the asset fonts/LiberationMono-Regular.ttf of the engine's folder
+  ScreenText text;
+  SpriteBatch batch(*ctx_);
   //"A" in red for one frame at (2, 2), "B" in green at (20, 2) for two seconds
-  font.setColor(1, 0, 0);
-  font.print(2, 2, "A", 0);
-  font.setColor(0, 1, 0);
-  font.print(20, 2, "B", 0, 2.0f);
+  text.setColor(1, 0, 0);
+  text.print(2, 2, "A", 0);
+  text.setColor(0, 1, 0);
+  text.print(20, 2, "B", 0, 2.0f);
   auto rt = target(40, 20);
+  std::string root = Assets::getRoot();
+  Assets::setRoot(CGE_TEST_ENGINE_DIR);
   begin(rt.get());
-  ctx_->setBlend(BlendMode::Additive);
-  font.render(*ctx_, 0.5);
+  //the virtual screen with y down
+  ctx_->setProjection(device_->ortho(0, 40, 20, 0, -10, 10));
+  text.render(batch, 20, 0.5);
+  batch.flush();
   end();
+  Assets::setRoot(root);
   std::vector<Pixel> pixels = read(rt.get());
-  //each glyph's cell is 16x16 units from its position, the next one 10 units further
+  //each text's cell is 16 units high from its position (y up), the characters about 10 units wide
   int red = 0, green = 0;
   for (int y = 0; y < 20; ++y){
     for (int x = 0; x < 40; ++x){
@@ -712,21 +711,22 @@ TEST_F(Drawing, FontDrawsItsTextsInTheirColours){
       EXPECT_EQ(p.b, 0) << x << "," << y;
       if (p.r > 128){
         ++red;
-        EXPECT_TRUE(x >= 2 && x < 18 && y >= 2 && y < 18) << x << "," << y;
+        EXPECT_TRUE(x >= 2 && x < 12 && y >= 0 && y < 18) << x << "," << y;
       }
       if (p.g > 128){
         ++green;
-        EXPECT_TRUE(x >= 20 && x < 36 && y >= 2 && y < 18) << x << "," << y;
+        EXPECT_TRUE(x >= 20 && x < 30 && y >= 0 && y < 18) << x << "," << y;
       }
     }
   }
   EXPECT_GT(red, 10);
   EXPECT_GT(green, 10);
   //the red text was shown for its frame, the green one stays
-  EXPECT_FALSE(font.isEmpty());
+  EXPECT_FALSE(text.isEmpty());
   begin(rt.get());
-  ctx_->setBlend(BlendMode::Additive);
-  font.render(*ctx_, 0.5);
+  ctx_->setProjection(device_->ortho(0, 40, 20, 0, -10, 10));
+  text.render(batch, 20, 0.5);
+  batch.flush();
   end();
   pixels = read(rt.get());
   red = green = 0;
@@ -736,8 +736,10 @@ TEST_F(Drawing, FontDrawsItsTextsInTheirColours){
   }
   EXPECT_EQ(red, 0);
   EXPECT_GT(green, 10);
-  font.clear();
-  EXPECT_TRUE(font.isEmpty());
+  text.clear();
+  EXPECT_TRUE(text.isEmpty());
+  //the fonts go before the device
+  text.releaseFonts();
 }
 
 #endif

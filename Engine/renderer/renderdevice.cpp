@@ -240,6 +240,9 @@ bool RenderDevice::beginPass(const PassDesc& desc){
   }
   pipeline_ = nullptr;
   indexBufferSet_ = false;
+  viewport_ = Viewport();
+  viewport_.width = (float)width;
+  viewport_.height = (float)height;
   doBeginPass(desc, width, height);
   state_ = State::InPass;
   return true;
@@ -316,6 +319,7 @@ void RenderDevice::setTexture(int slot, Texture* texture, Sampler* sampler){
 void RenderDevice::setViewport(const Viewport& viewport){
   if (!checkState(State::InPass, "setViewport"))
     return;
+  viewport_ = viewport;
   doSetViewport(viewport);
 }
 

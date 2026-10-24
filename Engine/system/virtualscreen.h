@@ -47,8 +47,8 @@ public:
   Vec2i toWindow(int x, int y) const;
   //! an orthographic projection for a render device that puts the virtual area at its place in the window
   /*! For Gfx::DrawContext::setProjection. With yDown, the origin is at the
-      top left with y down. Otherwise it's at the bottom left with y up, as
-      for the engine's fonts. Covers the whole viewport, which is expected to
+      top left with y down. Otherwise it's at the bottom left with y up.
+      Covers the whole viewport, which is expected to
       be the whole window. */
   Matrix ortho(const Gfx::RenderDevice& device, bool yDown = false) const;
 private:

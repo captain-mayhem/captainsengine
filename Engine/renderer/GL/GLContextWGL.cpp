@@ -22,8 +22,11 @@ namespace{
 
 class WGLContext : public GLContext{
 public:
-  WGLContext() : wnd_(nullptr), dc_(nullptr), rc_(nullptr), opengl32_(nullptr) {}
-  ~WGLContext() {shutdown();}
+  WGLContext() : wnd_(nullptr), dc_(nullptr), rc_(nullptr), retired_(nullptr), opengl32_(nullptr) {}
+  ~WGLContext(){
+    shutdown();
+    deleteRetired();
+  }
 
   bool init(const NativeWindow& window, const DeviceDesc& desc, int& width, int& height) override{
     TR_USE(CGE_Renderer_GL);
@@ -65,6 +68,8 @@ public:
       TR_ERROR("Can't activate the GL rendering context");
       return false;
     }
+    //the window's presentation goes on with the new context
+    deleteRetired();
     opengl32_ = GetModuleHandleA("opengl32.dll");
     RECT rect;
     GetClientRect(wnd_, &rect);
@@ -78,8 +83,12 @@ public:
     if (rc_){
       if (!wglMakeCurrent(nullptr, nullptr))
         TR_ERROR("Release of GL context failed");
-      if (!wglDeleteContext(rc_))
-        TR_ERROR("Release of rendering context failed");
+      //deleted when the next context is current on the window (or at the end):
+      //with Intel's driver (32.0.101.8724), deleting a window's last context
+      //ends its presentation, and a new context on the window shows nothing
+      //(each swap waits about 31 ms)
+      deleteRetired();
+      retired_ = rc_;
       rc_ = nullptr;
     }
     if (dc_){
@@ -112,6 +121,14 @@ public:
   }
 
 private:
+  //! deletes the context of the last shutdown, which isn't current any more
+  void deleteRetired(){
+    TR_USE(CGE_Renderer_GL);
+    if (retired_ && !wglDeleteContext(retired_))
+      TR_ERROR("Release of rendering context failed");
+    retired_ = nullptr;
+  }
+
   //! the OpenGL 3.3 context, or nullptr if the driver can't create it
   /*! wglCreateContextAttribsARB is only available with a current context,
       so a helper context comes first. It lives on a hidden window of its own,
@@ -162,6 +179,8 @@ private:
   HWND wnd_;
   HDC dc_;
   HGLRC rc_;
+  //! the context of the last shutdown, until the next one is current
+  HGLRC retired_;
   HMODULE opengl32_;
 };
 

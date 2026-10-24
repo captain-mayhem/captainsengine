@@ -22,7 +22,7 @@
 #define SECOND_CURSOR_Y CURSOR_Y
 
 namespace CGE{
-  class Font;
+  class ScreenText;
 }
 class SQL;
 

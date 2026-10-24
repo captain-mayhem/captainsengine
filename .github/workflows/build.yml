@@ -51,7 +51,8 @@ jobs:
             libx11-dev \
             libgl1-mesa-dev \
             libglu1-mesa-dev \
-            libopenal-dev
+            libopenal-dev \
+            libfontconfig-dev
 
       - if: startsWith(matrix.preset, 'emscripten')
         name: Set up emsdk

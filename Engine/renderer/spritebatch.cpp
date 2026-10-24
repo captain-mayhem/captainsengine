@@ -82,12 +82,14 @@ struct SpriteBatch::Impl{
   //! the sprites wait for a draw with this texture, sampler and blend mode
   void add(Texture* tex, const Instance& instance){
     checkFrame();
-    if (!pending.empty() && (tex != pendingTexture || sampler != pendingSampler || blend != pendingBlend || (int)pending.size() >= capacity))
+    if (!pending.empty() && (tex != pendingTexture || sampler != pendingSampler || blend != pendingBlend ||
+        edge != pendingEdge || (int)pending.size() >= capacity))
       flush();
     if (pending.empty()){
       pendingTexture = tex;
       pendingSampler = sampler;
       pendingBlend = blend;
+      pendingEdge = edge;
       pendingFrame = device.getFrameCount();
     }
     pending.push_back(instance);
@@ -152,7 +154,9 @@ struct SpriteBatch::Impl{
     }
     if (!shader)
       shader = ShaderLibrary::createBuiltin(device, BuiltinShader::Sprite);
-    return quad && white && defaultSampler && shader;
+    if (pendingEdge >= 0 && !distanceShader)
+      distanceShader = ShaderLibrary::createBuiltin(device, BuiltinShader::SpriteDistanceField);
+    return quad && white && defaultSampler && shader && (pendingEdge < 0 || distanceShader);
   }
 
   //! a range of the instance buffers for count instances, written with the data
@@ -203,10 +207,17 @@ struct SpriteBatch::Impl{
     Sampler* oldSampler = context.getSampler();
     BlendMode oldBlend = context.getBlend();
     CullMode oldCull = context.getCull();
+    Color oldColor = context.getColor();
     context.setTexture(pendingTexture ? pendingTexture : white.get(), pendingSampler ? pendingSampler : defaultSampler.get());
     context.setBlend(pendingBlend);
     context.setCull(CullMode::Off);
-    if (context.prepare(shader.get(), getLayout(), PrimitiveType::TriangleStrip)){
+    //the distance field shader takes the edge from the draw's colour, which the sprites don't use
+    Shader* drawShader = shader.get();
+    if (pendingEdge >= 0){
+      drawShader = distanceShader.get();
+      context.setColor(pendingEdge, 0, 0, 0);
+    }
+    if (context.prepare(drawShader, getLayout(), PrimitiveType::TriangleStrip)){
       device.setVertexBuffer(0, quad.get());
       device.setVertexBuffer(1, buffer, offset);
       device.draw(4, count);
@@ -216,6 +227,7 @@ struct SpriteBatch::Impl{
     context.setTexture(oldTexture, oldSampler);
     context.setBlend(oldBlend);
     context.setCull(oldCull);
+    context.setColor(oldColor);
   }
 
   static const VertexLayout& getLayout(){
@@ -244,11 +256,14 @@ struct SpriteBatch::Impl{
 
   BlendMode blend = BlendMode::Alpha;
   Sampler* sampler = nullptr;
+  //! the distance field's edge, negative for normal sprites
+  float edge = -1;
 
   std::vector<Instance> pending;
   Texture* pendingTexture = nullptr;
   Sampler* pendingSampler = nullptr;
   BlendMode pendingBlend = BlendMode::Alpha;
+  float pendingEdge = -1;
   uint64_t pendingFrame = 0;
 
   //! the instance buffers of capacity instances each; the one being filled and its instances
@@ -262,6 +277,7 @@ struct SpriteBatch::Impl{
   std::unique_ptr<Texture> white;
   std::unique_ptr<Sampler> defaultSampler;
   std::unique_ptr<Shader> shader;
+  std::unique_ptr<Shader> distanceShader;
 };
 
 SpriteBatch::SpriteBatch(DrawContext& context, int capacity) : impl_(std::make_unique<Impl>(context, capacity)){
@@ -274,6 +290,8 @@ SpriteBatch::~SpriteBatch(){
   //the context's pipelines refer to the shader
   if (impl_->shader)
     impl_->context.forgetShader(impl_->shader.get());
+  if (impl_->distanceShader)
+    impl_->context.forgetShader(impl_->distanceShader.get());
 }
 
 DrawContext& SpriteBatch::getContext() const{
@@ -294,6 +312,14 @@ void SpriteBatch::setSampler(Sampler* sampler){
 
 Sampler* SpriteBatch::getSampler() const{
   return impl_->sampler;
+}
+
+void SpriteBatch::setDistanceField(float edge){
+  impl_->edge = edge < 0 ? -1 : edge;
+}
+
+float SpriteBatch::getDistanceField() const{
+  return impl_->edge;
 }
 
 void SpriteBatch::draw(Texture* texture, const Matrix& transform, const TexRect& rect, const Color& color){

@@ -44,4 +44,3 @@ cge_copy_runtime(OSMRacer)
 
 #INSTALL(TARGETS editor RUNTIME DESTINATION editor LIBRARY DESTINATION editor)
 #INSTALL(FILES engine.ini DESTINATION editor)
-#INSTALL(FILES textures/font/font.bmp DESTINATION editor/textures/font)

@@ -7,7 +7,7 @@
 #include "system/engine.h"
 #include <physics/Simulator.h>
 #include <physics/Hinge2Joint.h>
-#include <renderer/font.h>
+#include <renderer/screentext.h>
 
 using namespace CGE;
 using std::max;
@@ -126,7 +126,7 @@ void Vehicle::simulate(float acceleration, float steering){
   float velocity = mAutobody->getLinearVelocity().length()*3.6f;
   float factor = steering/(0.02f*velocity+1.0f);
   sprintf(tmp, "Velocity: %f", velocity);
-  CGE::Engine::instance()->getFont(0)->print(10,480,tmp,0,0.1f);
+  CGE::Engine::instance()->getScreenText(0)->print(10,480,tmp,0,0.1f);
   for (int i = 0; i < 2; ++i){
     mWheelHinges[i]->setLowStop(0.75f*factor);
     mWheelHinges[i]->setHighStop(0.75f*factor);
@@ -139,7 +139,7 @@ void Vehicle::simulate(float acceleration, float steering){
 
     //mWheelHinges[i]->addTorques(vel, 0);
     sprintf(tmp, "Steering: %f", factor);
-    CGE::Engine::instance()->getFont(0)->print(10,500+20*i,tmp,0,0.1f);
+    CGE::Engine::instance()->getScreenText(0)->print(10,500+20*i,tmp,0,0.1f);
   }
   for (int i = 0; i < 4; ++i){
     mWheelHinges[i]->setMaxForceAxis2(0.0);
