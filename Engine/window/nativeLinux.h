@@ -38,7 +38,23 @@ public:
   virtual void show(bool doit) override;
   //! is the event the window manager's request to close the window?
   bool isCloseRequest(const XEvent& event) const;
+
+  //! the clipboard (the CLIPBOARD selection): the window owns the text
+  //! until another client takes the selection
+  void setClipboardText(const std::string& text);
+  //! the clipboard's text as UTF-8; asks its owner and waits up to a
+  //! second for the answer. False if there is none.
+  bool getClipboardText(std::string& text);
+  //! does a client own the clipboard?
+  bool hasClipboardText() const;
+  //! answers other clients' requests for the clipboard that the window owns
+  /*! Returns true if the event was one of the selection's events. */
+  bool handleSelectionEvent(const XEvent& event);
 protected:
+  //! asks the clipboard's owner for its text as target and waits for it
+  bool convertClipboard(Atom target, std::string& data, Atom& type);
+  //! waits up to a second for an event of the window
+  bool waitForEvent(int type, XEvent& event);
   //! the window's size in pixels for its windowed size, within the screen
   void windowedPixels(int& width, int& height) const;
   //! the window handle
@@ -55,6 +71,17 @@ protected:
   //! WM_PROTOCOLS and WM_DELETE_WINDOW
   Atom wmProtocols_;
   Atom wmDelete_;
+  //! CLIPBOARD, UTF8_STRING, TARGETS, TEXT, INCR and the property the
+  //! clipboard's owner writes into
+  Atom clipboard_;
+  Atom utf8String_;
+  Atom targets_;
+  Atom text_;
+  Atom incr_;
+  Atom clipboardProperty_;
+  //! the copied text while the window owns the clipboard
+  std::string clipboardText_;
+  bool ownsClipboard_;
 };
 
 }

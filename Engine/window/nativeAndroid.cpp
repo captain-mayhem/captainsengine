@@ -1,5 +1,8 @@
 #if defined(ANDROID)
 #include <atomic>
+#include <mutex>
+#include <string>
+#include <vector>
 
 #include <jni.h>
 #include <android/configuration.h>
@@ -27,10 +30,36 @@ namespace{
 int buttonState = 0;
 //! the mouse buttons held down (AMOTION_EVENT_BUTTON_ bits)
 int32_t mouseButtons = 0;
-//! back gestures reported by CgeActivity, not yet dispatched
-std::atomic<int> backPresses(0);
-//! the looper of the thread that runs the engine, woken up by back gestures
-ALooper* engineLooper = nullptr;
+//! what CgeActivity reported on its UI thread
+struct ActivityEvent{
+  enum Kind{
+    //! a back gesture or button
+    BACK,
+    //! a key of the on-screen keyboard (an AKEYCODE_), pressed and released
+    KEY,
+    //! text of the on-screen keyboard (UTF-8)
+    TEXT,
+  };
+  Kind kind;
+  int key;
+  std::string text;
+};
+//! the events not yet dispatched
+std::mutex activityEventsMutex;
+std::vector<ActivityEvent> activityEvents;
+//! the looper of the thread that runs the engine, woken up by the events
+std::atomic<ALooper*> engineLooper(nullptr);
+
+//! queues an event for the engine's thread
+void postActivityEvent(ActivityEvent&& event){
+  {
+    std::lock_guard<std::mutex> lock(activityEventsMutex);
+    activityEvents.push_back(std::move(event));
+  }
+  ALooper* looper = engineLooper;
+  if (looper)
+    ALooper_wake(looper);
+}
 
 int toImGuiButton(int button){
   switch (button){
@@ -229,9 +258,33 @@ bool isSystemKey(int32_t code){
 
 //! CgeActivity.nativeBack: called on the UI thread for each back gesture
 void JNICALL nativeBack(JNIEnv*, jclass){
-  backPresses++;
-  if (engineLooper)
-    ALooper_wake(engineLooper);
+  postActivityEvent({ActivityEvent::BACK, 0, std::string()});
+}
+
+//! CgeActivity.nativeKey: a key of the on-screen keyboard (backspace, enter)
+void JNICALL nativeKey(JNIEnv*, jclass, jint keyCode){
+  postActivityEvent({ActivityEvent::KEY, (int)keyCode, std::string()});
+}
+
+//! CgeActivity.nativeText: text of the on-screen keyboard, as UTF-8 bytes
+//! (JNI's strings are modified UTF-8, which encodes characters beyond the
+//! BMP differently)
+void JNICALL nativeText(JNIEnv* env, jclass, jbyteArray utf8){
+  if (!utf8)
+    return;
+  jsize length = env->GetArrayLength(utf8);
+  std::string text(length, '\0');
+  if (length > 0)
+    env->GetByteArrayRegion(utf8, 0, length, (jbyte*)&text[0]);
+  postActivityEvent({ActivityEvent::TEXT, 0, std::move(text)});
+}
+
+//! a key pressed and released
+void tapKey(int code){
+  ImGui_ImplCGE_Platform_AddKey(code, true);
+  Input::Keyboard::instance()->keyDown(code);
+  ImGui_ImplCGE_Platform_AddKey(code, false);
+  Input::Keyboard::instance()->keyUp(code);
 }
 
 //! the traces as logcat messages of the tag CGE
@@ -317,8 +370,12 @@ int32_t AndroidWindow::handleInput(android_app* app, AInputEvent* event){
       return 1;
     case AINPUT_EVENT_TYPE_MOTION:{
       int32_t source = AInputEvent_getSource(event);
-      if ((source & AINPUT_SOURCE_MOUSE) == AINPUT_SOURCE_MOUSE)
+      if ((source & AINPUT_SOURCE_MOUSE) == AINPUT_SOURCE_MOUSE){
         mouseEvent(event);
+        //the system also gets the mouse's hover moves: it sets the pointer
+        //icon (Platform::setCursor) while it handles them
+        return (AMotionEvent_getAction(event) & AMOTION_EVENT_ACTION_MASK) == AMOTION_EVENT_ACTION_HOVER_MOVE ? 0 : 1;
+      }
       else if ((source & AINPUT_SOURCE_CLASS_POINTER) != 0)
         touchEvent(event);
       else
@@ -330,22 +387,36 @@ int32_t AndroidWindow::handleInput(android_app* app, AInputEvent* event){
   }
 }
 
-void AndroidWindow::dispatchBack(){
-  while (backPresses > 0){
-    backPresses--;
+void AndroidWindow::dispatchActivityEvents(){
+  std::vector<ActivityEvent> events;
+  {
+    std::lock_guard<std::mutex> lock(activityEventsMutex);
+    events.swap(activityEvents);
+  }
+  for (const ActivityEvent& event : events){
     if (!engineTakesInput())
       continue;
-    ImGui_ImplCGE_Platform_AddKey(KEY_ESCAPE, true);
-    Input::Keyboard::instance()->keyDown(KEY_ESCAPE);
-    ImGui_ImplCGE_Platform_AddKey(KEY_ESCAPE, false);
-    Input::Keyboard::instance()->keyUp(KEY_ESCAPE);
+    switch (event.kind){
+      case ActivityEvent::BACK:
+        tapKey(KEY_ESCAPE);
+        break;
+      case ActivityEvent::KEY:
+        tapKey(event.key);
+        break;
+      case ActivityEvent::TEXT:
+        Input::Keyboard::instance()->text(event.text.c_str(), event.text.size());
+        break;
+    }
   }
 }
 
-void AndroidWindow::registerBackCallback(android_app* app){
+void AndroidWindow::registerNatives(android_app* app){
   TR_USE(CGE_Window);
   engineLooper = app->looper;
-  backPresses = 0;
+  {
+    std::lock_guard<std::mutex> lock(activityEventsMutex);
+    activityEvents.clear();
+  }
   JNIEnv* env = nullptr;
   if (app->activity->vm->AttachCurrentThread(&env, nullptr) != JNI_OK){
     TR_WARN("Can't attach to the Java VM");
@@ -362,13 +433,17 @@ void AndroidWindow::registerBackCallback(android_app* app){
   jclass cgeActivity = (jclass)env->CallObjectMethod(loader, loadClass, name);
   if (env->ExceptionCheck()){
     env->ExceptionClear();
-    TR_INFO("The activity isn't a CgeActivity: back is only a key");
+    TR_INFO("The activity isn't a CgeActivity: back is only a key, and there is no on-screen keyboard");
   }
   else if (cgeActivity){
-    JNINativeMethod method = {"nativeBack", "()V", (void*)nativeBack};
-    if (env->RegisterNatives(cgeActivity, &method, 1) != JNI_OK){
+    JNINativeMethod methods[] = {
+      {"nativeBack", "()V", (void*)nativeBack},
+      {"nativeKey", "(I)V", (void*)nativeKey},
+      {"nativeText", "([B)V", (void*)nativeText},
+    };
+    if (env->RegisterNatives(cgeActivity, methods, sizeof(methods)/sizeof(methods[0])) != JNI_OK){
       env->ExceptionClear();
-      TR_WARN("Can't register CgeActivity.nativeBack");
+      TR_WARN("Can't register CgeActivity's native methods");
     }
     env->DeleteLocalRef(cgeActivity);
   }

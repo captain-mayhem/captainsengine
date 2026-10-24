@@ -19,7 +19,8 @@ namespace CGE{
     rotation or a resize of a split screen changes it without an event the
     engine waits for. Touches and the mouse go to the engine's input and
     ImGui like the other platforms' events (the touches to Input::Touch).
-    The back button is KEY_ESCAPE. */
+    The back button is KEY_ESCAPE. The on-screen keyboard (CgeActivity's
+    text input view) types as a hardware keyboard does. */
 class CGE_API AndroidWindow : public AppWindow{
 public:
   AndroidWindow(Gfx::RenderDevice* device, const Gfx::DeviceDesc& desc);
@@ -40,12 +41,14 @@ public:
   /*! Returns 1 for the events the engine handled, 0 for those the system
       should handle (e.g. the volume keys). */
   static int32_t handleInput(android_app* app, AInputEvent* event);
-  //! the back gestures and buttons that CgeActivity reported since the last
-  //! call (Android 13 and later, where back isn't a key event), as KEY_ESCAPE
-  static void dispatchBack();
-  //! lets CgeActivity (Engine/android/java) report back gestures to the
-  //! native code; nothing happens for a plain NativeActivity
-  static void registerBackCallback(android_app* app);
+  //! what CgeActivity reported on its UI thread since the last call: the
+  //! back gestures and buttons (Android 13 and later, where back isn't a key
+  //! event) as KEY_ESCAPE, and the on-screen keyboard's text and keys
+  static void dispatchActivityEvents();
+  //! lets CgeActivity (Engine/android/java) report back gestures and the
+  //! on-screen keyboard to the native code; nothing happens for a plain
+  //! NativeActivity
+  static void registerNatives(android_app* app);
 };
 
 //! sends the engine's tracing to logcat (tag CGE)
