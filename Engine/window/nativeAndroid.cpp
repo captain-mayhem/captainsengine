@@ -13,6 +13,7 @@
 #include "../io/TraceManager.h"
 #include "../input/keyboard.h"
 #include "../input/mouse.h"
+#include "../input/touch.h"
 #include "../ui/imgui_impl_cge_platform.h"
 #include "nativeAndroid.h"
 
@@ -24,8 +25,6 @@ namespace{
 
 //! the buttons held down (MB_ bits)
 int buttonState = 0;
-//! the pointer id of the finger that acts as the mouse, -1 for none
-int32_t mouseTouch = -1;
 //! the mouse buttons held down (AMOTION_EVENT_BUTTON_ bits)
 int32_t mouseButtons = 0;
 //! back gestures reported by CgeActivity, not yet dispatched
@@ -60,47 +59,41 @@ void move(int x, int y){
   Input::Mouse::instance()->move(x, y, buttonState);
 }
 
-//! the index of a pointer in a motion event, -1 if it isn't there
-int pointerIndex(const AInputEvent* event, int32_t id){
-  size_t count = AMotionEvent_getPointerCount(event);
-  for (size_t i = 0; i < count; ++i){
-    if (AMotionEvent_getPointerId(event, i) == id)
-      return (int)i;
-  }
-  return -1;
-}
-
-//! a finger on the touch screen; the first one is the left mouse button
-//! (touch events of their own come with Phase 1c step 4)
+//! the fingers on the touch screen go to Input::Touch (which makes the first
+//! one ImGui's mouse, and the application's left mouse button with its mouse
+//! emulation); a pointer id stays the finger's until it is lifted
 void touchEvent(const AInputEvent* event){
+  Input::Touch* touch = Input::Touch::instance();
   int32_t action = AMotionEvent_getAction(event);
-  int32_t masked = action & AMOTION_EVENT_ACTION_MASK;
   size_t index = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
-  switch (masked){
+  auto id = [&](size_t i){return (int)AMotionEvent_getPointerId(event, i);};
+  auto x = [&](size_t i){return (int)AMotionEvent_getX(event, i);};
+  auto y = [&](size_t i){return (int)AMotionEvent_getY(event, i);};
+  switch (action & AMOTION_EVENT_ACTION_MASK){
     case AMOTION_EVENT_ACTION_DOWN:
-      mouseTouch = AMotionEvent_getPointerId(event, 0);
-      press((int)AMotionEvent_getX(event, 0), (int)AMotionEvent_getY(event, 0), MB_LEFT);
+      touch->down(id(0), x(0), y(0));
       break;
+    case AMOTION_EVENT_ACTION_POINTER_DOWN:
+      touch->down(id(index), x(index), y(index));
+      break;
+    //all fingers; Input::Touch skips those that didn't move
     case AMOTION_EVENT_ACTION_MOVE:{
-      int i = pointerIndex(event, mouseTouch);
-      if (i >= 0)
-        move((int)AMotionEvent_getX(event, i), (int)AMotionEvent_getY(event, i));
+      size_t count = AMotionEvent_getPointerCount(event);
+      for (size_t i = 0; i < count; ++i)
+        touch->move(id(i), x(i), y(i));
       break;
     }
     case AMOTION_EVENT_ACTION_POINTER_UP:
-      if (AMotionEvent_getPointerId(event, index) != mouseTouch)
-        break;
-      release((int)AMotionEvent_getX(event, index), (int)AMotionEvent_getY(event, index), MB_LEFT);
-      mouseTouch = -1;
+      touch->up(id(index), x(index), y(index));
       break;
+    //the last finger
     case AMOTION_EVENT_ACTION_UP:
-    case AMOTION_EVENT_ACTION_CANCEL:{
-      int i = pointerIndex(event, mouseTouch);
-      if (i >= 0)
-        release((int)AMotionEvent_getX(event, i), (int)AMotionEvent_getY(event, i), MB_LEFT);
-      mouseTouch = -1;
+      touch->up(id(0), x(0), y(0));
       break;
-    }
+    //the system took the gesture over
+    case AMOTION_EVENT_ACTION_CANCEL:
+      touch->cancelAll();
+      break;
     default:
       break;
   }
@@ -138,23 +131,48 @@ void mouseEvent(const AInputEvent* event){
   mouseButtons = state;
 }
 
-//! the character a key types without a keyboard layout: letters, digits
-//! and space (all of Unicode comes with Phase 1c step 4); 0 for none
-unsigned char keyChar(int32_t code, int32_t meta){
-  if (meta & (AMETA_CTRL_ON | AMETA_ALT_ON | AMETA_META_ON))
+//! the character a key types with its keyboard's layout (Java's
+//! KeyCharacterMap.get, through JNI); 0 for none, also for a dead key, which
+//! the NDK can't combine with the next one
+unsigned int keyChar(android_app* app, const AInputEvent* event){
+  int32_t meta = AKeyEvent_getMetaState(event);
+  if (meta & (AMETA_CTRL_ON | AMETA_META_ON))
     return 0;
-  if (code >= AKEYCODE_A && code <= AKEYCODE_Z){
-    bool upper = ((meta & AMETA_SHIFT_ON) != 0) != ((meta & AMETA_CAPS_LOCK_ON) != 0);
-    return (unsigned char)((upper ? 'A' : 'a') + (code - AKEYCODE_A));
+  //the engine's thread is attached only while it calls Java
+  JavaVM* vm = app->activity->vm;
+  JNIEnv* env = nullptr;
+  bool attached = false;
+  if (vm->GetEnv((void**)&env, JNI_VERSION_1_6) == JNI_EDETACHED){
+    if (vm->AttachCurrentThread(&env, nullptr) != JNI_OK)
+      return 0;
+    attached = true;
   }
-  if (code >= AKEYCODE_0 && code <= AKEYCODE_9 && !(meta & AMETA_SHIFT_ON))
-    return (unsigned char)('0' + (code - AKEYCODE_0));
-  if (code == AKEYCODE_SPACE)
-    return ' ';
-  return 0;
+  jint ch = 0;
+  jclass mapClass = env->FindClass("android/view/KeyCharacterMap");
+  if (mapClass){
+    jmethodID load = env->GetStaticMethodID(mapClass, "load", "(I)Landroid/view/KeyCharacterMap;");
+    jmethodID get = env->GetMethodID(mapClass, "get", "(II)I");
+    //the keyboard may be gone already (KeyCharacterMap.UnavailableException)
+    jobject map = env->CallStaticObjectMethod(mapClass, load, (jint)AInputEvent_getDeviceId(event));
+    if (map && !env->ExceptionCheck())
+      ch = env->CallIntMethod(map, get, (jint)AKeyEvent_getKeyCode(event), (jint)meta);
+    if (map)
+      env->DeleteLocalRef(map);
+    env->DeleteLocalRef(mapClass);
+  }
+  if (env->ExceptionCheck()){
+    env->ExceptionClear();
+    ch = 0;
+  }
+  if (attached)
+    vm->DetachCurrentThread();
+  //KeyCharacterMap.COMBINING_ACCENT: a dead key
+  if (ch & 0x80000000)
+    return 0;
+  return (unsigned int)ch;
 }
 
-void keyEvent(const AInputEvent* event){
+void keyEvent(android_app* app, const AInputEvent* event){
   int32_t code = AKeyEvent_getKeyCode(event);
   int32_t meta = AKeyEvent_getMetaState(event);
   //the back button opens the application's menu, like Escape
@@ -166,9 +184,9 @@ void keyEvent(const AInputEvent* event){
     case AKEY_EVENT_ACTION_DOWN:{
       ImGui_ImplCGE_Platform_AddKey(code, true);
       Input::Keyboard::instance()->keyDown(code);
-      unsigned char ch = keyChar(code, meta);
+      unsigned int ch = keyChar(app, event);
       if (ch)
-        Input::Keyboard::instance()->ascii(ch);
+        Input::Keyboard::instance()->character(ch);
       break;
     }
     case AKEY_EVENT_ACTION_UP:
@@ -238,7 +256,8 @@ public:
 //! activity (an old one may still be going while a new one starts)
 bool engineTakesInput(android_app* app = nullptr){
   Engine* engine = Engine::instance();
-  return engine && (!app || engine->getApp() == app) && engine->getWindow() && Input::Mouse::instance() && Input::Keyboard::instance();
+  return engine && (!app || engine->getApp() == app) && engine->getWindow() && Input::Mouse::instance() &&
+    Input::Keyboard::instance() && Input::Touch::instance();
 }
 
 }
@@ -250,7 +269,6 @@ void AndroidWindow::init(const std::string& name){
   TR_USE(CGE_Window);
   TR_INFO("Initializing window");
   buttonState = 0;
-  mouseTouch = -1;
   mouseButtons = 0;
   updateSize();
 }
@@ -295,7 +313,7 @@ int32_t AndroidWindow::handleInput(android_app* app, AInputEvent* event){
     case AINPUT_EVENT_TYPE_KEY:
       if (isSystemKey(AKeyEvent_getKeyCode(event)))
         return 0;
-      keyEvent(event);
+      keyEvent(app, event);
       return 1;
     case AINPUT_EVENT_TYPE_MOTION:{
       int32_t source = AInputEvent_getSource(event);

@@ -16,8 +16,8 @@ namespace CGE{
     window. Its drawing buffer has that size times devicePixelRatio, so the
     window's pixels are the screen's pixels. The browser delivers mouse,
     touch and keyboard events between frames; they go to the engine's input
-    and ImGui like the other platforms' events. A single touch acts as the
-    left mouse button. */
+    and ImGui like the other platforms' events; the touches go to
+    Input::Touch. */
 class CGE_API EmscriptenWindow : public AppWindow{
 public:
   EmscriptenWindow(Gfx::RenderDevice* device, const Gfx::DeviceDesc& desc);

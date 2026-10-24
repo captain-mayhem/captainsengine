@@ -9,6 +9,7 @@
 #include <windowsx.h>
 #include <algorithm>
 #include <cstring>
+#include <string>
 
 TR_CHANNEL_EXT(CGE_Window);
 
@@ -44,6 +45,14 @@ void imguiKey(WPARAM key, bool down){
   ImGui_ImplCGE_Platform_AddKey((int)key, down);
 }
 
+//! the window's name for CreateWindowExW (the ANSI code page, as SetWindowText)
+std::wstring wideName(const std::string& name){
+  int length = MultiByteToWideChar(CP_ACP, 0, name.c_str(), (int)name.size(), nullptr, 0);
+  std::wstring wide(length, L'\0');
+  MultiByteToWideChar(CP_ACP, 0, name.c_str(), (int)name.size(), &wide[0], length);
+  return wide;
+}
+
 //! passes a mouse button event on to ImGui, at the position it happened
 void imguiButton(LPARAM pos, int button, bool down){
   ImGui_ImplCGE_Platform_AddMousePos((float)GET_X_LPARAM(pos), (float)GET_Y_LPARAM(pos));
@@ -57,6 +66,8 @@ LRESULT CALLBACK messageLoop(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
   HDC hdc;
   //Windows runs its own loop while the window is moved or sized
   static bool inSizeMove = false;
+  //the first half of a UTF-16 surrogate pair (WM_CHAR)
+  static wchar_t highSurrogate = 0;
 
   //process messages
   switch(msg){
@@ -145,9 +156,23 @@ LRESULT CALLBACK messageLoop(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
     case WM_KILLFOCUS:
       ImGui_ImplCGE_Platform_AddFocus(false);
       break;
-    case WM_CHAR:
-      Input::Keyboard::instance()->ascii((unsigned char)wparam);
+    //UTF-16 (the window is a Unicode window); a character beyond the BMP
+    //comes as two messages
+    case WM_CHAR:{
+      unsigned int ch = (unsigned int)wparam;
+      if (ch >= 0xD800 && ch < 0xDC00){
+        highSurrogate = (wchar_t)ch;
+        return 0;
+      }
+      if (ch >= 0xDC00 && ch < 0xE000){
+        if (highSurrogate == 0)
+          return 0;
+        ch = 0x10000 + ((highSurrogate - 0xD800) << 10) + (ch - 0xDC00);
+      }
+      highSurrogate = 0;
+      Input::Keyboard::instance()->character(ch);
       return 0;
+    }
     case WM_MOUSEMOVE:
       //Input::Mouse::instance()->move((int)LOWORD(lparam), (int)HIWORD(lparam), (int)wparam);
       return 0;
@@ -198,7 +223,7 @@ LRESULT CALLBACK messageLoop(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
     default:
       break;
   }
-  return DefWindowProc(wnd, msg, wparam, lparam);
+  return DefWindowProcW(wnd, msg, wparam, lparam);
 }
 
 WindowsWindow::WindowsWindow(Gfx::RenderDevice* device, const Gfx::DeviceDesc& desc) : AppWindow(device, desc){
@@ -222,8 +247,9 @@ void WindowsWindow::init(const std::string& name){
 #define IDI_APPLICATION ((LPWSTR)((ULONG_PTR)((WORD)(32512))))
 #endif
   HWND hwnd = nullptr;
-  WNDCLASSEX wndclass;
-  wndclass.cbSize = sizeof(WNDCLASSEX);
+  //a Unicode window, so that WM_CHAR brings UTF-16
+  WNDCLASSEXW wndclass;
+  wndclass.cbSize = sizeof(WNDCLASSEXW);
 
   wndclass.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS
     | CS_OWNDC
@@ -236,19 +262,19 @@ void WindowsWindow::init(const std::string& name){
   wndclass.hCursor = LoadCursor(nullptr, IDC_ARROW);
   wndclass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
   wndclass.lpszMenuName = nullptr;
-  wndclass.lpszClassName = TEXT(WINDOW_NAME);
+  wndclass.lpszClassName = L"" WINDOW_NAME;
   wndclass.hIconSm = LoadIcon(nullptr, IDI_APPLICATION);
 
   instance_ = wndclass.hInstance;
 
-  if (!RegisterClassEx(&wndclass)){
+  if (!RegisterClassExW(&wndclass)){
     TR_ERROR("Cannot register window");
     EXIT();
   }
 
   //created at the default position, then sized for its monitor's DPI
-  if (!(hwnd = CreateWindowEx(WINDOW_EX_STYLE, TEXT(WINDOW_NAME),
-    name.c_str(),
+  if (!(hwnd = CreateWindowExW(WINDOW_EX_STYLE, L"" WINDOW_NAME,
+    wideName(name).c_str(),
     WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WINDOWED_STYLE,
     CW_USEDEFAULT, CW_USEDEFAULT, windowedWidth_, windowedHeight_, nullptr, nullptr, instance_, nullptr))){
       TR_ERROR("Create Window failed");
@@ -349,7 +375,7 @@ void WindowsWindow::kill(){
     handle_ = nullptr;
   }
 
-  if (!UnregisterClass(TEXT(WINDOW_NAME), instance_)){
+  if (!UnregisterClassW(L"" WINDOW_NAME, instance_)){
     TR_ERROR("Unregistering class failed");
     instance_ = nullptr;
   }

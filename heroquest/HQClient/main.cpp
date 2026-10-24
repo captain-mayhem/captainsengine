@@ -39,7 +39,8 @@ public:
   void onResize(int width, int height) override {HQRenderer::resize(width, height);}
   void onKeyDown(int key) override {HQRenderer::special(key);}
   void onKeyUp(int key) override {HQRenderer::keyUp(key);}
-  void onChar(unsigned char ch) override {HQRenderer::ascii(ch);}
+  //! its keys are ASCII letters
+  void onChar(unsigned int ch) override {if (ch < 0x80) HQRenderer::ascii((unsigned char)ch);}
   void onMouseDown(int x, int y, int button) override {HQRenderer::buttonDown(x, y, button);}
   void onMouseMove(int x, int y, int buttons) override {HQRenderer::mouseMove(x, y, buttons);}
 };

@@ -22,6 +22,9 @@ public:
   inline Window getWindow() const {return win_;}
   //! get screen
   inline int getScreen() const {return screen_;}
+  //! the input context for typed characters (Xutf8LookupString), nullptr if
+  //! there is no input method
+  inline XIC getInputContext() const {return ic_;}
   Gfx::NativeWindow getNativeWindow() const override;
   //! the desktop's font DPI (Xft.dpi) / 96
   float getContentScale() const override;
@@ -46,6 +49,9 @@ protected:
   int screen_;
   //! the content scale, 0 until it is read
   mutable float contentScale_;
+  //! the input method and the window's input context
+  XIM im_;
+  XIC ic_;
   //! WM_PROTOCOLS and WM_DELETE_WINDOW
   Atom wmProtocols_;
   Atom wmDelete_;

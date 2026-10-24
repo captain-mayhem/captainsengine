@@ -11,6 +11,7 @@ add_executable(cge_tests
 	test_gldevice.cpp
 	test_images.cpp
 	test_imgui.cpp
+	test_input.cpp
 	test_json.cpp
 	test_renderdevice.cpp
 	test_services.cpp

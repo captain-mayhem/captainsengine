@@ -179,8 +179,26 @@ void key_release(int key){
   Engine::instance()->keyRelease(key);
 }
 
-void key_ascii(unsigned char ascii){
-  Engine::instance()->keyAscii((char)ascii);
+//! a typed character (a code point) in Windows-1252, the games' encoding
+//! (what the ANSI window gave on Windows); 0 if it has none
+unsigned char toWindows1252(unsigned int ch){
+  //0x80 to 0x9F, which aren't Latin-1's
+  static const unsigned short extra[32] = {
+    0x20AC, 0, 0x201A, 0x0192, 0x201E, 0x2026, 0x2020, 0x2021, 0x02C6, 0x2030, 0x0160, 0x2039, 0x0152, 0, 0x017D, 0,
+    0, 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2013, 0x2014, 0x02DC, 0x2122, 0x0161, 0x203A, 0x0153, 0, 0x017E, 0x0178};
+  if (ch < 0x80 || (ch >= 0xA0 && ch < 0x100))
+    return (unsigned char)ch;
+  for (int i = 0; i < 32; ++i){
+    if (extra[i] != 0 && extra[i] == ch)
+      return (unsigned char)(0x80 + i);
+  }
+  return 0;
+}
+
+void key_char(unsigned int ch){
+  unsigned char chr = toWindows1252(ch);
+  if (chr != 0)
+    Engine::instance()->keyAscii((char)chr);
 }
 
 void cleanup(){
@@ -200,7 +218,7 @@ public:
   void shutdown() override {deinit();}
   void onKeyDown(int key) override {key_press(key);}
   void onKeyUp(int key) override {key_release(key);}
-  void onChar(unsigned char ch) override {key_ascii(ch);}
+  void onChar(unsigned int ch) override {key_char(ch);}
   void onMouseDown(int x, int y, int button) override {mouse_click(x, y, button);}
   void onMouseUp(int x, int y, int button) override {mouse_release(x, y, button);}
   void onDoubleClick(int x, int y, int button) override {double_click(x, y, button);}

@@ -12,6 +12,7 @@
 #include <imgui.h>
 
 #include <input/keyboard.h>
+#include <input/touch.h>
 #include <io/Tracing.h>
 #include <io/TraceManager.h>
 #include <renderer/nulldevice.h>
@@ -125,15 +126,50 @@ TEST_F(ImGuiTest, CharactersGoIntoTheActiveTextField){
   frame(200, 100, build);
   frame(200, 100, build);
   ASSERT_TRUE(ImGui::GetIO().WantTextInput);
-  //the window system's characters: Latin-1 (X11) or the ANSI code page (Windows), where 0xE4 is also an a umlaut
+  //Unicode code points: an a umlaut, a euro sign and one beyond the BMP (a gem stone)
   ImGui_ImplCGE_Platform_AddChar('h');
   ImGui_ImplCGE_Platform_AddChar(0xE4);
+  ImGui_ImplCGE_Platform_AddChar(0x20AC);
+  ImGui_ImplCGE_Platform_AddChar(0x1F48E);
   //control characters aren't text
   ImGui_ImplCGE_Platform_AddChar('\r');
   frame(200, 100, build);
-  EXPECT_STREQ(text, "h\xC3\xA4");
+  EXPECT_STREQ(text, "h\xC3\xA4\xE2\x82\xAC\xF0\x9F\x92\x8E");
   //the engine keeps the keyboard from the application then
   EXPECT_TRUE(ImGui::GetIO().WantCaptureKeyboard);
+}
+
+TEST_F(ImGuiTest, ThePrimaryFingerIsImGuisMouse){
+  Input::Touch::init();
+  Input::Touch* touch = Input::Touch::instance();
+  touch->down(5, 10, 20);
+  touch->down(6, 40, 40);
+  frame(64, 48, [](){
+    ImGuiIO& io = ImGui::GetIO();
+    EXPECT_EQ(io.MouseSource, ImGuiMouseSource_TouchScreen);
+    EXPECT_FLOAT_EQ(io.MousePos.x, 10);
+    EXPECT_FLOAT_EQ(io.MousePos.y, 20);
+    EXPECT_TRUE(io.MouseDown[ImGuiMouseButton_Left]);
+  });
+  //the second finger isn't the mouse
+  touch->move(6, 30, 30);
+  touch->move(5, 12, 22);
+  frame(64, 48, [](){
+    EXPECT_FLOAT_EQ(ImGui::GetIO().MousePos.x, 12);
+    EXPECT_FLOAT_EQ(ImGui::GetIO().MousePos.y, 22);
+  });
+  //lifted, the finger doesn't keep hovering
+  touch->up(5, 12, 22);
+  frame(64, 48, [](){
+    EXPECT_FALSE(ImGui::GetIO().MouseDown[ImGuiMouseButton_Left]);
+    EXPECT_FALSE(ImGui::IsMousePosValid());
+  });
+  //a mouse afterwards is a mouse again
+  ImGui_ImplCGE_Platform_AddMousePos(3, 4);
+  frame(64, 48, [](){
+    EXPECT_EQ(ImGui::GetIO().MouseSource, ImGuiMouseSource_Mouse);
+  });
+  Input::Touch::release();
 }
 
 TEST_F(ImGuiTest, RendererCreatesTheFontTextureAndDraws){
