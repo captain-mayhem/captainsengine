@@ -1,6 +1,7 @@
 #if defined(__EMSCRIPTEN__)
 #include <algorithm>
 #include <cmath>
+#include <cstring>
 
 #include <emscripten.h>
 #include <emscripten/html5.h>
@@ -13,6 +14,98 @@
 #include "../io/TraceManager.h"
 #include "../ui/imgui_impl_cge_platform.h"
 #include "nativeEmscripten.h"
+
+//! the hidden text field's input: deletes backspaces, then text (UTF-8)
+extern "C" EMSCRIPTEN_KEEPALIVE void cge_text_input_edit(int deletes, const char* text);
+
+// The hidden text field (EmscriptenWindow::setTextInput). An on-screen
+// keyboard and an input method don't send keys with key codes (keyCode 229)
+// but change the field's value, and they can't delete from an empty field.
+// So the field holds a space, and every change is typed: what was deleted
+// from its end as backspaces, what was added as text. Then the field gets the
+// space again, except while the keyboard composes a word (its changes are
+// typed as they come). The keys with key codes are prevented by the window's
+// key handlers, so they don't change the field; a paste only goes through
+// the clipboard (Platform), not the field.
+EM_JS_DEPS(cge_text_input, "$stackSave,$stackRestore,$stringToUTF8OnStack");
+
+EM_JS(void, cge_text_input_set, (int active), {
+  if (typeof document === "undefined")
+    return;
+  var input = Module["cgeTextInput"];
+  if (!input){
+    if (!active)
+      return;
+    input = document.createElement("input");
+    input.type = "text";
+    input.setAttribute("autocomplete", "off");
+    input.setAttribute("autocorrect", "off");
+    input.setAttribute("autocapitalize", "off");
+    input.setAttribute("spellcheck", "false");
+    input.setAttribute("aria-hidden", "true");
+    input.tabIndex = -1;
+    //the keyboard only comes with virtualKeyboard.show(), which can show it
+    //again after the user closed it
+    if (navigator.virtualKeyboard)
+      input.setAttribute("virtualkeyboardpolicy", "manual");
+    //in the viewport, so focusing it doesn't scroll; 16px, so iOS doesn't zoom
+    input.style.cssText = "position:fixed;left:0;bottom:0;width:1px;height:1px;margin:0;padding:0;border:0;" +
+      "opacity:0;font-size:16px;pointer-events:none;";
+    var empty = " ";
+    var last = empty;
+    var composing = false;
+    var reset = function(){
+      input.value = empty;
+      last = empty;
+      input.setSelectionRange(empty.length, empty.length);
+    };
+    var edit = function(){
+      var before = Array.from(last);
+      var now = Array.from(input.value);
+      var same = 0;
+      while (same < before.length && same < now.length && before[same] === now[same])
+        ++same;
+      var deletes = before.length - same;
+      var added = now.slice(same).join("");
+      last = input.value;
+      if (deletes > 0 || added.length > 0){
+        var sp = stackSave();
+        _cge_text_input_edit(deletes, stringToUTF8OnStack(added));
+        stackRestore(sp);
+      }
+      if (!composing)
+        reset();
+    };
+    input.addEventListener("input", function(e){
+      if (e.inputType === "insertFromPaste" || e.inputType === "insertFromDrop" || e.inputType === "deleteByCut"){
+        reset();
+        return;
+      }
+      edit();
+    });
+    input.addEventListener("compositionstart", function(){ composing = true; });
+    input.addEventListener("compositionend", function(){
+      composing = false;
+      edit();
+    });
+    input.cgeReset = reset;
+    document.body.appendChild(input);
+    Module["cgeTextInput"] = input;
+  }
+  if (active){
+    if (document.activeElement !== input){
+      input.cgeReset();
+      input.focus({preventScroll: true});
+    }
+    if (navigator.virtualKeyboard)
+      navigator.virtualKeyboard.show();
+  }
+  else if (document.activeElement === input){
+    if (navigator.virtualKeyboard)
+      navigator.virtualKeyboard.hide();
+    input.blur();
+  }
+});
 
 TR_CHANNEL_EXT(CGE_Window);
 
@@ -77,6 +170,14 @@ void move(int x, int y, int state){
 
 void modifiers(bool ctrl, bool shift, bool alt, bool meta){
   ImGui_ImplCGE_Platform_AddModifiers(ctrl, shift, alt, meta);
+}
+
+//! a key pressed and released
+void tapKey(int key){
+  ImGui_ImplCGE_Platform_AddKey(key, true);
+  Input::Keyboard::instance()->keyDown(key);
+  ImGui_ImplCGE_Platform_AddKey(key, false);
+  Input::Keyboard::instance()->keyUp(key);
 }
 
 // --- mouse ---
@@ -224,8 +325,14 @@ bool typedChar(const EmscriptenKeyboardEvent* event, unsigned& ch){
   return s[0] != 0 && s[len] == 0;
 }
 
+//! an on-screen keyboard's or an input method's key, whose text comes
+//! through the hidden text field (cge_text_input_set)
+bool isInputMethodKey(const EmscriptenKeyboardEvent* event){
+  return event->keyCode == 229 || strcmp(event->key, "Process") == 0 || strcmp(event->key, "Unidentified") == 0;
+}
+
 EM_BOOL onKeyDown(int, const EmscriptenKeyboardEvent* event, void*){
-  if (!activeWindow())
+  if (!activeWindow() || isInputMethodKey(event))
     return EM_FALSE;
   modifiers(event->ctrlKey, event->shiftKey, event->altKey, event->metaKey);
   int key = (int)event->keyCode;
@@ -242,7 +349,7 @@ EM_BOOL onKeyDown(int, const EmscriptenKeyboardEvent* event, void*){
 }
 
 EM_BOOL onKeyUp(int, const EmscriptenKeyboardEvent* event, void*){
-  if (!activeWindow())
+  if (!activeWindow() || isInputMethodKey(event))
     return EM_FALSE;
   modifiers(event->ctrlKey, event->shiftKey, event->altKey, event->metaKey);
   int key = (int)event->keyCode;
@@ -295,6 +402,14 @@ public:
   }
 };
 
+}
+
+void cge_text_input_edit(int deletes, const char* text){
+  if (!activeWindow())
+    return;
+  for (int i = 0; i < deletes; ++i)
+    tapKey(KEY_BACKSPACE);
+  Input::Keyboard::instance()->text(text, strlen(text));
 }
 
 EmscriptenWindow::EmscriptenWindow(Gfx::RenderDevice* device, const Gfx::DeviceDesc& desc) : AppWindow(device, desc){
@@ -360,6 +475,7 @@ void EmscriptenWindow::init(const std::string& name){
 void EmscriptenWindow::kill(){
   if (eventWindow != this)
     return;
+  cge_text_input_set(0);
   emscripten_html5_remove_all_event_listeners();
   eventWindow = nullptr;
   buttonState = 0;
@@ -425,6 +541,10 @@ void EmscriptenWindow::toWindow(double clientX, double clientY, int& x, int& y) 
 
 bool EmscriptenWindow::contains(int x, int y) const{
   return x >= 0 && y >= 0 && x < width_ && y < height_;
+}
+
+void EmscriptenWindow::setTextInput(bool active){
+  cge_text_input_set(active ? 1 : 0);
 }
 
 void CGE::installBrowserConsoleTracing(){

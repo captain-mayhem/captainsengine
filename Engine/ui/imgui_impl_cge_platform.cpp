@@ -31,6 +31,10 @@ struct BackendData{
   int cursor = -1;
   //! the text copied last, for platforms without a clipboard service
   std::string clipboard;
+  //! a text field is active, so the platform's text input is (Platform::startTextInput)
+  bool textInput = false;
+  //! ImGui's own IME handler (Windows: positions the input method's window)
+  void (*defaultSetImeData)(ImGuiContext*, ImGuiViewport*, ImGuiPlatformImeData*) = nullptr;
 };
 
 BackendData* getData(){
@@ -49,6 +53,22 @@ void setClipboardText(ImGuiContext*, const char* text){
   BackendData* bd = getData();
   bd->clipboard = text;
   Platform::setClipboardText(text);
+}
+
+//! ImGui's text fields start and stop the platform's text input (the
+//! on-screen keyboard); called by ImGui::EndFrame when the data changes
+void setImeData(ImGuiContext* ctx, ImGuiViewport* viewport, ImGuiPlatformImeData* data){
+  BackendData* bd = getData();
+  if (bd->defaultSetImeData)
+    bd->defaultSetImeData(ctx, viewport, data);
+  bool textInput = data->WantVisible || data->WantTextInput;
+  if (textInput == bd->textInput)
+    return;
+  bd->textInput = textInput;
+  if (textInput)
+    Platform::startTextInput();
+  else
+    Platform::stopTextInput();
 }
 
 //! the platform cursor of an ImGui cursor
@@ -118,6 +138,8 @@ bool ImGui_ImplCGE_Platform_Init(AppWindow* window){
   ImGuiPlatformIO& platformIO = ImGui::GetPlatformIO();
   platformIO.Platform_GetClipboardTextFn = getClipboardText;
   platformIO.Platform_SetClipboardTextFn = setClipboardText;
+  bd->defaultSetImeData = platformIO.Platform_SetImeDataFn;
+  platformIO.Platform_SetImeDataFn = setImeData;
   //ImGui's IME support on Windows positions the candidate window with it
   if (window)
     ImGui::GetMainViewport()->PlatformHandleRaw = window->getHandle();
@@ -131,6 +153,8 @@ void ImGui_ImplCGE_Platform_Shutdown(){
     return;
   if (bd->cursor >= 0)
     PlatformInternal::setOverrideCursor(-1);
+  if (bd->textInput)
+    Platform::stopTextInput();
   ImGuiIO& io = ImGui::GetIO();
   io.BackendPlatformName = nullptr;
   io.BackendPlatformUserData = nullptr;
@@ -138,6 +162,7 @@ void ImGui_ImplCGE_Platform_Shutdown(){
   ImGuiPlatformIO& platformIO = ImGui::GetPlatformIO();
   platformIO.Platform_GetClipboardTextFn = nullptr;
   platformIO.Platform_SetClipboardTextFn = nullptr;
+  platformIO.Platform_SetImeDataFn = bd->defaultSetImeData;
   ImGui::GetMainViewport()->PlatformHandleRaw = nullptr;
   delete bd;
 }
@@ -154,6 +179,11 @@ void ImGui_ImplCGE_Platform_NewFrame(){
   float dt = std::chrono::duration<float>(now - bd->time).count();
   io.DeltaTime = dt > 0 ? dt : 1e-5f;
   bd->time = now;
+  //a tap into the active text field brings back an on-screen keyboard the
+  //user closed; ImGui's mouse state is still the last frame's, after the
+  //field handled the release
+  if (bd->textInput && io.MouseReleased[ImGuiMouseButton_Left])
+    Platform::startTextInput();
   updateScale(*bd);
   updateCursor(*bd);
 }

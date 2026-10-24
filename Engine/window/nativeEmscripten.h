@@ -17,7 +17,8 @@ namespace CGE{
     window's pixels are the screen's pixels. The browser delivers mouse,
     touch and keyboard events between frames; they go to the engine's input
     and ImGui like the other platforms' events; the touches go to
-    Input::Touch. */
+    Input::Touch. For text input, the window focuses a hidden text field on
+    the page (setTextInput). */
 class CGE_API EmscriptenWindow : public AppWindow{
 public:
   EmscriptenWindow(Gfx::RenderDevice* device, const Gfx::DeviceDesc& desc);
@@ -46,6 +47,12 @@ public:
   void toWindow(double clientX, double clientY, int& x, int& y) const;
   //! is the point (window pixels) on the canvas?
   bool contains(int x, int y) const;
+  //! focuses a hidden text field, which brings up a touch screen's
+  //! on-screen keyboard, or takes the focus away again
+  /*! The field's input (the on-screen keyboard's and an input method's,
+      whose keys have no key code of their own) is typed as characters and
+      backspaces; the other keys come as key events, as without it. */
+  void setTextInput(bool active);
 protected:
   std::string canvas_;
   //! the canvas's position in the page's viewport (CSS pixels), from updateSize

@@ -19,7 +19,9 @@ class AppWindow;
 // The engine sets it up for its window (Engine::startup). Mouse positions are
 // window pixels, so ImGui works in window pixels, not in virtual coordinates.
 // On Android and the web, the primary finger of a touch screen is ImGui's
-// mouse (Input::Touch).
+// mouse (Input::Touch), and an active text field brings up the on-screen
+// keyboard (Platform::startTextInput; again with a tap into the field, if the
+// user closed it).
 
 //! window: the window ImGui is shown in
 CGE_API bool ImGui_ImplCGE_Platform_Init(CGE::AppWindow* window);

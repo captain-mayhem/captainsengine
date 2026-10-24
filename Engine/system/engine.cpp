@@ -657,6 +657,11 @@ void Engine::processEvents(){
       if (win->isCloseRequest(event))
         requestShutdown();
       break;
+    //other clients asking for the clipboard's text, or taking it over
+    case SelectionRequest:
+    case SelectionClear:
+      win->handleSelectionEvent(event);
+      break;
     default:
       break;
     }
@@ -676,7 +681,7 @@ void Engine::processEvents(){
     if (app->destroyRequested)
       return;
   }
-  AndroidWindow::dispatchBack();
+  AndroidWindow::dispatchActivityEvents();
   //a rotation or a split screen changes the window's size without a command
   //that comes reliably after the change
   if (win_ && !device_->isWindowReleased() && static_cast<AndroidWindow*>(win_.get())->updateSize())
@@ -875,7 +880,7 @@ int CGE::runApplication(int argc, char** argv, IApplication& app, void* data){
         PlatformInternal::init(argc, argv, state);
         CGE::Engine::init();
         CGE::Engine::instance()->m_app = state;
-        AndroidWindow::registerBackCallback(state);
+        AndroidWindow::registerNatives(state);
         //the window may have come already
         CGE::Engine::instance()->windowCreated();
         CGE::Engine::instance()->updateActivity();
@@ -899,7 +904,7 @@ int CGE::runApplication(int argc, char** argv, IApplication& app, void* data){
       if (ALooper_pollOnce(-1, nullptr, &events, (void**)&source) >= 0 && source)
         source->process(state, source);
       if (engine)
-        AndroidWindow::dispatchBack();
+        AndroidWindow::dispatchActivityEvents();
     }
     if (engine && engine->mShutdownRequested){
       //the application quit, or the activity is going: shut down now, while
