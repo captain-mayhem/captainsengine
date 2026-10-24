@@ -20,11 +20,14 @@ public:
   //! get window handle
   inline void* getHandle() override {return handle_;}
   Gfx::NativeWindow getNativeWindow() const override;
-  //! the window's DPI / 96; 1 unless the process is DPI aware
+  //! the window's DPI / 96 (the process is made per-monitor DPI aware)
   float getContentScale() const override;
   //! kill the window
   void kill() override;
   virtual void changeSize(int width, int height) override;
+  void setFullscreen(bool fullscreen) override;
+  //! the window's DPI changed (WM_DPICHANGED) and suggests a new rectangle
+  void dpiChanged(const RECT& suggested);
 
   virtual void messageBox(const std::string& title, const std::string& message) override;
 
@@ -32,9 +35,14 @@ public:
 
   virtual void setTitle(const std::string& title) override;
 protected:
-  void applyResolution();
+  //! sizes the window to its windowed size and centres it on its monitor's work area
+  void placeWindow();
+  //! fits the window to its monitor (fullscreen)
+  void fitToMonitor();
   HWND handle_;
   HINSTANCE instance_;
+  //! the placement outside fullscreen, while fullscreen
+  WINDOWPLACEMENT windowedPlacement_;
 };
 
 }

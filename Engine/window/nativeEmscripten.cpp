@@ -21,8 +21,6 @@ namespace{
 
 //! the window that gets the events
 EmscriptenWindow* eventWindow = nullptr;
-//! the time of the last press, 0 after a double click (as on X11)
-double lastClick = 0;
 //! the buttons held down (MB_ bits)
 int buttonState = 0;
 //! the touch that acts as the mouse, -1 for none
@@ -63,24 +61,14 @@ void press(int x, int y, int button){
   ImGui_ImplCGE_Platform_AddMouseButton(toImGuiButton(button), true);
   buttonState |= button;
   mouseOutside = false;
-  double now = getTime();
-  if (now - lastClick < 0.5){
-    Input::Mouse::instance()->doubleClick(x, y, button);
-    lastClick = 0;
-  }
-  else{
-    lastClick = now;
-    Input::Mouse::instance()->buttonDown(x, y, button);
-  }
+  Input::Mouse::instance()->press(x, y, button);
 }
 
 void release(int x, int y, int button){
   ImGui_ImplCGE_Platform_AddMousePos((float)x, (float)y);
   ImGui_ImplCGE_Platform_AddMouseButton(toImGuiButton(button), false);
   buttonState &= ~button;
-  //the release of a double click doesn't count
-  if (lastClick != 0)
-    Input::Mouse::instance()->buttonUp(x, y, button);
+  Input::Mouse::instance()->buttonUp(x, y, button);
 }
 
 void move(int x, int y, int state){

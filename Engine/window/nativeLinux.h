@@ -6,9 +6,6 @@
 #if defined(LINUX)
 
 #include <X11/Xlib.h>
-#ifndef DISABLE_XF86VMODE
-#include <X11/extensions/xf86vmode.h>
-#endif
 #include "window.h"
 
 namespace CGE{
@@ -32,10 +29,15 @@ public:
   void kill() override;
   
   virtual void changeSize(int width, int height) override;
+  //! asks the window manager for fullscreen (_NET_WM_STATE_FULLSCREEN)
+  void setFullscreen(bool fullscreen) override;
   
   virtual void show(bool doit) override;
+  //! is the event the window manager's request to close the window?
+  bool isCloseRequest(const XEvent& event) const;
 protected:
-  void applyResolution();
+  //! the window's size in pixels for its windowed size, within the screen
+  void windowedPixels(int& width, int& height) const;
   //! the window handle
   Window win_;
   //! the display
@@ -44,10 +46,9 @@ protected:
   int screen_;
   //! the content scale, 0 until it is read
   mutable float contentScale_;
-#ifndef DISABLE_XF86VMODE
-  //! desktop resolution
-  XF86VidModeModeInfo prevDesktop_;
-#endif
+  //! WM_PROTOCOLS and WM_DELETE_WINDOW
+  Atom wmProtocols_;
+  Atom wmDelete_;
 };
 
 }

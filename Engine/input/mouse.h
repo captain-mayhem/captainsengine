@@ -52,6 +52,10 @@ namespace Input{
     void buttonDown(int x, int y, int button);
     void buttonUp(int x, int y, int button);
     void doubleClick(int x, int y, int button);
+    //! a press on a platform without double-click messages: a double click
+    //! when it is the second press of the same button within 0.5 s, otherwise
+    //! a buttonDown (the release goes to buttonUp either way, as on Windows)
+    void press(int x, int y, int button);
     void move(int x, int y, int buttons);
     void wheel(int x, int y, int delta);
     //! get the position of the last click in virtual coordinates
@@ -83,6 +87,10 @@ namespace Input{
     bool mousePointer_;
     //! is a mouse button pressed
     bool pressed_[3];
+    //! the button of the last press that may start a double click, 0 for none
+    int lastPressButton_;
+    //! the time of that press
+    double lastPressTime_;
 #ifdef LINUX
     //! app has graphics context
     bool graphics_;

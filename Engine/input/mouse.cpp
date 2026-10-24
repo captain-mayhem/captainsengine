@@ -31,6 +31,8 @@ Mouse::Mouse(){
   pressed_[0] = false;
   pressed_[1] = false;
   pressed_[2] = false;
+  lastPressButton_ = 0;
+  lastPressTime_ = 0;
   gui_click_ = false;
 #ifdef LINUX
   graphics_ = false;
@@ -134,6 +136,20 @@ void Mouse::doubleClick(int x, int y, int button){
   clickPos_ = CGE::Engine::instance()->getVirtualScreen().toVirtual(x, y);
   if (CGE::IApplication* app = CGE::Engine::instance()->getApplication())
     app->onDoubleClick(clickPos_.x, clickPos_.y, button);
+}
+
+void Mouse::press(int x, int y, int button){
+  double now = getTime();
+  if (button == lastPressButton_ && now - lastPressTime_ < 0.5){
+    //a third press starts a new double click
+    lastPressButton_ = 0;
+    doubleClick(x, y, button);
+  }
+  else{
+    lastPressButton_ = button;
+    lastPressTime_ = now;
+    buttonDown(x, y, button);
+  }
 }
 
 void Mouse::move(int x, int y, int buttons){
