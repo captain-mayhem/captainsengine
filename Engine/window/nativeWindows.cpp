@@ -7,17 +7,35 @@
 #include "../ui/imgui_impl_cge_platform.h"
 
 #include <windowsx.h>
-
-//Windows Vista's, not declared for the engine's _WIN32_WINNT
-#ifndef WM_MOUSEHWHEEL
-#define WM_MOUSEHWHEEL 0x020E
-#endif
+#include <algorithm>
+#include <cstring>
 
 TR_CHANNEL_EXT(CGE_Window);
 
 using namespace CGE;
 
 namespace{
+
+const DWORD WINDOWED_STYLE = WS_OVERLAPPEDWINDOW;
+const DWORD WINDOW_EX_STYLE = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
+//! the timer that renders while the window is moved or sized
+const UINT_PTR SIZE_MOVE_TIMER = 1;
+
+//! the window rectangle around a client area of width x height logical pixels
+RECT windowRect(int width, int height, UINT dpi){
+  RECT rect;
+  rect.left = 0;
+  rect.top = 0;
+  rect.right = MulDiv(width, dpi, 96);
+  rect.bottom = MulDiv(height, dpi, 96);
+  AdjustWindowRectExForDpi(&rect, WINDOWED_STYLE, FALSE, WINDOW_EX_STYLE, dpi);
+  return rect;
+}
+
+WindowsWindow* engineWindow(){
+  Engine* engine = Engine::instance();
+  return engine ? static_cast<WindowsWindow*>(engine->getWindow()) : nullptr;
+}
 
 //! passes a key and the modifier state on to ImGui
 void imguiKey(WPARAM key, bool down){
@@ -37,6 +55,8 @@ void imguiButton(LPARAM pos, int button, bool down){
 LRESULT CALLBACK messageLoop(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
   PAINTSTRUCT ps;
   HDC hdc;
+  //Windows runs its own loop while the window is moved or sized
+  static bool inSizeMove = false;
 
   //process messages
   switch(msg){
@@ -55,8 +75,29 @@ LRESULT CALLBACK messageLoop(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
       }
       CGE::Engine::instance()->resume();
       CGE::Engine::instance()->resize(LOWORD(lparam), HIWORD(lparam));
+      //draw the new size right away instead of stretching the old frame
+      if (inSizeMove)
+        CGE::Engine::instance()->runModalFrame();
       return 0;
       break;
+    case WM_ENTERSIZEMOVE:
+      inSizeMove = true;
+      SetTimer(wnd, SIZE_MOVE_TIMER, USER_TIMER_MINIMUM, nullptr);
+      return 0;
+    case WM_EXITSIZEMOVE:
+      inSizeMove = false;
+      KillTimer(wnd, SIZE_MOVE_TIMER);
+      return 0;
+    case WM_TIMER:
+      if (wparam == SIZE_MOVE_TIMER){
+        CGE::Engine::instance()->runModalFrame();
+        return 0;
+      }
+      break;
+    case WM_DPICHANGED:
+      if (WindowsWindow* window = engineWindow())
+        window->dpiChanged(*(RECT*)lparam);
+      return 0;
     case WM_SETCURSOR:
       //the cursor chosen with Platform::setCursor in the client area
       if (LOWORD(lparam) == HTCLIENT){
@@ -81,7 +122,19 @@ LRESULT CALLBACK messageLoop(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
       break;
     //Alt and F10 (only for ImGui); DefWindowProc keeps Alt+F4 working
     case WM_SYSKEYDOWN:
+      //Alt+Enter toggles fullscreen
+      if (wparam == VK_RETURN && (lparam & (1 << 29))){
+        WindowsWindow* window = engineWindow();
+        if (window && !(lparam & (1 << 30)))
+          window->setFullscreen(!window->isFullscreen());
+        return 0;
+      }
       imguiKey(wparam, true);
+      break;
+    //Alt+Enter would beep
+    case WM_SYSCHAR:
+      if (wparam == VK_RETURN)
+        return 0;
       break;
     case WM_SYSKEYUP:
       imguiKey(wparam, false);
@@ -151,6 +204,7 @@ LRESULT CALLBACK messageLoop(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
 WindowsWindow::WindowsWindow(Gfx::RenderDevice* device, const Gfx::DeviceDesc& desc) : AppWindow(device, desc){
   handle_ = nullptr;
   instance_ = nullptr;
+  memset(&windowedPlacement_, 0, sizeof(windowedPlacement_));
 }
 
 WindowsWindow::~WindowsWindow(){
@@ -160,6 +214,10 @@ WindowsWindow::~WindowsWindow(){
 void WindowsWindow::init(const std::string& name){
   TR_USE(CGE_Window);
   TR_INFO("Initializing window");
+  //per-monitor DPI aware (V2: the non-client area scales too), so that the
+  //window gets its size in pixels and WM_DPICHANGED instead of being scaled
+  //up blurry; fails harmlessly if the application's manifest set it already
+  SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 #ifndef IDI_APPLICATION
 #define IDI_APPLICATION ((LPWSTR)((ULONG_PTR)((WORD)(32512))))
 #endif
@@ -188,74 +246,86 @@ void WindowsWindow::init(const std::string& name){
     EXIT();
   }
 
-  DWORD style = 0;
-  DWORD exStyle = 0;
-
-  if (shown_)
-    applyResolution();
-
-    if (fullscreen_){
-      exStyle = WS_EX_APPWINDOW;
-      style = WS_POPUP;
-      //ShowCursor(FALSE);
-    }
-    else{
-      exStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
-      style = WS_OVERLAPPEDWINDOW;
-    
-
-    RECT windowRect;
-    windowRect.left = (long)0;
-    windowRect.right = (long)width_;
-    windowRect.top = (long)0;
-    windowRect.bottom = (long)height_;
-
-    //Change size
-    AdjustWindowRectEx(&windowRect, style, FALSE, exStyle);
-  }
-
-  if (!(hwnd = CreateWindowEx(exStyle, TEXT(WINDOW_NAME), 
+  //created at the default position, then sized for its monitor's DPI
+  if (!(hwnd = CreateWindowEx(WINDOW_EX_STYLE, TEXT(WINDOW_NAME),
     name.c_str(),
-    WS_CLIPCHILDREN | WS_CLIPSIBLINGS | style,
-    0, 0, width_, height_, nullptr, nullptr, instance_, nullptr))){
+    WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WINDOWED_STYLE,
+    CW_USEDEFAULT, CW_USEDEFAULT, windowedWidth_, windowedHeight_, nullptr, nullptr, instance_, nullptr))){
       TR_ERROR("Create Window failed");
       EXIT();
   }
 
   handle_ = hwnd;
-
-  //take decorations into account
-  RECT rectWin;
-  RECT rectClient;
-  GetWindowRect(handle_, &rectWin);
-  GetClientRect(handle_, &rectClient);
-  int xoffset = (rectWin.right-rectWin.left)-(rectClient.right-rectClient.left);
-  int yoffset = (rectWin.bottom-rectWin.top)-(rectClient.bottom-rectClient.top);
-  rectWin.right += xoffset;
-  rectWin.bottom += yoffset;
-  MoveWindow(handle_, rectWin.left, rectWin.top, rectWin.right-rectWin.left, rectWin.bottom-rectWin.top, TRUE);
+  placeWindow();
+  if (fullscreen_){
+    fullscreen_ = false;
+    setFullscreen(true);
+  }
 
   if (shown_)
     show(true);
 
 }
 
-void WindowsWindow::applyResolution(){
-  TR_USE(CGE_Window);
-  if (fullscreen_){
-    DEVMODE screenSettings;
-    memset(&screenSettings, 0, sizeof(screenSettings));
-    screenSettings.dmSize = sizeof(screenSettings);
-    screenSettings.dmPelsWidth = width_;
-    screenSettings.dmPelsHeight = height_;
-    screenSettings.dmBitsPerPel = bpp_;
-    screenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+void WindowsWindow::placeWindow(){
+  MONITORINFO monitor;
+  monitor.cbSize = sizeof(monitor);
+  GetMonitorInfo(MonitorFromWindow(handle_, MONITOR_DEFAULTTONEAREST), &monitor);
+  const RECT& work = monitor.rcWork;
+  RECT rect = windowRect(windowedWidth_, windowedHeight_, GetDpiForWindow(handle_));
+  //no larger than the work area
+  int width = (std::min)(rect.right-rect.left, work.right-work.left);
+  int height = (std::min)(rect.bottom-rect.top, work.bottom-work.top);
+  int x = work.left + (work.right-work.left-width)/2;
+  int y = work.top + (work.bottom-work.top-height)/2;
+  //the size goes to Engine::resize with WM_SIZE
+  SetWindowPos(handle_, nullptr, x, y, width, height, SWP_NOZORDER | SWP_NOACTIVATE);
+  RECT client;
+  GetClientRect(handle_, &client);
+  width_ = client.right-client.left;
+  height_ = client.bottom-client.top;
+}
 
-    if (ChangeDisplaySettings(&screenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL){
-      TR_WARN("Changing to fullscreen failed - Trying windowed mode");
-      fullscreen_ = false;
-    }
+void WindowsWindow::fitToMonitor(){
+  MONITORINFO monitor;
+  monitor.cbSize = sizeof(monitor);
+  GetMonitorInfo(MonitorFromWindow(handle_, MONITOR_DEFAULTTONEAREST), &monitor);
+  const RECT& rect = monitor.rcMonitor;
+  SetWindowPos(handle_, HWND_TOP, rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top,
+    SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+}
+
+void WindowsWindow::setFullscreen(bool fullscreen){
+  if (!handle_ || fullscreen == fullscreen_){
+    fullscreen_ = fullscreen;
+    return;
   }
+  fullscreen_ = fullscreen;
+  DWORD style = GetWindowLong(handle_, GWL_STYLE);
+  if (fullscreen){
+    windowedPlacement_.length = sizeof(windowedPlacement_);
+    GetWindowPlacement(handle_, &windowedPlacement_);
+    SetWindowLong(handle_, GWL_STYLE, (style & ~WINDOWED_STYLE) | WS_POPUP);
+    fitToMonitor();
+  }
+  else{
+    SetWindowLong(handle_, GWL_STYLE, (style & ~WS_POPUP) | WINDOWED_STYLE);
+    //a hidden window stays hidden
+    if (!IsWindowVisible(handle_))
+      windowedPlacement_.showCmd = SW_HIDE;
+    SetWindowPlacement(handle_, &windowedPlacement_);
+    SetWindowPos(handle_, nullptr, 0, 0, 0, 0,
+      SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+  }
+}
+
+void WindowsWindow::dpiChanged(const RECT& suggested){
+  if (fullscreen_){
+    fitToMonitor();
+    return;
+  }
+  SetWindowPos(handle_, nullptr, suggested.left, suggested.top, suggested.right-suggested.left,
+    suggested.bottom-suggested.top, SWP_NOZORDER | SWP_NOACTIVATE);
 }
 
 Gfx::NativeWindow WindowsWindow::getNativeWindow() const{
@@ -266,23 +336,14 @@ Gfx::NativeWindow WindowsWindow::getNativeWindow() const{
 }
 
 float WindowsWindow::getContentScale() const{
-  //GetDpiForWindow (Windows 10) isn't declared for the engine's _WIN32_WINNT
-  typedef UINT (WINAPI *GetDpiForWindowFunc)(HWND);
-  static GetDpiForWindowFunc getDpiForWindow = (GetDpiForWindowFunc)GetProcAddress(GetModuleHandleA("user32.dll"), "GetDpiForWindow");
-  if (!handle_ || !getDpiForWindow)
+  if (!handle_)
     return 1;
-  UINT dpi = getDpiForWindow(handle_);
-  return dpi > 0 ? dpi/96.0f : 1.0f;
+  return GetDpiForWindow(handle_)/96.0f;
 }
 
 void WindowsWindow::kill(){
   TR_USE(CGE_Window);
   TR_INFO("Killing window");
-  if (fullscreen_){
-    ChangeDisplaySettings(nullptr, 0);
-    ShowCursor(TRUE);
-  }
-
   if (handle_ && !DestroyWindow(handle_)){
     TR_ERROR("Destroying window failed");
     handle_ = nullptr;
@@ -296,15 +357,23 @@ void WindowsWindow::kill(){
 }
 
 void WindowsWindow::changeSize(int width, int height){
-  AppWindow::changeSize(width, height);
-  RECT rectWin;
-  RECT rectClient;
-  GetWindowRect(handle_, &rectWin);
-  GetClientRect(handle_, &rectClient);
-  int xoffset = (rectWin.right-rectWin.left)-(rectClient.right-rectClient.left);
-  int yoffset = (rectWin.bottom-rectWin.top)-(rectClient.bottom-rectClient.top);
-  SetWindowPos(handle_, nullptr, 0, 0, width+xoffset, height+yoffset, SWP_NOMOVE);
-  applyResolution();
+  windowedWidth_ = width;
+  windowedHeight_ = height;
+  if (!handle_)
+    return;
+  if (!fullscreen_){
+    placeWindow();
+    return;
+  }
+  //the size of the window when it leaves fullscreen, about the same centre
+  RECT rect = windowRect(width, height, GetDpiForWindow(handle_));
+  RECT& normal = windowedPlacement_.rcNormalPosition;
+  int x = (normal.left+normal.right)/2 - (rect.right-rect.left)/2;
+  int y = (normal.top+normal.bottom)/2 - (rect.bottom-rect.top)/2;
+  normal.left = x;
+  normal.top = y;
+  normal.right = x+rect.right-rect.left;
+  normal.bottom = y+rect.bottom-rect.top;
 }
 
 void WindowsWindow::messageBox(const std::string& title, const std::string& message){

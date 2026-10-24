@@ -1,7 +1,10 @@
 #if defined(LINUX)
 #include <X11/Xutil.h>
+#include <X11/Xatom.h>
 #include <X11/Xresource.h>
+#include <algorithm>
 #include <cstdlib>
+#include <cstring>
 #include "../system/engine.h"
 #include "../renderer/renderdevice.h"
 #include "nativeLinux.h"
@@ -15,6 +18,8 @@ X11Window::X11Window(Gfx::RenderDevice* device, const Gfx::DeviceDesc& desc) : A
   win_ = 0;
   screen_ = 0;
   contentScale_ = 0;
+  wmProtocols_ = None;
+  wmDelete_ = None;
 }
 
 void X11Window::init(const std::string& name){
@@ -42,37 +47,24 @@ void X11Window::init(const std::string& name){
       vi->visual, AllocNone);
   attr.colormap = color;
   attr.border_pixel = 0;
-  
-  if (shown_)
-    applyResolution(); 
-  
+  attr.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask
+    | LeaveWindowMask | FocusChangeMask;
+  windowedPixels(width_, height_);
+  win_ = XCreateWindow(disp_, RootWindow(disp_, vi->screen), 0, 0,
+      width_, height_, 0, vi->depth, InputOutput, vi->visual,
+      CWBorderPixel | CWColormap | CWEventMask, &attr);
+  wmProtocols_ = XInternAtom(disp_, "WM_PROTOCOLS", False);
+  wmDelete_ = XInternAtom(disp_, "WM_DELETE_WINDOW", False);
+  XSetWMProtocols(disp_, win_, &wmDelete_, 1);
+  XSetStandardProperties(disp_, win_, name.c_str(), name.c_str(),
+      None, nullptr, 0, nullptr);
+  //before the window is mapped, fullscreen is a property
   if (fullscreen_){
-    attr.override_redirect = True;
-    attr.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask
-      | LeaveWindowMask | FocusChangeMask;
-    win_ = XCreateWindow(disp_, RootWindow(disp_, vi->screen), 0, 0,
-        width_, height_, 0, vi->depth, InputOutput, vi->visual,
-        CWBorderPixel | CWColormap | CWEventMask | CWOverrideRedirect,
-        &attr);
-    XWarpPointer(disp_, None, win_, 0, 0, 0, 0, 0, 0);
-    XMapRaised(disp_, win_);
-    XGrabKeyboard(disp_, win_, True, GrabModeAsync, GrabModeAsync, CurrentTime);
-    XGrabPointer(disp_, win_, True, ButtonPressMask | ButtonReleaseMask | PointerMotionMask, GrabModeAsync,
-        GrabModeAsync, win_, None, CurrentTime);
+    fullscreen_ = false;
+    setFullscreen(true);
   }
-  else{
-    attr.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask
-      | LeaveWindowMask | FocusChangeMask;
-    win_ = XCreateWindow(disp_, RootWindow(disp_, vi->screen), 0, 0,
-        width_, height_, 0, vi->depth, InputOutput, vi->visual,
-        CWBorderPixel | CWColormap | CWEventMask, &attr);
-    Atom wmDelete = XInternAtom(disp_, "WM_DELETE_WINDOW", True);
-    XSetWMProtocols(disp_, win_, &wmDelete, 1);
-    XSetStandardProperties(disp_, win_, name.c_str(), name.c_str(), 
-        None, nullptr, 0, nullptr);
-    if (shown_)
-      show(true);
-  }
+  if (shown_)
+    show(true);
   XFree(vi);
 }
 
@@ -107,56 +99,70 @@ float X11Window::getContentScale() const{
   return contentScale_;
 }
 
-void X11Window::applyResolution(){
-  if (fullscreen_){
-    int videoMajor;
-    int videoMinor;
-    XF86VidModeQueryVersion(disp_, &videoMajor, &videoMinor);
+void X11Window::windowedPixels(int& width, int& height) const{
+  float scale = getContentScale();
+  width = (std::min)((int)(windowedWidth_*scale+0.5f), DisplayWidth(disp_, screen_));
+  height = (std::min)((int)(windowedHeight_*scale+0.5f), DisplayHeight(disp_, screen_));
+}
 
-    int numModes;
-    XF86VidModeModeInfo** modes;
-    XF86VidModeGetAllModeLines(disp_, screen_, &numModes, &modes);
-    static bool first = true;
-    if (first){
-      prevDesktop_ = *modes[0];
-      first = false;
-    }
-  
-    //search for best resolution
-    int bestMode = 0;
-    for (int i = 0; i < numModes; i++){
-      if (modes[i]->hdisplay == width_ && modes[i]->vdisplay == height_){
-        bestMode = i;
-      }
-    }
-
-    //Change video mode
-    XF86VidModeSwitchToMode(disp_, screen_, modes[bestMode]);
-    XF86VidModeSetViewPort(disp_, screen_, 0, 0);
-    width_ = modes[bestMode]->hdisplay;
-    height_ = modes[bestMode]->vdisplay;
-    XFree(modes);
- 
+void X11Window::setFullscreen(bool fullscreen){
+  if (!win_ || fullscreen == fullscreen_){
+    fullscreen_ = fullscreen;
+    return;
   }
+  fullscreen_ = fullscreen;
+  Atom state = XInternAtom(disp_, "_NET_WM_STATE", False);
+  Atom fullscreenState = XInternAtom(disp_, "_NET_WM_STATE_FULLSCREEN", False);
+  if (!shown_){
+    //the window manager reads it when the window is mapped
+    if (fullscreen)
+      XChangeProperty(disp_, win_, state, XA_ATOM, 32, PropModeReplace, (unsigned char*)&fullscreenState, 1);
+    else
+      XDeleteProperty(disp_, win_, state);
+    return;
+  }
+  //a mapped window asks the window manager (EWMH)
+  XEvent event;
+  memset(&event, 0, sizeof(event));
+  event.xclient.type = ClientMessage;
+  event.xclient.window = win_;
+  event.xclient.message_type = state;
+  event.xclient.format = 32;
+  event.xclient.data.l[0] = fullscreen ? 1 : 0; //_NET_WM_STATE_ADD or _REMOVE
+  event.xclient.data.l[1] = fullscreenState;
+  event.xclient.data.l[3] = 1; //from an application
+  XSendEvent(disp_, RootWindow(disp_, screen_), False, SubstructureRedirectMask | SubstructureNotifyMask, &event);
+  //the size may have changed in fullscreen (changeSize)
+  if (!fullscreen){
+    int width, height;
+    windowedPixels(width, height);
+    XResizeWindow(disp_, win_, width, height);
+  }
+  XFlush(disp_);
+}
+
+bool X11Window::isCloseRequest(const XEvent& event) const{
+  return event.type == ClientMessage && event.xclient.message_type == wmProtocols_ &&
+    (Atom)event.xclient.data.l[0] == wmDelete_;
 }
 
 void X11Window::kill(){
   TR_USE(CGE_Window);
   TR_INFO("Killing window");
-
-  if (fullscreen_){
-    XF86VidModeSwitchToMode(disp_, screen_, &prevDesktop_);
-    XF86VidModeSetViewPort(disp_, screen_, 0, 0);
-  }
-  
   XCloseDisplay(disp_);
 }
 
 
 void X11Window::changeSize(int width, int height){
-  AppWindow::changeSize(width, height);
-  XResizeWindow(disp_, win_, width, height);
-  applyResolution();
+  windowedWidth_ = width;
+  windowedHeight_ = height;
+  //in fullscreen, the size is used when the window leaves it (setFullscreen)
+  if (!win_ || fullscreen_)
+    return;
+  //the size goes to Engine::resize with ConfigureNotify
+  int pixelWidth, pixelHeight;
+  windowedPixels(pixelWidth, pixelHeight);
+  XResizeWindow(disp_, win_, pixelWidth, pixelHeight);
 }
 
 void X11Window::show(bool doit){

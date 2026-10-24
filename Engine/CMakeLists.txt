@@ -7,9 +7,6 @@ else()
   option(RENDER_EMBEDDED "an embedded platform with OpenGL ES (applications check RENDER_EMBEDDED)" OFF)
   option(NO_PTHREAD_CANCEL "Platform has no pthread cancel" OFF)
 endif()
-if (OS STREQUAL linux)
-  option(DISABLE_XF86VMODE "Disables the X11 xf86 vmode extension" OFF)
-endif()
 # Without threads the engine and its applications do their work in the main
 # loop (the browser's main thread on the web).
 if (EMSCRIPTEN AND NOT CGE_WEB_THREADS)
@@ -167,6 +164,9 @@ target_link_libraries(Engine
 if (WIN32)
 	# applications see the Lua API as dllimport (see extern/lua)
 	target_compile_definitions(Engine INTERFACE LUA_BUILD_AS_DLL)
+	# Windows 10 is the minimum: its API (e.g. per-monitor DPI) is declared
+	# and called directly
+	target_compile_definitions(Engine PUBLIC _WIN32_WINNT=0x0A00 WINVER=0x0A00)
 endif()
 function(cge_engine_public_headers lib)
 	target_include_directories(Engine PUBLIC $<TARGET_PROPERTY:${lib},INTERFACE_INCLUDE_DIRECTORIES>)
@@ -191,11 +191,6 @@ endif()
 
 if (OS STREQUAL linux)
 	target_link_libraries(Engine PUBLIC X11)
-	if (DISABLE_XF86VMODE)
-		target_compile_definitions(Engine PUBLIC DISABLE_XF86VMODE)
-	else()
-		target_link_libraries(Engine PUBLIC Xxf86vm)
-	endif()
 endif()
 
 if (NO_PTHREAD_CANCEL)

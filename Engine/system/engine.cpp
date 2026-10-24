@@ -37,6 +37,7 @@ using std::list;
 #ifdef LINUX
 //XLookupString
 #include <X11/Xutil.h>
+#include <X11/keysym.h>
 #endif
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -65,6 +66,7 @@ Engine::Engine(){
   app_ = nullptr;
   paused_ = false;
   rendering_ = false;
+  frameDepth_ = 0;
   maxFramerate_ = 0;
   updateInterval_ = 1.0/60;
   updateLag_ = 0;
@@ -76,7 +78,6 @@ Engine::Engine(){
   imgui_ = false;
   mShutdownRequested = false;
 #ifdef LINUX
-  lastClick_ = 0;
 #endif
 #ifdef ANDROID
   m_app = nullptr;
@@ -309,9 +310,19 @@ bool Engine::pumpFrame(){
   return !mShutdownRequested;
 }
 
+void Engine::runModalFrame(){
+  if (frameDepth_ == 0)
+    frame(true);
+}
+
 void Engine::frame(bool update){
   if (mShutdownRequested || !isUp_)
     return;
+  struct Depth{
+    int& depth;
+    Depth(int& d) : depth(d) {++depth;}
+    ~Depth() {--depth;}
+  } depth(frameDepth_);
   double currentTime = getTime();
   frameInterval_ = currentTime-frameTime_;
   frameTime_ = currentTime;
@@ -555,6 +566,11 @@ void Engine::processEvents(){
       break;
     case KeyPress:
     {
+      //Alt+Enter toggles fullscreen
+      if (XLookupKeysym(&event.xkey, 0) == XK_Return && (event.xkey.state & Mod1Mask)){
+        win->setFullscreen(!win->isFullscreen());
+        break;
+      }
       imguiModifiers(event.xkey.state);
       ImGui_ImplCGE_Platform_AddKey((int)XLookupKeysym(&event.xkey, 0), true);
       char ascii;
@@ -576,20 +592,12 @@ void Engine::processEvents(){
         Input::Mouse::instance()->wheel(event.xbutton.x, event.xbutton.y, event.xbutton.button == Button4 ? 1 : -1);
       }
       else{
-        double newClick = getTime();
-        if (newClick - lastClick_ < 0.5){
-          Input::Mouse::instance()->doubleClick(event.xbutton.x, event.xbutton.y, event.xbutton.button);
-          lastClick_ = 0;
-        }
-        else{
-          lastClick_ = getTime();
-          Input::Mouse::instance()->buttonDown(event.xbutton.x, event.xbutton.y, event.xbutton.button);
-        }
+        Input::Mouse::instance()->press(event.xbutton.x, event.xbutton.y, event.xbutton.button);
       }
       break;
     case ButtonRelease:
       imguiButton(event.xbutton, false);
-      if (event.xbutton.button <= Button3 && lastClick_ != 0)
+      if (event.xbutton.button <= Button3)
         Input::Mouse::instance()->buttonUp(event.xbutton.x, event.xbutton.y, event.xbutton.button);
       break;
     case MotionNotify:
@@ -606,9 +614,8 @@ void Engine::processEvents(){
       ImGui_ImplCGE_Platform_AddFocus(false);
       break;
     case ClientMessage:
-      if (*XGetAtomName(disp, event.xclient.message_type) == *"WM_PROTOCOLS"){
+      if (win->isCloseRequest(event))
         requestShutdown();
-      }
       break;
     default:
       break;

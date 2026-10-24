@@ -3,9 +3,6 @@
 
 #include <cge_export.h>
 
-#ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0500
-#endif
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -99,6 +96,10 @@ class CGE_API Engine{
         started from update or init. Must not be called from render or from an
         input handler. Returns false once a shutdown is requested. */
     bool pumpFrame();
+    //! runs a frame while the system runs an event loop of its own, as
+    //! Windows does while the window is moved or sized
+    /*! Does nothing while a frame runs (e.g. from pumpFrame). */
+    void runModalFrame();
     void shutdown();
     //! the application, or nullptr while it isn't initialised
     inline IApplication* getApplication() {return app_;}
@@ -204,6 +205,8 @@ class CGE_API Engine{
     bool paused_;
     //! is a frame being rendered? (pumpFrame isn't allowed then)
     bool rendering_;
+    //! the frames running at the moment (pumpFrame nests them)
+    int frameDepth_;
     //! max framerate (0 means unlimited)
     int maxFramerate_;
     //! the fixed update interval
@@ -227,10 +230,6 @@ class CGE_API Engine{
     bool imgui_;
     bool mShutdownRequested;
     
-#ifdef LINUX
-    //! the time of the last click, to detect double clicks
-    double lastClick_;
-#endif
 #ifdef ANDROID
     //! the activity's lifecycle (android_app::onAppCmd)
     static void handleCmd(struct android_app* app, int32_t cmd);

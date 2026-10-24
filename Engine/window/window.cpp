@@ -18,6 +18,8 @@ AppWindow::AppWindow(Gfx::RenderDevice* device, const Gfx::DeviceDesc& desc){
   height_ = CGE::Script::instance()->getNumberSetting("height");
   if (height_ == 0)
     height_ = 480;
+  windowedWidth_ = width_;
+  windowedHeight_ = height_;
   bpp_ = desc.colorBits;
   bool shownSet;
   shown_ = CGE::Script::instance()->getBoolSetting("windowShown", &shownSet);

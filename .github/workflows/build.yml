@@ -49,7 +49,6 @@ jobs:
           sudo apt-get install -y \
             ninja-build \
             libx11-dev \
-            libxxf86vm-dev \
             libgl1-mesa-dev \
             libglu1-mesa-dev \
             libopenal-dev
