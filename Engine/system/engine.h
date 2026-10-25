@@ -29,6 +29,7 @@
 
 namespace CGE{
 class AppWindow;
+class Audio;
 class ScreenText;
 class Forms;
 class Console;
@@ -136,6 +137,10 @@ class CGE_API Engine{
     inline CGE::AppWindow* getWindow() {return win_.get();}
     //! get the console
     inline CGE::Console* getConsole() {return console_.get();}
+    //! the audio: sounds, music, players and streams (audio/audio.h)
+    /*! Opened at startup unless engine.ini says audio = false; without an
+        output device it stays closed and plays nothing. */
+    inline CGE::Audio* getAudio() {return audio_.get();}
     //! is Dear ImGui set up? (not without graphics)
     /*! The engine draws ImGui on top of each frame: applications call ImGui's
         functions in their render() (see ui/imgui_impl_cge_platform.h). */
@@ -227,6 +232,8 @@ class CGE_API Engine{
 
     //! the game console
     std::unique_ptr<CGE::Console> console_;
+    //! the audio
+    std::unique_ptr<CGE::Audio> audio_;
     //! is ImGui set up?
     bool imgui_;
     bool mShutdownRequested;

@@ -3,22 +3,17 @@
 
 #include <string>
 #include <map>
-
-#ifndef DISABLE_SOUND
-#ifdef WIN32
-#include <AL/al.h>
-#include <AL/alc.h>
-#else
-#include <AL/al.h>
-#include <AL/alc.h>
-#endif
-#endif
+#include <memory>
 
 #include <system/thread.h>
 #include <util/activeobject.h>
 
 #include "AdvDoc.h"
 #include "ExecutionContext.h"
+
+namespace CGE{
+class AudioEffect;
+}
 
 namespace adv{
 
@@ -59,10 +54,8 @@ public:
   void setEAXEffect(const std::string& effect);
   void setFadingTime(unsigned time) {mFadingTime = time;}
   unsigned getFadingTime() {return mFadingTime;}
-#ifndef DISABLE_SOUND
-  ALuint getEffectSlot() {return mEffectSlot;}
-  ALuint* getFilters() { return mFilters; }
-#endif
+  //! the effect bus of the players with an effect (EAX reverb or DSP effect); null without audio
+  CGE::AudioEffect* getEffect() {return mEffect.get();}
   bool isEffectEnabled() {return mCurrentEffect != "none";}
   void removeSoundPlayer(SoundPlayer* plyr);
   void setSpeedFactor(float speed);
@@ -76,13 +69,8 @@ protected:
   bool run(unsigned time);
   static SoundEngine* mInstance;
   AdvDocument* mData;
-#ifndef DISABLE_SOUND
-  ALCdevice* mDevice;
-  ALCcontext* mContext;
-  ALuint mEffectSlot;
-  ALuint mEffect[6];
-  ALuint mFilters[2];
-#endif
+  //! OpenAL's effect slot with its dry and wet filters, now an effect bus of the engine's audio
+  std::unique_ptr<CGE::AudioEffect> mEffect;
   std::multimap<std::string, SoundPlayer*> mActiveSounds;
   SoundPlayer* mActiveMusic;
   VideoPlayer* mActiveVideo;

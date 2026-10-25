@@ -918,7 +918,13 @@ namespace StoryDesigner
                 ZipEntry entry = zis.GetNextEntry();
                 while (entry != null)
                 {
-                    writeFile(zis, Path.Combine(datadir, entry.Name));
+                    //the engine's files, some in folders (fonts/)
+                    if (!entry.IsDirectory)
+                    {
+                        string file = Path.Combine(datadir, entry.Name);
+                        Directory.CreateDirectory(Path.GetDirectoryName(file));
+                        writeFile(zis, file);
+                    }
                     entry = zis.GetNextEntry();
                 }
                 zis.Close();

@@ -1,17 +1,7 @@
 ###OPTIONS###
-# The sound code uses the FFmpeg 2.x API, which only the bundled Windows
-# libraries provide (current Linux distributions ship FFmpeg 5+, the web has
-# none). It moves to the engine's audio module later; until then Linux and the
-# web build without sound.
-if (OS STREQUAL "linux" OR OS STREQUAL "web")
-  set(DISABLE_SOUND_DEFAULT ON)
-else()
-  set(DISABLE_SOUND_DEFAULT OFF)
-endif()
-OPTION(DISABLE_SOUND "disables the ffmpeg and openal backends" ${DISABLE_SOUND_DEFAULT})
-OPTION(FFMPEG_OLD_API "activate use of older ffmpeg API" OFF)
+# The sound goes through the engine's audio module (Sound.cpp, SoundPlayer.cpp)
+# on every platform.
 OPTION(JNI_FRONTEND "enables a JNI frontend for Android" OFF)
-OPTION(DISABLE_EFX "disables EFX sound effects" ${EMSCRIPTEN})
 
 # the frontend (window and main loop) and the libraries only it needs
 SET(ADVENTURE_LINK_LIBS)
@@ -21,7 +11,6 @@ IF(RENDER_EMBEDDED)
     SET(ADVENTURE_LINK_LIBS GLESv2 log)
   ELSE()
     SET(ADVENTURE_SRCS CgeWindow.cpp CgeWindow.h)
-    SET(ADVENTURE_LINK_LIBS OpenSLES)
   ENDIF()
 ELSE(RENDER_EMBEDDED)
   # draws through the engine's render device, without own GL calls; also
@@ -170,67 +159,6 @@ cge_embed_shaders(AdventureBase ${CMAKE_CURRENT_SOURCE_DIR}/shaders adventure/ r
 target_include_directories(AdventureBase PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(AdventureBase PUBLIC CGE::Engine antlr xml)
 
-IF(DISABLE_EFX)
-  target_compile_definitions(AdventureBase PUBLIC DISABLE_EFX)
-ENDIF()
-
-# OpenAL is optional on every platform until the sound moves to the engine's
-# audio module (miniaudio, jewelhunter's PLAN.md, Phase 1c step 7); without
-# it the Adventure is silent, and the StoryDesigner's runtime package
-# (engine2.dat) has no OpenAL32.dll
-find_package(OpenAL)
-if (NOT OPENAL_FOUND)
-	message(WARNING "Setting option DISABLE_SOUND as OpenAL was not found")
-	set(DISABLE_SOUND ON CACHE BOOL "" FORCE)
-endif()
-
-IF(NOT DISABLE_SOUND)
-###Open AL###
-target_include_directories(AdventureBase PUBLIC
-	${OPENAL_INCLUDE_DIR}
-	${OPENAL_INCLUDE_DIR}/..
-)
-target_link_libraries(AdventureBase PUBLIC ${OPENAL_LIBRARY})
-
-###ALUT###
-ADD_SUBDIRECTORY(alut)
-target_link_libraries(AdventureBase PUBLIC alut)
-
-###FFMPEG###
-SET(FFMPEG_LIBS avformat avcodec avutil swscale)
-IF(NOT FFMPEG_OLD_API)
-  LIST(APPEND FFMPEG_LIBS swresample)
-ENDIF()
-IF (OS STREQUAL windows)
-  # prebuilt FFmpeg 2.x import libraries and headers
-  foreach(lib ${FFMPEG_LIBS})
-    add_library(${lib} STATIC IMPORTED)
-    set_target_properties(${lib} PROPERTIES
-      IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/lib/${CPU}/${lib}.lib
-      INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/include
-    )
-  endforeach()
-ELSEIF (OS STREQUAL "android")
-  foreach(lib ${FFMPEG_LIBS})
-    add_library(${lib} STATIC IMPORTED)
-    set_target_properties(${lib} PROPERTIES
-      IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/../../../extern/ffmpeg/c4droid_build/lib${lib}/lib${lib}.a
-      INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/include
-    )
-  endforeach()
-ELSE()
-  # system FFmpeg
-  target_link_directories(AdventureBase PUBLIC /usr/local/lib)
-ENDIF()
-target_link_libraries(AdventureBase PUBLIC ${FFMPEG_LIBS})
-
-ELSE(NOT DISABLE_SOUND)
-target_compile_definitions(AdventureBase PUBLIC DISABLE_SOUND)
-ENDIF(NOT DISABLE_SOUND)
-IF(FFMPEG_OLD_API)
-target_compile_definitions(AdventureBase PUBLIC FFMPEG_OLD_API)
-ENDIF(FFMPEG_OLD_API)
-
 # the Lua module (a shared library loaded by Lua) doesn't exist on the web
 if (NOT EMSCRIPTEN)
   ADD_SUBDIRECTORY(lua)
@@ -277,9 +205,7 @@ ENDIF(NOT RENDER_EMBEDDED)
 
 # the web page Adventure.html; a game comes as a data package that the page
 # loads (Adventure.html?data=demo, see test/CMakeLists.txt) to data/game.dat
-cge_web_application(Adventure PRELOAD ffmpeg/bin/engine.ini@engine.ini)
-
-ADD_SUBDIRECTORY(eax2efx)
+cge_web_application(Adventure PRELOAD engine.ini@engine.ini)
 
 if(NOT RENDER_EMBEDDED AND NOT EMSCRIPTEN)
 # engine1.dat is the runtime the StoryDesigner unpacks: the Adventure, the
@@ -299,50 +225,19 @@ if (NOT EMSCRIPTEN)
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/engine1.dat DESTINATION StoryDesigner COMPONENT StoryDesignerEngine)
 endif()
 
+# engine2.dat is the StoryDesigner's package of the engine's other files (it
+# held the OpenAL and FFmpeg libraries): the engine's fonts in fonts/
 if (OS STREQUAL windows)
-#openal
-set(OPENAL_PACK)
-if (NOT DISABLE_SOUND)
-get_filename_component(OPENAL_PATH ${OPENAL_LIBRARY} PATH)
-set (OPENAL_PATH ${OPENAL_PATH}/../bin)
-set(OPENAL_FILE OpenAL32.dll)
-set(OPENAL_DLL "${OPENAL_PATH}/${OPENAL_FILE}")
-message(STATUS "OpenAL: ${OPENAL_DLL}")
-set(OPENAL_PACK -C ${OPENAL_PATH} ${OPENAL_FILE})
-endif()
-
+file(GLOB CGE_FONT_FILES CONFIGURE_DEPENDS ${CGE_FONTS_DIR}/*)
 add_custom_command(OUTPUT engine2.dat
-COMMAND ${Java_JAR_EXECUTABLE} cfM engine2.dat ${OPENAL_PACK}
--C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU} avcodec-55.dll
--C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU} avformat-55.dll
--C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU} avutil-52.dll
--C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU} swresample-0.dll
--C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU} swscale-2.dll
-DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avcodec-55.dll
-${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avformat-55.dll
-${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avutil-52.dll
-${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/swresample-0.dll
-${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/swscale-2.dll
+COMMAND ${Java_JAR_EXECUTABLE} cfM engine2.dat -C ${CGE_FONTS_DIR}/.. fonts
+DEPENDS ${CGE_FONT_FILES}
 )
-
 add_custom_target(pack_engine_deps ALL DEPENDS engine2.dat)
-
-if (NOT DISABLE_SOUND)
-INSTALL(FILES ${OPENAL_DLL} DESTINATION adventure)
-endif()
-
-#ffmpeg
-INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avcodec-55.dll
-${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avformat-55.dll
-${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avutil-52.dll
-${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/swresample-0.dll
-${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/swscale-2.dll
-DESTINATION adventure)
-
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/engine2.dat DESTINATION StoryDesigner COMPONENT StoryDesignerEngine)
 endif()
 
 # the web page has it in its data
 if (NOT EMSCRIPTEN)
-INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/engine.ini DESTINATION adventure)
+INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/engine.ini DESTINATION adventure)
 endif()

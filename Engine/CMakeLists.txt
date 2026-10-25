@@ -16,6 +16,7 @@ else()
 endif()
 option(ENGINE_SINGLE_THREADED "build the engine and its applications without threads" ${ENGINE_SINGLE_THREADED_DEFAULT})
 
+INCLUDE(audio/CMakeLists.txt)
 INCLUDE(image/CMakeLists.txt)
 INCLUDE(input/CMakeLists.txt)
 INCLUDE(io/CMakeLists.txt)
@@ -40,6 +41,7 @@ else()
 	set(CGE_LIBRARY_TYPE SHARED)
 endif()
 ADD_LIBRARY(Engine ${CGE_LIBRARY_TYPE}
+	${Engine_audio_SRCS}
 	${Engine_image_SRCS}
 	${Engine_input_SRCS}
 	${Engine_io_SRCS}
@@ -54,6 +56,8 @@ ADD_LIBRARY(Engine ${CGE_LIBRARY_TYPE}
 	${Engine_common_SRCS}
 	${Engine_util_SRCS}
 
+	${Engine_audio_HDRS}
+	${Engine_audio_internal_HDRS}
 	${Engine_image_HDRS}
 	${Engine_input_HDRS}
 	${Engine_io_HDRS}
@@ -162,7 +166,7 @@ endif()
 # passed on.
 target_link_libraries(Engine
 	PUBLIC lua
-	PRIVATE minizip ZLIB::ZLIB JPEG::JPEG PNG::PNG gif
+	PRIVATE minizip ZLIB::ZLIB JPEG::JPEG PNG::PNG gif miniaudio vorbisfile
 )
 if (WIN32)
 	# applications see the Lua API as dllimport (see extern/lua)
@@ -200,6 +204,8 @@ if (NO_PTHREAD_CANCEL)
 	target_compile_definitions(Engine PRIVATE NO_PTHREAD_CANCEL)
 endif()
 
+SOURCE_GROUP("audio" FILES ${Engine_audio_SRCS})
+SOURCE_GROUP("audio" FILES ${Engine_audio_HDRS} ${Engine_audio_internal_HDRS})
 SOURCE_GROUP("image" FILES ${Engine_image_SRCS})
 SOURCE_GROUP("image" FILES ${Engine_image_HDRS})
 SOURCE_GROUP("input" FILES ${Engine_input_SRCS})
