@@ -5,6 +5,7 @@
 add_executable(cge_tests
 	main.cpp
 	test_assets.cpp
+	test_audio.cpp
 	test_drawing.cpp
 	test_filesystem.cpp
 	test_glcontext.cpp
@@ -24,6 +25,8 @@ add_executable(cge_tests
 	testwindow.h
 )
 target_link_libraries(cge_tests PRIVATE CGE::Engine GTest::gtest)
+# the audio tests encode Ogg Vorbis themselves (the engine has its own decoder)
+target_link_libraries(cge_tests PRIVATE vorbisenc)
 # the test files are read from the source tree, independent of the working directory
 target_compile_definitions(cge_tests PRIVATE CGE_TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")
 # the engine's folder and its fonts, for the Font and ScreenText tests

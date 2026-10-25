@@ -1,4 +1,5 @@
 #include "engine.h"
+#include "../audio/audio.h"
 #include "../input/mouse.h"
 #include "../input/keyboard.h"
 #include "../input/touch.h"
@@ -188,6 +189,11 @@ void Engine::startup(int argc, char** argv){
   if (graphics_)
     startupImGui();
   console_ = std::make_unique<CGE::Console>();
+  //on the web it is opened here, on the browser's main thread, as it must be
+  audio_ = std::make_unique<CGE::Audio>();
+  bool audio = Script::instance()->getBoolSetting("audio", &exists);
+  if (audio || !exists)
+    audio_->init();
   isUp_ = true;
   app_ = internalApplication;
   if (app_)
@@ -284,6 +290,8 @@ void Engine::shutdown(){
     Settings::saveUser();
     TR_INFO("engine shutting down");
     isUp_ = false;
+    //after the application, which deletes its players and streams
+    audio_.reset();
     Input::Keyboard::release();
     Input::Mouse::release();
     Input::Touch::release();
@@ -359,6 +367,7 @@ void Engine::frame(bool update){
   }
 
   console_->update();
+  audio_->update();
 
   if (paused_){
 #ifndef __EMSCRIPTEN__
@@ -502,6 +511,9 @@ void Engine::pause(){
   paused_ = true;
   if (app_)
     app_->onPause();
+  //nothing plays in the background
+  if (audio_)
+    audio_->pause();
   //the system may end the application in the background (Android)
   Settings::saveUser();
 }
@@ -510,6 +522,8 @@ void Engine::resume(){
   if (!paused_)
     return;
   paused_ = false;
+  if (audio_)
+    audio_->resume();
   //don't catch up with the time spent in the background
   frameTime_ = getTime();
   updateLag_ = 0;

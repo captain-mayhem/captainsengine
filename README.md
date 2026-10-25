@@ -19,7 +19,7 @@ On top level is the code of the engine and its main projects. In this Readme, th
 * playground: Small code snippets, ideas or projects that were not continued. In short, all the stuff that is too useless to be put into the repository at top level but too interesting to be thrown away.
 
 ## How to build
-Requirements: CMake 3.21 or newer and a C++20 compiler (Visual Studio 2022/2026, GCC 13). The Adventure also needs a Java JDK (found through `JAVA_HOME` or `PATH`) and, on Windows, OpenAL (`OPENAL_LIBRARY`, `OPENAL_INCLUDE_DIR`).
+Requirements: CMake 3.21 or newer and a C++20 compiler (Visual Studio 2022/2026, GCC 13). The Adventure also needs a Java JDK (found through `JAVA_HOME` or `PATH`).
 
 `CMakePresets.json` has one configure preset per platform; each builds into `build/<preset>`:
 
@@ -38,7 +38,7 @@ cmake --build --preset default
 
 On Windows, the StoryDesigner's C# projects are built by MSBuild in custom targets (`CSharpZip`, `StoryDesigner`, `RemoteControl`), so `cmake --build` and the generated solution build everything. With Ninja, MSBuild must be in `PATH` (a developer prompt). Edit the C# projects in their own solution, `Adventure/Editor/StoryDesigner/StoryDesigner.sln`.
 
-Paths that only exist on your machine (a JDK, an OpenAL build, an NDK) go into a `CMakeUserPresets.json` (not committed) with presets that inherit the ones above and set `environment` or `cacheVariables`.
+Paths that only exist on your machine (a JDK, an NDK) go into a `CMakeUserPresets.json` (not committed) with presets that inherit the ones above and set `environment` or `cacheVariables`.
 
 ### Unit tests
 The engine's unit tests in `tests/` use googletest (`extern/googletest`) and need no window, so they also run on CI machines. They're built by default for desktop builds of the engine itself (`CGE_BUILD_TESTS`; off for Android, the web and when another project includes the engine). Run them with the test preset of the same name:
@@ -55,15 +55,16 @@ The web build is WebAssembly with WebGL 2. Each application becomes a page: `<na
 * **Two configurations:** single-threaded by default, which works on any web server. `CGE_WEB_THREADS=ON` (preset `emscripten-threads`) builds with pthreads and ASYNCIFY, for applications that wait for input in their own nested loop (`Engine::pumpFrame()` yields to the browser); its page must be served cross-origin isolated (the headers `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: require-corp`). Both run the engine's main loop on the browser's main thread, which must not block: there is no frame limiter (the browser paces the frames), and a single-threaded application can't wait in a nested loop.
 * **Files:** the application's preloaded files are its assets (`Assets`); the user folders (`UserDirs`) are in IndexedDB, and the settings store is saved after each frame that changed it, since a page can be closed at any time.
 * **Data packages:** files that several pages share or that are chosen when the page is opened, like the Adventure's games, go into a data package (`cge_web_package`). The page loads the packages named in its address before the application starts: `Adventure.html?data=demo` loads `demo.js` and `demo.data`.
+* **Audio:** Web Audio; browsers start it only after the first click or tap on the page.
 * **Input:** mouse, keyboard and touch (one finger acts as the left mouse button). The page keeps the browser's function of Ctrl+C/V/X, F5, F11 and F12. The clipboard holds the text copied last in the page; Ctrl+V brings the system clipboard's text with it.
-* The Adventure runs in the browser without sound (`DISABLE_SOUND`, as on Linux): `Adventure.html?data=demo` with the demo game, whose package is installed next to it.
+* The Adventure runs in the browser: `Adventure.html?data=demo` with the demo game, whose package is installed next to it.
 
 Notes:
-* The engine is built as a shared library: `CGE.dll` on Windows, `libCGE.so` on Linux. Lua and Dear ImGui are part of it and exported, because applications use their APIs directly (and there must be one ImGui context). The other third-party libraries (zlib with minizip, libpng, libjpeg, giflib, FreeType, glad) are linked into it statically and not exported. The OpenGL backend plugin has its own copy of glad.
-* `extern/` also has miniaudio, libogg and libvorbis, which the engine will use for audio. zlib, libpng, libjpeg, FreeType, Dear ImGui and these libraries are the same copies as in guitads. googletest is only used by the unit tests.
+* The engine is built as a shared library: `CGE.dll` on Windows, `libCGE.so` on Linux. Lua and Dear ImGui are part of it and exported, because applications use their APIs directly (and there must be one ImGui context). The other third-party libraries (zlib with minizip, libpng, libjpeg, giflib, FreeType, miniaudio, libogg and libvorbis, glad) are linked into it statically and not exported. The OpenGL backend plugin has its own copy of glad.
+* Audio (`Engine/audio`, `Engine::getAudio()`) is miniaudio, with libvorbis for Ogg Vorbis: one-shot sounds, music, players, PCM streams for applications that decode themselves, and effect buses (reverb, echo, chorus/flanger, distortion). zlib, libpng, libjpeg, FreeType, Dear ImGui, miniaudio, libogg and libvorbis are the same copies as in guitads. googletest is only used by the unit tests.
 * The UI is Dear ImGui: the engine draws ImGui on top of every frame, so applications call ImGui's functions (`#include <imgui.h>`) in their `render()`. While ImGui wants the keyboard or the mouse (a text field is active, the mouse is over an ImGui window), the application doesn't get the keys and characters, and `Input::Mouse::isGuiClick()` is true. The console (`consol`, toggled with `~`) is an ImGui window.
 * The physics module (ODE) is a separate library, `CGE::Physics`. It is built when `CGE_WITH_PHYSICS` is on, which is the default when OSMRacer is built.
-* On Linux the Adventure is built without sound by default (`DISABLE_SOUND`): its sound code needs the FFmpeg 2.x API, which current distributions don't ship.
+* The Adventure's sound goes through the engine's audio on every platform. Its videos (`playavi`, `playvideo`) aren't played: they were decoded with FFmpeg, which is gone. Flash animations (`playswf`) still play.
 
 ## Using the engine from another project
 Add the engine with `add_subdirectory()` and link the `CGE::Engine` target. It carries the include directories, definitions and the C++20 requirement:

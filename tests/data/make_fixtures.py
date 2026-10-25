@@ -5,9 +5,15 @@ can check that every decoder delivers the same pixels. A width of 3 makes the
 BMP rows need padding. image.jpg can't be written without an encoder; it's a
 copy of heroquest/HQClient/textures/other/script.jpg.
 
+The sounds (audio/): sine.wav is written here; beat.mp3 (its first second)
+and click.ogg come from the Adventure's demo game
+(Adventure/AdvEngine/test/data). The audio tests encode Ogg Vorbis
+themselves.
+
 Run it from anywhere: python make_fixtures.py
 """
 
+import math
 import os
 import struct
 import zipfile
@@ -164,6 +170,48 @@ def atlases():
     write("atlas/pages.json", json.dumps({"textures": pages}, indent=1).encode())
 
 
+DEMO_DATA = os.path.join(HERE, "..", "..", "Adventure", "AdvEngine", "test", "data")
+
+
+def sine_wav(rate=44100, seconds=0.5, freq=440.0, amplitude=0.5):
+    """16-bit mono PCM."""
+    frames = int(rate * seconds)
+    samples = b"".join(struct.pack("<h", int(round(amplitude * 32767 * math.sin(2 * math.pi * freq * i / rate))))
+                       for i in range(frames))
+    fmt = struct.pack("<HHIIHH", 1, 1, rate, rate * 2, 2, 16)
+    body = b"WAVE" + b"fmt " + struct.pack("<I", len(fmt)) + fmt + b"data" + struct.pack("<I", len(samples)) + samples
+    return b"RIFF" + struct.pack("<I", len(body)) + body
+
+
+def mp3_start(data, seconds):
+    """The whole MPEG-1 Layer III frames of the first seconds."""
+    rates = [44100, 48000, 32000]
+    bitrates = [0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320]
+    pos = 0
+    if data[:3] == b"ID3":
+        pos = 10 + ((data[6] << 21) | (data[7] << 14) | (data[8] << 7) | data[9])
+    start = pos
+    duration = 0.0
+    while duration < seconds and pos + 4 <= len(data):
+        header = data[pos:pos + 4]
+        if header[0] != 0xFF or (header[1] & 0xFE) != 0xFA:
+            raise ValueError("not an MPEG-1 Layer III frame at %d" % pos)
+        rate = rates[(header[2] >> 2) & 3]
+        length = 144 * bitrates[header[2] >> 4] * 1000 // rate + ((header[2] >> 1) & 1)
+        pos += length
+        duration += 1152 / rate
+    return data[start:pos]
+
+
+def sounds():
+    os.makedirs(os.path.join(HERE, "audio"), exist_ok=True)
+    write("audio/sine.wav", sine_wav())
+    with zipfile.ZipFile(os.path.join(DEMO_DATA, "music.dat")) as z:
+        write("audio/beat.mp3", mp3_start(z.read("crazybeat.mp3"), 1.0))
+    with zipfile.ZipFile(os.path.join(DEMO_DATA, "sfx.dat")) as z:
+        write("audio/click.ogg", z.read("click.ogg"))
+
+
 def main():
     write("image.bmp", bmp())
     write("image.png", png(PIXELS, 2))
@@ -174,6 +222,7 @@ def main():
     write("folder/a.txt", b"first\n")
     write("folder/b.txt", b"second\n")
     atlases()
+    sounds()
 
 
 if __name__ == "__main__":
