@@ -81,7 +81,8 @@ Notes:
 * The UI is Dear ImGui: the engine draws ImGui on top of every frame, so applications call ImGui's functions (`#include <imgui.h>`) in their `render()`. While ImGui wants the keyboard or the mouse (a text field is active, the mouse is over an ImGui window), the application doesn't get the keys and characters, and `Input::Mouse::isGuiClick()` is true. The console (`consol`, toggled with `~`) is an ImGui window.
 * The physics module (ODE) is a separate library, `CGE::Physics`. It is built when `CGE_WITH_PHYSICS` is on, which is the default when OSMRacer is built.
 * In the Adventure, Ctrl+R restarts the render device (as after a lost context on Android): the game is saved, rebuilt and loaded again.
-* The Adventure's sound goes through the engine's audio on every platform. Its videos (`playavi`, `playvideo`) aren't played: they were decoded with FFmpeg, which is gone. Flash animations (`playswf`) still play.
+* Video (`Engine/video`): `CGE::Video` plays MPEG-1 with MP2 sound (pl_mpeg) and Ogg Theora with Vorbis (libtheora), the pictures as RGBA timed by the sound, which goes through an `AudioStream`; `CGE::VideoDecoder` decodes them on their own.
+* The Adventure's sound goes through the engine's audio on every platform, and its videos (`playavi`, `playvideo`) through `CGE::Video`. The StoryDesigner converts other videos (AVI with any codec, WMV, MPEG-2) into Ogg Theora when they are added or when the game is packed, with `videoconv.exe` (`Adventure/Editor/VideoConverter`, a 32-bit program next to `StoryDesigner.exe`, which decodes with Windows' own codecs: Media Foundation, and Video for Windows for Cinepak and the like). Flash animations (`playswf`) play as before.
 
 ## Using the engine from another project
 Add the engine with `add_subdirectory()` and link the `CGE::Engine` target. It carries the include directories, definitions and the C++20 requirement:

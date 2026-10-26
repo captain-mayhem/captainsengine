@@ -59,6 +59,7 @@ struct AudioStream::Impl{
   std::atomic<bool> halted{false};
   std::atomic<bool> draining{false};
   std::atomic<unsigned> underruns{0};
+  std::atomic<unsigned long long> played{0};
   //guards the sound against setVolume from other threads
   std::mutex mutex;
   float volume = 1;
@@ -88,6 +89,7 @@ ma_result streamRead(ma_data_source* source, void* out, ma_uint64 frameCount, ma
         ma_pcm_rb_commit_read(&s.buffer, count);
         done += count;
       }
+      s.played += done;
       if (done < frameCount && !s.draining)
         ++s.underruns;
     }
@@ -170,6 +172,7 @@ bool AudioStream::open(int sampleRate, int bitsPerSample, int channels){
   s.halted = false;
   s.draining = false;
   s.underruns = 0;
+  s.played = 0;
   s.warned = false;
   if (ma_pcm_rb_init(s.format, s.channels, s.sampleRate, nullptr, nullptr, &s.buffer) != MA_SUCCESS)
     return false;
@@ -263,6 +266,10 @@ void AudioStream::drain(){
     ma_sound_stop(&s.sound);
 }
 
+void AudioStream::finish(){
+  impl_->draining = true;
+}
+
 void AudioStream::halt(){
   Impl& s = *impl_;
   s.halted = true;
@@ -299,6 +306,10 @@ void AudioStream::setEffect(AudioEffect* effect){
 
 unsigned AudioStream::getUnderruns() const{
   return impl_->underruns;
+}
+
+unsigned long long AudioStream::getPlayedFrames() const{
+  return impl_->played;
 }
 
 std::unique_ptr<AudioStream> Audio::createStream(AudioGroup group){

@@ -20,6 +20,7 @@ add_executable(cge_tests
 	test_sprites.cpp
 	test_text.cpp
 	test_userdirs.cpp
+	test_video.cpp
 	test_zip.cpp
 	testenv.h
 	testwindow.h
@@ -27,6 +28,8 @@ add_executable(cge_tests
 target_link_libraries(cge_tests PRIVATE CGE::Engine GTest::gtest)
 # the audio tests encode Ogg Vorbis themselves (the engine has its own decoder)
 target_link_libraries(cge_tests PRIVATE vorbisenc)
+# the video tests encode Theora themselves
+target_link_libraries(cge_tests PRIVATE theoraenc)
 # the test files are read from the source tree, independent of the working directory
 target_compile_definitions(cge_tests PRIVATE CGE_TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")
 # the engine's folder and its fonts, for the Font and ScreenText tests

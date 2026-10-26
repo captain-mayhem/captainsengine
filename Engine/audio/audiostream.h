@@ -43,6 +43,8 @@ public:
   size_t getQueuedBytes() const;
   //! waits until everything queued has played, then stops
   void drain();
+  //! marks the end without waiting: what is queued plays out, even less than the start needs
+  void finish();
   //! stops at once and drops what is queued; write queues nothing until the next open
   void halt();
   //! closes the stream
@@ -54,6 +56,8 @@ public:
   void setEffect(AudioEffect* effect);
   //! how often it ran dry while playing (for diagnostics)
   unsigned getUnderruns() const;
+  //! the sample frames the mixer has taken from the queue since open (a clock for what plays)
+  unsigned long long getPlayedFrames() const;
 
   struct Impl;
 private:
