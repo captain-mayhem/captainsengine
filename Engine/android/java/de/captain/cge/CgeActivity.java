@@ -36,10 +36,16 @@ import java.nio.charset.StandardCharsets;
  *   TextInputView. It covers the bottom of the screen; the window keeps its
  *   size (SOFT_INPUT_ADJUST_NOTHING);
  * - the mouse's pointer icon (Platform::setCursor).
- * The engine also reads and writes the clipboard through it. The native code
- * calls its methods on the engine's thread.
+ * The engine also reads and writes the clipboard through it, and takes the
+ * application's arguments from the starting intent: the String array extra
+ * EXTRA_ARGUMENTS becomes argv[1] and on (IApplication::init), e.g. the game
+ * that a launcher activity of the application picked. The native code calls
+ * its methods on the engine's thread.
  */
 public class CgeActivity extends NativeActivity {
+  /** the intent's extra with the application's arguments, a String[] */
+  public static final String EXTRA_ARGUMENTS = "de.captain.cge.ARGUMENTS";
+
   private OnBackInvokedCallback backCallback;
   private TextInputView textInput;
   /** created on the UI thread, used on the engine's */
@@ -131,6 +137,17 @@ public class CgeActivity extends NativeActivity {
     ClipDescription description = clipboard.getPrimaryClipDescription();
     return description != null && (description.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)
         || description.hasMimeType(ClipDescription.MIMETYPE_TEXT_HTML));
+  }
+
+  /** the application's arguments from the starting intent (EXTRA_ARGUMENTS), each as UTF-8 */
+  public byte[][] getArguments() {
+    String[] args = getIntent() != null ? getIntent().getStringArrayExtra(EXTRA_ARGUMENTS) : null;
+    if (args == null)
+      return new byte[0][];
+    byte[][] utf8 = new byte[args.length][];
+    for (int i = 0; i < args.length; ++i)
+      utf8[i] = (args[i] != null ? args[i] : "").getBytes(StandardCharsets.UTF_8);
+    return utf8;
   }
 
   /** the mouse's pointer icon over the window, a PointerIcon.TYPE_ (0 hides it) */

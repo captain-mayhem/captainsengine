@@ -34,7 +34,7 @@ class Engine{
 public:
   ~Engine();
   static void init() {mInstance = new Engine();}
-  static void deinit() {delete mInstance;}
+  static void deinit() {delete mInstance; mInstance = nullptr;}
   static Engine* instance() {return mInstance;}
   void setData(AdvDocument* doc);
   void render(unsigned time);
@@ -73,6 +73,9 @@ public:
   bool walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir, float speedFactor);
   Animator* getAnimator() {return mAnimator;}
   SaveStateProvider* getSaver() {return mSaver;}
+  //! does a save hold the game's state completely: a room is shown, no
+  //! cutscene runs (saves don't keep it) and nothing is being loaded
+  bool isSaveable();
   Vec2i getResolution() {return mData->getProjectSettings()->resolution;}
   ItemObject* createItem(const std::string& name, int count);
   void setUseObject(const std::string& object, const std::string& objectInfo);

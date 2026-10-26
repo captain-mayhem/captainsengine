@@ -1,22 +1,11 @@
 ###OPTIONS###
 # The sound goes through the engine's audio module (Sound.cpp, SoundPlayer.cpp)
 # on every platform.
-OPTION(JNI_FRONTEND "enables a JNI frontend for Android" OFF)
 
-# the frontend (window and main loop) and the libraries only it needs
-SET(ADVENTURE_LINK_LIBS)
-IF(RENDER_EMBEDDED)
-  IF(JNI_FRONTEND)
-    SET(ADVENTURE_SRCS JNIFrontend.cpp)
-    SET(ADVENTURE_LINK_LIBS GLESv2 log)
-  ELSE()
-    SET(ADVENTURE_SRCS CgeWindow.cpp CgeWindow.h)
-  ENDIF()
-ELSE(RENDER_EMBEDDED)
-  # draws through the engine's render device, without own GL calls; also
-  # the web's frontend (the engine's window and main loop in the browser)
-  SET(ADVENTURE_SRCS CgeWindow.cpp CgeWindow.h)
-ENDIF(RENDER_EMBEDDED)
+# the frontend (window and main loop): an engine application that draws
+# through the engine's render device, without own GL calls, on every platform
+# (on the web in the browser, on Android in the engine's CgeActivity)
+SET(ADVENTURE_SRCS CgeWindow.cpp CgeWindow.h)
 
 ###ANTLR###
 
@@ -36,46 +25,37 @@ if (MSVC)
   target_compile_definitions(antlr PRIVATE _CRT_SECURE_NO_DEPRECATE)
 endif()
 
-# Java runs ANTLR (the script parser) and jar (the StoryDesigner runtime packages)
-if (OS STREQUAL "android")
-  INCLUDE(FindJava)
-  if (NOT Java_JAVA_EXECUTABLE)
-    set(Java_JAVA_EXECUTABLE dalvikvm CACHE FILEPATH "" FORCE)
-  endif()
-else()
-  find_package(Java COMPONENTS Runtime Development)
-  if (NOT Java_JAVA_EXECUTABLE OR NOT Java_JAR_EXECUTABLE)
-    message(FATAL_ERROR "The Adventure needs a Java JDK (java and jar): set JAVA_HOME, "
-      "put the JDK's bin folder in PATH, or turn the Adventure off (PROJECT_ADVENTURE=OFF)")
-  endif()
+# Java runs ANTLR (the script parser) and jar (the StoryDesigner runtime
+# packages), on the build machine for every platform (for Android the JDK
+# that Gradle runs on)
+find_package(Java COMPONENTS Runtime Development)
+if (NOT Java_JAVA_EXECUTABLE OR NOT Java_JAR_EXECUTABLE)
+  message(FATAL_ERROR "The Adventure needs a Java JDK (java and jar): set JAVA_HOME, "
+    "put the JDK's bin folder in PATH, or turn the Adventure off (PROJECT_ADVENTURE=OFF)")
 endif()
 
 SET(PARSER_SRCS
-${CMAKE_CURRENT_BINARY_DIR}/pcdkParser.c
+${CMAKE_CURRENT_BINARY_DIR}/pcdkParser.cpp
 ${CMAKE_CURRENT_BINARY_DIR}/pcdkParser.h
-${CMAKE_CURRENT_BINARY_DIR}/pcdkLexer.c
+${CMAKE_CURRENT_BINARY_DIR}/pcdkLexer.cpp
 ${CMAKE_CURRENT_BINARY_DIR}/pcdkLexer.h
 )
 
 SET_SOURCE_FILES_PROPERTIES(${PARSER_SRCS} PROPERTIES GENERATED TRUE)
-# the generated C sources are compiled as C++ (only those: a header with a
-# language becomes an object file of its own)
-SET_SOURCE_FILES_PROPERTIES(
-${CMAKE_CURRENT_BINARY_DIR}/pcdkParser.c
-${CMAKE_CURRENT_BINARY_DIR}/pcdkLexer.c
-PROPERTIES
-LANGUAGE CXX
-)
-
-if(${OS} STREQUAL "android")
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/antlrworks_android.jar DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-set(ANTLR ${CMAKE_CURRENT_BINARY_DIR}/antlrworks_android.jar)
-else()
-set(ANTLR ${CMAKE_CURRENT_SOURCE_DIR}/antlrworks-1.2.3.jar)
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  # ANTLR's generated code has "if ((a == b))"
+  SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_BINARY_DIR}/pcdkParser.cpp ${CMAKE_CURRENT_BINARY_DIR}/pcdkLexer.cpp
+    PROPERTIES COMPILE_OPTIONS -Wno-parentheses-equality)
 endif()
 
+set(ANTLR ${CMAKE_CURRENT_SOURCE_DIR}/antlrworks-1.2.3.jar)
+
+# ANTLR writes C sources, which are compiled as C++: renamed to .cpp, since
+# clang deprecates C files in C++ mode
 ADD_CUSTOM_COMMAND(OUTPUT ${PARSER_SRCS}
-COMMAND ${JAVA_RUNTIME} -cp ${ANTLR} org.antlr.Tool -o ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/pcdk.g
+COMMAND ${Java_JAVA_EXECUTABLE} -cp ${ANTLR} org.antlr.Tool -o ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/pcdk.g
+COMMAND ${CMAKE_COMMAND} -E rename pcdkParser.c pcdkParser.cpp
+COMMAND ${CMAKE_COMMAND} -E rename pcdkLexer.c pcdkLexer.cpp
 DEPENDS pcdk.g
 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 COMMENT "antlr'ing grammar"
@@ -159,49 +139,23 @@ cge_embed_shaders(AdventureBase ${CMAKE_CURRENT_SOURCE_DIR}/shaders adventure/ r
 target_include_directories(AdventureBase PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(AdventureBase PUBLIC CGE::Engine antlr xml)
 
-# the Lua module (a shared library loaded by Lua) doesn't exist on the web
-if (NOT EMSCRIPTEN)
+# the Lua module, a shared library that a stand-alone Lua interpreter loads to
+# drive the engine (require "cge"); nothing in a web page or an APK loads it
+if (NOT EMSCRIPTEN AND NOT ANDROID)
   ADD_SUBDIRECTORY(lua)
 endif()
 
 ###Adventure###
 
-IF(JNI_FRONTEND)
-
-ADD_LIBRARY(Adventure SHARED
-	${ADVENTURE_SRCS}
-  CmdReceiver.h
-  CmdReceiver.cpp
-)
-
-ADD_SUBDIRECTORY(java)
-
-elseif(OS STREQUAL "android")
-
-ADD_LIBRARY(Adventure SHARED
-	${ADVENTURE_SRCS}
-  CmdReceiver.h
-  CmdReceiver.cpp
-)
-
-
-ELSE(JNI_FRONTEND)
-
-ADD_EXECUTABLE(Adventure
+# an executable, or on Android the library libAdventure.so that CgeActivity
+# loads (the Gradle project in Adventure/android)
+cge_add_application(Adventure WIN32
   ${ADVENTURE_SRCS}
   CmdReceiver.h
   CmdReceiver.cpp
 )
 
-ENDIF(JNI_FRONTEND)
-
-TARGET_LINK_LIBRARIES(Adventure PRIVATE AdventureBase ${ADVENTURE_LINK_LIBS})
-
-IF (NOT RENDER_EMBEDDED)
-SET_TARGET_PROPERTIES(Adventure
-PROPERTIES
-WIN32_EXECUTABLE TRUE)
-ENDIF(NOT RENDER_EMBEDDED)
+TARGET_LINK_LIBRARIES(Adventure PRIVATE AdventureBase)
 
 # the web page Adventure.html; a game comes as a data package that the page
 # loads (Adventure.html?data=demo, see test/CMakeLists.txt) to data/game.dat
@@ -221,7 +175,7 @@ endif()
 cge_copy_runtime(Adventure)
 INSTALL(TARGETS Adventure RUNTIME DESTINATION adventure LIBRARY	DESTINATION adventure COMPONENT adv_runtime)
 cge_install_runtime(Adventure adventure COMPONENT adv_runtime)
-if (NOT EMSCRIPTEN)
+if (NOT RENDER_EMBEDDED AND NOT EMSCRIPTEN)
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/engine1.dat DESTINATION StoryDesigner COMPONENT StoryDesignerEngine)
 endif()
 

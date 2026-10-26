@@ -38,7 +38,8 @@ public:
     virtual void deinit() {}
     virtual bool update(unsigned time) {return true;}
     virtual void apply(BlitObject* input)=0;
-    virtual void activate(bool fade, ...);
+    //! fade is a bool; an int, since va_start after a parameter that is promoted is undefined
+    virtual void activate(int fade, ...);
     void activate() {Effect::activate(mFade);}
     virtual void deactivate();
     virtual void deactivate(int data);

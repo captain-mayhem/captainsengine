@@ -82,7 +82,7 @@ void PostProcessor::Effect::init(const Vec2f& size){
   mUniforms.texScale[1] = size.y/powy;
 }
 
-void PostProcessor::Effect::activate(bool fade, ...){
+void PostProcessor::Effect::activate(int fade, ...){
   std::list<Effect*>& activeEffects = Engine::instance()->getPostProcessor()->mActiveEffects;
   bool found = false;
   for (std::list<Effect*>::iterator iter = activeEffects.begin(); iter != activeEffects.end(); ++iter){
@@ -143,7 +143,7 @@ public:
     mUniforms.pixelOffset[0] = 1.0f/size.x;
     mUniforms.pixelOffset[1] = 1.0f/size.y;
   }
-  virtual void activate(bool fade, ...){
+  virtual void activate(int fade, ...){
     va_list args;
     va_start(args, fade);
     float strength = (float)va_arg(args,double);
@@ -239,7 +239,7 @@ public:
       mBlendTex = nullptr;
     }
   }
-  virtual void activate(bool fade, ...){
+  virtual void activate(int fade, ...){
     va_list args;
     va_start(args, fade);
     float strength = (float)va_arg(args,double);
@@ -331,7 +331,7 @@ public:
     }
     mPrevFrames.clear();
   }
-  virtual void activate(bool fade, ...){
+  virtual void activate(int fade, ...){
     va_list args;
     va_start(args, fade);
     float strength = (float)va_arg(args,double);
@@ -428,7 +428,7 @@ public:
       mBlendTex = nullptr;
     }
   }
-  virtual void activate(bool fade, ...){
+  virtual void activate(int fade, ...){
     Effect::activate(fade);
     if (fade){
       memset(mImage.getData(), 127, mImage.getImageSize());
@@ -549,7 +549,7 @@ public:
   DruggedEffect(){
     mName = "drugged";
   }
-  virtual void activate(bool fade, ...){
+  virtual void activate(int fade, ...){
     va_list args;
     va_start(args, fade);
     float strength = (float)va_arg(args,double);
@@ -663,7 +663,7 @@ public:
     delete mFBO;
     mFBO = nullptr;
   }
-  virtual void activate(bool fade, ...){
+  virtual void activate(int fade, ...){
     Lightning* lightning = new Lightning;
     Lightning& ltn = *lightning;
     va_list args;
@@ -872,7 +872,7 @@ public:
   }
   virtual void deinit(){
   }
-  virtual void activate(bool fade, ...){
+  virtual void activate(int fade, ...){
     va_list args;
     va_start(args, fade);
     float strength = (float)va_arg(args,double);
@@ -931,7 +931,7 @@ public:
   ZoomEffect(){
     mName = "zoom";
   }
-  virtual void activate(bool fade, ...){
+  virtual void activate(int fade, ...){
     va_list args;
     va_start(args, fade);
     mPos.x = va_arg(args, int);
@@ -1032,7 +1032,7 @@ public:
   }
   virtual void deinit(){
   }
-  virtual void activate(bool fade, ...){
+  virtual void activate(int fade, ...){
     va_list args;
     va_start(args, fade);
     int fadein = va_arg(args, int);
@@ -1090,7 +1090,7 @@ public:
     mUniforms.pixelOffset[0] = 1.0f/Engine::roundToPowerOf2((unsigned)size.x);
     mUniforms.pixelOffset[1] = 1.0f/Engine::roundToPowerOf2((unsigned)size.y);
   }
-  virtual void activate(bool fade, ...){
+  virtual void activate(int fade, ...){
     va_list args;
     va_start(args, fade);
     mPixSize = (float)va_arg(args, double);
@@ -1130,7 +1130,7 @@ public:
     mUniforms.pixelOffset[0] = 1.0f/Engine::roundToPowerOf2((unsigned)size.x);
     mUniforms.pixelOffset[1] = 1.0f/Engine::roundToPowerOf2((unsigned)size.y);
   }
-  virtual void activate(bool fade, ...){
+  virtual void activate(int fade, ...){
     va_list args;
     va_start(args, fade);
     float strength = (float)va_arg(args, double);
