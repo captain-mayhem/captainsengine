@@ -268,6 +268,11 @@ void Engine::exitGame(){
   delete mConsole;
 }
 
+bool Engine::isSaveable(){
+  return mInitialized && mMainRoomLoaded && mInterpreter->getCutscene() == nullptr &&
+    mPendingLoadRoom.room == nullptr && mRoomsToUnload.empty() && mLoader.isIdle();
+}
+
 CGE::Image* Engine::getImage(const std::string& name){
   if (name.empty())
     return nullptr;

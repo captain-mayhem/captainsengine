@@ -573,6 +573,33 @@ void init(int argc, char** argv, void* androidApp){
   (void)androidApp;
 }
 
+#ifdef ANDROID
+std::vector<std::string> getActivityArguments(){
+  std::vector<std::string> args;
+  JavaEnv javaEnv;
+  JNIEnv* env = javaEnv.get();
+  jmethodID method = env ? activityMethod(env, "getArguments", "()[[B") : nullptr;
+  if (!method)
+    return args;
+  jobjectArray array = (jobjectArray)env->CallObjectMethod(activity->clazz, method);
+  if (env->ExceptionCheck()){
+    env->ExceptionClear();
+    return args;
+  }
+  jsize count = array ? env->GetArrayLength(array) : 0;
+  for (jsize i = 0; i < count; ++i){
+    jbyteArray utf8 = (jbyteArray)env->GetObjectArrayElement(array, i);
+    std::string arg((size_t)env->GetArrayLength(utf8), '\0');
+    env->GetByteArrayRegion(utf8, 0, (jsize)arg.size(), (jbyte*)&arg[0]);
+    env->DeleteLocalRef(utf8);
+    args.push_back(arg);
+  }
+  if (array)
+    env->DeleteLocalRef(array);
+  return args;
+}
+#endif
+
 void applyEngineSettings(const std::string& assetDir, const std::string& appName){
   if (!assetDir.empty())
     Assets::setRoot(assetDir);

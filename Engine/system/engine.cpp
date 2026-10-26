@@ -781,9 +781,14 @@ void Engine::windowCreated(){
   if (!m_app->window || mShutdownRequested)
     return;
   if (!isUp_){
-    static char title[] = "cge";
-    char* argv[] = {title, nullptr};
-    startup(1, argv);
+    //argv[0], then the arguments of the activity's intent
+    std::vector<std::string> args = PlatformInternal::getActivityArguments();
+    args.insert(args.begin(), "cge");
+    std::vector<char*> argv;
+    for (std::string& arg : args)
+      argv.push_back(&arg[0]);
+    argv.push_back(nullptr);
+    startup((int)args.size(), argv.data());
   }
   else if (graphics_){
     //the next window; the resources are still there unless the context was lost

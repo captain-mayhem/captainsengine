@@ -59,11 +59,28 @@ The web build is WebAssembly with WebGL 2. Each application becomes a page: `<na
 * **Input:** mouse, keyboard and touch (one finger acts as the left mouse button). The page keeps the browser's function of Ctrl+C/V/X, F5, F11 and F12. The clipboard holds the text copied last in the page; Ctrl+V brings the system clipboard's text with it.
 * The Adventure runs in the browser: `Adventure.html?data=demo` with the demo game, whose package is installed next to it.
 
+### Android
+The `android` presets build the engine (and the Adventure's native library) with the NDK. An app is a Gradle project that runs CMake: the application is a shared library (`cge_add_application`) that the engine's activity `de.captain.cge.CgeActivity` (`Engine/android/java`) loads. The String array extra `de.captain.cge.ARGUMENTS` of the intent that starts it becomes the application's `argv[1]` and on.
+
+The Adventure's Gradle project is `Adventure/android` (Android Studio's JDK or another JDK 17+ in `JAVA_HOME`, the SDK in `local.properties` or `ANDROID_HOME`). It has two flavors:
+
+* **player** (`de.captain_online.adventure`): a list of games. A game is added from a folder or a `.zip` with its `game.dat` (also in a subfolder), picked with the system's file picker, and copied into the app's storage. A long press deletes a game; its saved games stay.
+* **game**: one game packed into the APK, by default the demo. `-Padventure.game=<folder with game.dat>`, `-Padventure.applicationId=...`, `-Padventure.name=...` and `-Padventure.versionCode=...` (or the same in `gradle.properties`) make an app of another game. It copies the game into its storage at the first start after an installation or update.
+
+```
+cd Adventure/android
+./gradlew assembleDebug        # app/build/outputs/apk/{player,game}/debug/
+./gradlew bundleGameRelease -Padventure.game=C:/MyGame/data -Padventure.applicationId=com.example.mygame -Padventure.name="My Game"
+```
+
+The release signing key comes from the Gradle properties `adventure.keystore`, `adventure.keystorePassword`, `adventure.keyAlias` and `adventure.keyPassword`. In the game, a tap clicks where the finger is lifted (the hover text follows the finger while it moves), a long press does what the right button does, and back opens the game's menu. When the app goes into the background the game is saved, if it is not in a cutscene, and the next start continues there if the system ended the process; quitting the game from its menu starts it anew.
+
 Notes:
 * The engine is built as a shared library: `CGE.dll` on Windows, `libCGE.so` on Linux. Lua and Dear ImGui are part of it and exported, because applications use their APIs directly (and there must be one ImGui context). The other third-party libraries (zlib with minizip, libpng, libjpeg, giflib, FreeType, miniaudio, libogg and libvorbis, glad) are linked into it statically and not exported. The OpenGL backend plugin has its own copy of glad.
 * Audio (`Engine/audio`, `Engine::getAudio()`) is miniaudio, with libvorbis for Ogg Vorbis: one-shot sounds, music, players, PCM streams for applications that decode themselves, and effect buses (reverb, echo, chorus/flanger, distortion). zlib, libpng, libjpeg, FreeType, Dear ImGui, miniaudio, libogg and libvorbis are the same copies as in guitads. googletest is only used by the unit tests.
 * The UI is Dear ImGui: the engine draws ImGui on top of every frame, so applications call ImGui's functions (`#include <imgui.h>`) in their `render()`. While ImGui wants the keyboard or the mouse (a text field is active, the mouse is over an ImGui window), the application doesn't get the keys and characters, and `Input::Mouse::isGuiClick()` is true. The console (`consol`, toggled with `~`) is an ImGui window.
 * The physics module (ODE) is a separate library, `CGE::Physics`. It is built when `CGE_WITH_PHYSICS` is on, which is the default when OSMRacer is built.
+* In the Adventure, Ctrl+R restarts the render device (as after a lost context on Android): the game is saved, rebuilt and loaded again.
 * The Adventure's sound goes through the engine's audio on every platform. Its videos (`playavi`, `playvideo`) aren't played: they were decoded with FFmpeg, which is gone. Flash animations (`playswf`) still play.
 
 ## Using the engine from another project

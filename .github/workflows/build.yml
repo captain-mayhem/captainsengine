@@ -16,11 +16,12 @@ jobs:
           - os: ubuntu-latest
             preset: default
             build_dir: build/default
-          # only the engine library: the projects don't build for Android yet
+          # the engine and the Adventure; the other projects are desktop
+          # programs. The Adventure's APKs are built by Gradle below.
           - os: ubuntu-latest
             preset: android
             build_dir: build/android
-            options: -DPROJECT_ADVENTURE=OFF -DPROJECT_HEROQUEST=OFF -DPROJECT_OSMRACER=OFF
+            options: -DPROJECT_HEROQUEST=OFF -DPROJECT_OSMRACER=OFF
           # the engine and the Adventure as web pages, in both
           # web configurations; the other projects are desktop programs
           - os: ubuntu-latest
@@ -35,9 +36,9 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # The Adventure needs a JDK (ANTLR and the StoryDesigner's runtime packages)
-      - if: matrix.preset != 'android'
-        uses: actions/setup-java@v5
+      # The Adventure needs a JDK (ANTLR and the StoryDesigner's runtime
+      # packages); Gradle runs on it too
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 21
@@ -79,3 +80,9 @@ jobs:
         run: ctest --test-dir ${{ matrix.build_dir }} -C Release --output-on-failure -j 4
       - if: matrix.preset != 'android'
         run: cmake --install ${{ matrix.build_dir }} --config Release
+      # the Adventure's Android project: the player and the demo game as debug
+      # APKs (Gradle installs the NDK and CMake versions it names)
+      - if: matrix.preset == 'android'
+        working-directory: Adventure/android
+        # through bash: committed from Windows, gradlew has no executable bit
+        run: bash ./gradlew assembleDebug

@@ -4,6 +4,7 @@
 // Engine-internal hooks of the platform services; not part of the public API.
 
 #include <string>
+#include <vector>
 
 #ifdef ANDROID
 struct AAssetManager;
@@ -31,6 +32,8 @@ void setDefaultAppName(const std::string& name);
 void setAndroidDataPath(const char* path);
 //! the APK's assets (assets.cpp)
 void setAssetManager(AAssetManager* mgr);
+//! the application's arguments from the activity's intent (CgeActivity.EXTRA_ARGUMENTS), without argv[0] (services.cpp)
+std::vector<std::string> getActivityArguments();
 #endif
 
 }

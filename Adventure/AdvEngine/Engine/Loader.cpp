@@ -335,6 +335,13 @@ bool ResLoader::run(){
     TR_DETAIL("Executing an event");
     Event* res = evt->execute();
     delete evt;
+    if (res == nullptr)
+      TR_BREAK("Event produced no result");
+    //the request leaves its queue when its result enters the other one, under
+    //both locks (in waitUntilFinished's order), so waitUntilFinished never
+    //sees a done request still queued and waits for a result that came already
+    mMutex.lock();
+    mQReq.popEvent();
     if (res != nullptr){
       mResMutex.lock();
       mQRes.addEvent(res);
@@ -343,11 +350,6 @@ bool ResLoader::run(){
 #endif
       mResMutex.unlock();
     }
-    else{
-      TR_BREAK("Event produced no result");
-    }
-    mMutex.lock();
-    mQReq.popEvent();
   }
 #ifndef ENGINE_SINGLE_THREADED
   mCond.wait(mMutex);
@@ -398,6 +400,15 @@ void ResLoader::waitUntilFinished(){
     mResMutex.unlock();
     handleResultEvent();
   }
+}
+
+bool ResLoader::isIdle(){
+  mMutex.lock();
+  mResMutex.lock();
+  bool idle = mQReq.size() + mQRes.size() == 0;
+  mResMutex.unlock();
+  mMutex.unlock();
+  return idle;
 }
 
 void ResLoader::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change, int fading, int depthoffset, bool executeEnter){

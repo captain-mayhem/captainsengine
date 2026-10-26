@@ -1,5 +1,6 @@
-# the StoryDesigner is a Windows program; the web build has only the Adventure
-if (NOT CMAKE_HOST_WIN32 OR EMSCRIPTEN)
+# the StoryDesigner is a Windows program; the web and Android builds have
+# only the Adventure
+if (NOT CMAKE_HOST_WIN32 OR EMSCRIPTEN OR ANDROID)
   return()
 endif()
 

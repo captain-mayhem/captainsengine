@@ -44,6 +44,8 @@ public:
   void loadAnimation(const std::string& prefix, float fps, Vec2i pos, Vec2i size, ExecutionContext* loadreason, bool wait);
   bool handleResultEvent();
   void waitUntilFinished();
+  //! nothing to load and no loaded results waiting
+  bool isIdle();
 protected:
   virtual bool run();
 private:
