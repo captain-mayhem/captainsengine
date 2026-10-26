@@ -42,6 +42,8 @@ public:
   SoundPlayer* getMusic(const std::string& name);
   SoundPlayer* getMusic(const std::string& name, bool effectEnabled);
   VideoPlayer* getMovie(const std::string& name, bool isSwf);
+  //! ends the video (or swf) that plays; its script goes on
+  void removeVideo();
   void update(unsigned time);
   void removeSpeaker(CharacterObject* chr);
   std::ostream& save(std::ostream& out);

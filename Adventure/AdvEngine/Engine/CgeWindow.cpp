@@ -166,6 +166,8 @@ void deviceLost(){
   else
 #endif
   saveState(restartState);
+  //a video's layer is on the old device; the video isn't in the save, so it ends
+  SoundEngine::instance()->removeVideo();
   Engine::instance()->exitGame();
   Engine::deinit();
   gameStarted = false;

@@ -30,6 +30,7 @@ INCLUDE(ui/CMakeLists.txt)
 INCLUDE(window/CMakeLists.txt)
 INCLUDE(common/CMakeLists.txt)
 INCLUDE(util/CMakeLists.txt)
+INCLUDE(video/CMakeLists.txt)
 
 # The engine is a shared library (CGE.dll / libCGE.so), so that applications
 # link the LGPL code dynamically. Only what is marked CGE_API is exported.
@@ -55,6 +56,7 @@ ADD_LIBRARY(Engine ${CGE_LIBRARY_TYPE}
 	${Engine_window_SRCS}
 	${Engine_common_SRCS}
 	${Engine_util_SRCS}
+	${Engine_video_SRCS}
 
 	${Engine_audio_HDRS}
 	${Engine_audio_internal_HDRS}
@@ -72,6 +74,8 @@ ADD_LIBRARY(Engine ${CGE_LIBRARY_TYPE}
 	${Engine_window_HDRS}
 	${Engine_common_HDRS}
 	${Engine_util_HDRS}
+	${Engine_video_HDRS}
+	${Engine_video_internal_HDRS}
 )
 add_library(CGE::Engine ALIAS Engine)
 target_compile_features(Engine PUBLIC cxx_std_20)
@@ -167,6 +171,7 @@ endif()
 target_link_libraries(Engine
 	PUBLIC lua
 	PRIVATE minizip ZLIB::ZLIB JPEG::JPEG PNG::PNG gif miniaudio vorbisfile
+	theoradec vorbis pl_mpeg
 )
 if (WIN32)
 	# applications see the Lua API as dllimport (see extern/lua)
@@ -232,6 +237,8 @@ SOURCE_GROUP("common" FILES ${Engine_common_SRCS})
 SOURCE_GROUP("common" FILES ${Engine_common_HDRS})
 SOURCE_GROUP("util" FILES ${Engine_util_SRCS})
 SOURCE_GROUP("util" FILES ${Engine_util_HDRS})
+SOURCE_GROUP("video" FILES ${Engine_video_SRCS})
+SOURCE_GROUP("video" FILES ${Engine_video_HDRS} ${Engine_video_internal_HDRS})
 
 
 # Applications define their entry point with CGE_MAIN (system/application.h).

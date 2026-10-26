@@ -120,6 +120,8 @@ SET(AppBuilder_SRCS
   Sound.h
   SoundPlayer.cpp
   SoundPlayer.h
+  StreamVideoPlayer.cpp
+  StreamVideoPlayer.h
   String.cpp
   String.h
   SwfPlayer.cpp

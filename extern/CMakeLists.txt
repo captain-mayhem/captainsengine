@@ -64,6 +64,8 @@ endif()
 add_subdirectory(libogg)
 unset(CMAKE_TRY_COMPILE_TARGET_TYPE)
 add_subdirectory(libvorbis)
+add_subdirectory(libtheora)
+add_subdirectory(pl_mpeg)
 
 add_subdirectory(lua)
 add_subdirectory(libxml)

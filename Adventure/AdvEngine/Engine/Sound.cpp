@@ -6,11 +6,13 @@
 #include <system/engine.h>
 #include <audio/audio.h>
 #include <audio/audioeffect.h>
+#include <video/video.h>
 
 #include "EFXeffects.h"
 #include "AdvDoc.h"
 #include "Engine.h"
 #include "SoundPlayer.h"
+#include "StreamVideoPlayer.h"
 #include "SwfPlayer.h"
 
 using namespace adv;
@@ -320,7 +322,8 @@ VideoPlayer* SoundEngine::getMovie(const std::string& name, bool isSwf){
   plyr = createVideoPlayer(name, *db, isSwf);
   if (plyr)
     plyr->realize();
-  else
+  //the swf player keeps the file, a video has its own copy
+  if (!plyr || !isSwf)
     delete db;
   if (mActiveVideo){
     mActiveVideo->stop();
@@ -349,10 +352,19 @@ VideoPlayer* SoundEngine::createVideoPlayer(const std::string& name, const DataB
     SwfPlayer* plyr = new SwfPlayer(name, &db);
     return plyr;
   }
-  //videos (playavi, playvideo) were decoded with FFmpeg, which is gone;
-  //their return with small decoders is planned (jewelhunter's PLAN.md)
-  TR_WARN("Video %s isn't played: videos aren't supported", name.c_str());
-  return nullptr;
+  //MPEG-1 or Theora; the StoryDesigner converts other videos when they are added
+  std::vector<unsigned char> bytes((const unsigned char*)db.data, (const unsigned char*)db.data+db.length);
+  std::unique_ptr<CGE::Video> video = CGE::Video::open(std::move(bytes), CGE::Engine::instance()->getAudio(), CGE::AudioGroup::Sound);
+  if (!video){
+    TR_WARN("Video %s isn't played: it is neither MPEG-1 nor Theora", name.c_str());
+    return nullptr;
+  }
+  return new StreamVideoPlayer(name, std::move(video));
+}
+
+void SoundEngine::removeVideo(){
+  delete mActiveVideo;
+  mActiveVideo = nullptr;
 }
 
 void SoundEngine::update(unsigned time){

@@ -10,12 +10,20 @@ and click.ogg come from the Adventure's demo game
 (Adventure/AdvEngine/test/data). The audio tests encode Ogg Vorbis
 themselves.
 
+The video (video/mpeg1.mpg) is made with ffmpeg, if it is on the PATH (it is
+skipped otherwise): two seconds of MPEG-1 at 25 pictures per second, 160x120
+(not a multiple of 16 high), with the quadrants red, green, blue and white
+(left to right, top to bottom), and a 440 Hz sine in MP2 at 44.1 kHz. The
+video tests encode Theora themselves.
+
 Run it from anywhere: python make_fixtures.py
 """
 
 import math
 import os
+import shutil
 import struct
+import subprocess
 import zipfile
 import zlib
 
@@ -212,6 +220,25 @@ def sounds():
         write("audio/click.ogg", z.read("click.ogg"))
 
 
+def videos():
+    ffmpeg = shutil.which("ffmpeg")
+    if not ffmpeg:
+        print("ffmpeg not found: video/mpeg1.mpg is kept as it is")
+        return
+    os.makedirs(os.path.join(HERE, "video"), exist_ok=True)
+    quadrant = "s=80x60:r=25:d=2"
+    graph = (f"color=c=red:{quadrant}[a];color=c=lime:{quadrant}[b];"
+             f"color=c=blue:{quadrant}[c];color=c=white:{quadrant}[d];"
+             "[a][b][c][d]xstack=inputs=4:layout=0_0|w0_0|0_h0|w0_h0[v];"
+             # ffmpeg's sine has an amplitude of 1/8
+             "sine=frequency=440:sample_rate=44100:duration=2,volume=4[s]")
+    subprocess.run([ffmpeg, "-y", "-loglevel", "error", "-filter_complex", graph,
+                    "-map", "[v]", "-map", "[s]", "-c:v", "mpeg1video", "-q:v", "2",
+                    "-c:a", "mp2", "-b:a", "128k", "-f", "mpeg",
+                    os.path.join(HERE, "video", "mpeg1.mpg")], check=True)
+    print("video/mpeg1.mpg")
+
+
 def main():
     write("image.bmp", bmp())
     write("image.png", png(PIXELS, 2))
@@ -223,6 +250,7 @@ def main():
     write("folder/b.txt", b"second\n")
     atlases()
     sounds()
+    videos()
 
 
 if __name__ == "__main__":
