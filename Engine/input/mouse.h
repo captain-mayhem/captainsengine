@@ -24,12 +24,21 @@
 #define MB_CTRL ControlMask
 #define MB_SHIFT ShiftMask
 #endif
-#if defined(ANDROID)
-#define MB_LEFT 0
-#define MB_MIDDLE 1
+#if defined(__EMSCRIPTEN__)
+//button numbers and state bits at once, like Windows' MK_ values
+#define MB_LEFT 1
 #define MB_RIGHT 2
-#define MB_CTRL 3
 #define MB_SHIFT 4
+#define MB_CTRL 8
+#define MB_MIDDLE 16
+#endif
+#if defined(ANDROID)
+//button numbers and state bits at once, as on the web
+#define MB_LEFT 1
+#define MB_RIGHT 2
+#define MB_SHIFT 4
+#define MB_CTRL 8
+#define MB_MIDDLE 16
 #endif
 
 namespace Input{
@@ -43,13 +52,17 @@ namespace Input{
     void buttonDown(int x, int y, int button);
     void buttonUp(int x, int y, int button);
     void doubleClick(int x, int y, int button);
+    //! a press on a platform without double-click messages: a double click
+    //! when it is the second press of the same button within 0.5 s, otherwise
+    //! a buttonDown (the release goes to buttonUp either way, as on Windows)
+    void press(int x, int y, int button);
     void move(int x, int y, int buttons);
     void wheel(int x, int y, int delta);
     //! get the position of the last click in virtual coordinates
     inline CGE::Vector2D getClickPos() {return clickPos_;}
     //! reset click position
     inline void resetMousePos() {clickPos_ = CGE::Vector2D(-1,-1);}
-    //! was the last click a gui click
+    //! was the last click on an ImGui window? (the application gets it anyway)
     inline bool isGuiClick() {return gui_click_;}
     //! show the cursor
     void showCursor(bool visible);
@@ -68,12 +81,16 @@ namespace Input{
     CGE::Vector2D clickPos_;
     //! the position of the mouse
     CGE::Vector2D mousePos_;
-    //! was it a click on a gui element?
+    //! was it a click on an ImGui window?
     bool gui_click_;
     //! is the mouse pointer present
     bool mousePointer_;
     //! is a mouse button pressed
     bool pressed_[3];
+    //! the button of the last press that may start a double click, 0 for none
+    int lastPressButton_;
+    //! the time of that press
+    double lastPressTime_;
 #ifdef LINUX
     //! app has graphics context
     bool graphics_;

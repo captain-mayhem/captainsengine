@@ -5,30 +5,35 @@
 #include "../window/window.h"
 #include "../window/nativeLinux.h"
 #include "../window/nativeWindows.h"
-#include "../gui/gui.h"
-#include "../gui/console.h"
 #include "../math/vector.h"
 #include "../input/mouse.h"
 #include "../platform/platform_internal.h"
-
-using std::list;
+#include "../ui/imgui_impl_cge_platform.h"
 
 using CGE::AppWindow;
-using Gui::InputField;
-using Gui::Button;;
-using Gui::Console;
-using Gui::GuiElement;
 using CGE::Vector2D;
 
 using namespace Input;
 
 Mouse* Mouse::mouse_ = nullptr;
 
+namespace{
+
+//! the mouse is over an ImGui window (or ImGui keeps it, e.g. while dragging)
+bool imguiWantsMouse(){
+  return ImGui::GetCurrentContext() && ImGui::GetIO().WantCaptureMouse;
+}
+
+}
+
 Mouse::Mouse(){
   mousePointer_ = true;
   pressed_[0] = false;
   pressed_[1] = false;
   pressed_[2] = false;
+  lastPressButton_ = 0;
+  lastPressTime_ = 0;
+  gui_click_ = false;
 #ifdef LINUX
   graphics_ = false;
 #endif
@@ -88,50 +93,8 @@ void Mouse::buttonDown(int x, int y, int button){
   CGE::VirtualScreen& screen = CGE::Engine::instance()->getVirtualScreen();
   clickPos_ = screen.toVirtual(x, y);
   
-  gui_click_ = false;
-/*
-  //click on a GUI-element?
-  list<InputField*>::iterator iter;
-  for (iter = CGE::Engine::instance()->getInputFields().begin(); iter != CGE::Engine::instance()->getInputFields().end(); iter++){
-    if ((*iter)->isClicked(Vector2D(clickPos_.x, screen.getHeight()-clickPos_.y))){
-      //set only input focus if console is not active
-      if (!CGE::Engine::instance()->getConsole()->isActive()){
-        //another input field was active, so remove cursor
-        CGE::Engine::instance()->setActiveInput(*iter);
-        gui_click_ = true;
-        break;
-      }
-    }
-  }
-*/
-  list<GuiElement*>::iterator iter2;
-  for (iter2 = CGE::Engine::instance()->getGuiElements().begin(); iter2 != CGE::Engine::instance()->getGuiElements().end(); iter2++){
-    if ((*iter2)->isClicked(Vector2D(clickPos_.x, screen.getHeight()-clickPos_.y))){
-      /*//is it an input field?
-      InputField* inp = dynamic_cast<InputField*>(*iter2);
-      if ((*iter2)->getType() == Gui::InputFieldT && inp){
-        //set only input focus if console is not active
-        if (!CGE::Engine::instance()->getConsole()->isActive()){
-          (*iter2)->process();
-          //another input field was active, so remove cursor
-          //CGE::Engine::instance()->setActiveInput(inp);
-          gui_click_ = true;
-          break;
-        }
-      }*/
-      //allow only clicks if the console is deactivated
-      if (!CGE::Engine::instance()->getConsole()->isActive()){
-        /*InputField* input = CGE::Engine::instance()->getActiveInput();
-        if (input != NULL){
-          input->removeChar();
-        }
-        CGE::Engine::instance()->setActiveInput(NULL);*/
-        (*iter2)->process();
-        gui_click_ = true;
-        break;
-      }
-    }
-  }
+  //a click on an ImGui window; the application gets it, but can check isGuiClick
+  gui_click_ = imguiWantsMouse();
 
   if (!gui_click_){
     switch(button){
@@ -175,6 +138,20 @@ void Mouse::doubleClick(int x, int y, int button){
     app->onDoubleClick(clickPos_.x, clickPos_.y, button);
 }
 
+void Mouse::press(int x, int y, int button){
+  double now = getTime();
+  if (button == lastPressButton_ && now - lastPressTime_ < 0.5){
+    //a third press starts a new double click
+    lastPressButton_ = 0;
+    doubleClick(x, y, button);
+  }
+  else{
+    lastPressButton_ = button;
+    lastPressTime_ = now;
+    buttonDown(x, y, button);
+  }
+}
+
 void Mouse::move(int x, int y, int buttons){
   //map to virtual resolution
   if (!CGE::Engine::instance())
@@ -194,6 +171,9 @@ void Mouse::wheel(int x, int y, int delta){
   if (!wnd)
     return;
   mousePos_ = CGE::Engine::instance()->getVirtualScreen().toVirtual(x, y);
+  //the wheel scrolls the ImGui window under the mouse
+  if (imguiWantsMouse())
+    return;
   if (CGE::IApplication* app = CGE::Engine::instance()->getApplication())
     app->onMouseWheel(mousePos_.x, mousePos_.y, delta);
 }
@@ -216,6 +196,10 @@ void Mouse::showCursor(bool visible){
   else{
     XDefineCursor(wnd->getDisplay(), wnd->getWindow(), invCursor_);
   }
+#endif
+#if defined(__EMSCRIPTEN__)
+  //the canvas's CSS cursor, "none" while hidden
+  CGE::PlatformInternal::applyCursor();
 #endif
 }
 

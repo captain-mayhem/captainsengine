@@ -9,10 +9,6 @@
 // | File: matrix.cpp                                                 |
 //  ==================================================================
 
-#ifdef WIN32
-	#include <windows.h>
-#endif
-
 #include "matrix.h"
 
 #include <cstring>
@@ -270,17 +266,6 @@ ostream& CGE::operator<<(ostream& stream, const Matrix& mat)
 	stream<<"|-----------|"<<std::endl;
   return stream;
 }
-/*
-void Matrix::fromOpenGL()
-{
-	glGetFloatv(GL_MODELVIEW_MATRIX, data_);
-}
-*/
-/*void Matrix::toOpenGL()
-{
-	glMultMatrixf(data_);
-}*/
-
 Matrix operator*(float number, const Matrix& mat){
 	return mat*number;
 }

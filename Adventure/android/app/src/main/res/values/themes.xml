@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- the game: full screen without a title; CgeActivity also hides the
+         system bars -->
+    <style name="Theme.Adventure" parent="@android:style/Theme.Material.NoActionBar.Fullscreen">
+        <item name="android:windowBackground">@android:color/black</item>
+    </style>
+    <!-- the list of games -->
+    <style name="Theme.Adventure.Launcher" parent="@android:style/Theme.Material.NoActionBar" />
+</resources>

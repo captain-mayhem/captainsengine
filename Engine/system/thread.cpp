@@ -17,6 +17,29 @@ using namespace CGE;
 
 TR_CHANNEL(CGE_Thread)
 
+namespace{
+
+//! what a new thread runs
+struct ThreadStart{
+  void (*proc)(void* data);
+  void* data;
+};
+
+//! the system's thread function: calling proc through a cast to this type is
+//! undefined (WebAssembly traps on the signature, x86 Windows has stdcall here)
+#ifdef WIN32
+DWORD WINAPI threadMain(LPVOID param){
+#else
+void* threadMain(void* param){
+#endif
+  ThreadStart start = *(ThreadStart*)param;
+  delete (ThreadStart*)param;
+  start.proc(start.data);
+  return 0;
+}
+
+}
+
 Thread::Thread() : mStarted(false){
 #ifdef WIN32
   thread_ = INVALID_HANDLE_VALUE;
@@ -28,14 +51,19 @@ Thread::Thread() : mStarted(false){
 int Thread::create(void (*proc)(void* data), void* data){
   mStarted = true;
   int threadID = 0;
+  ThreadStart* start = new ThreadStart{proc, data};
 #ifdef WIN32
-  thread_ = CreateThread(nullptr, 65536, (LPTHREAD_START_ROUTINE)proc, data, 0, (LPDWORD)&threadID);
+  thread_ = CreateThread(nullptr, 65536, threadMain, start, 0, (LPDWORD)&threadID);
+  if (thread_ == nullptr)
+    delete start;
 #endif
-#ifdef UNIX 
+#ifdef UNIX
   pthread_attr_t attr;
   pthread_attr_init(&attr);
   pthread_attr_setstacksize(&attr, 65536);
-  pthread_create(&thread_, &attr, (void* (*)(void*))proc, data);
+  if (pthread_create(&thread_, &attr, threadMain, start) != 0)
+    delete start;
+  pthread_attr_destroy(&attr);
   threadID = (int)thread_;
 #endif
   return threadID;
@@ -88,6 +116,14 @@ void Thread::sleep(int milliseconds){
 }
 
 void Thread::setPriority(Priority priority){
+  //not for a thread that wasn't created (pthread_setschedprio crashes on it)
+#ifdef WIN32
+  if (thread_ == INVALID_HANDLE_VALUE)
+    return;
+#else
+  if (!thread_)
+    return;
+#endif
 #ifdef WIN32
   int winprio = 0;
   switch(priority){

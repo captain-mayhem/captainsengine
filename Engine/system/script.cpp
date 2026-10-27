@@ -67,7 +67,9 @@ bool Script::getBoolSetting(const string& name, bool* exists){
   TR_USE(CGE_Script);
   lua_getglobal(L, name.c_str());
   if (!lua_isboolean(L,-1)){
-    TR_WARN("Lua_Error: %s is no boolean.", name.c_str());
+    //a caller that asks whether it exists has a default for a missing setting
+    if (!exists || !lua_isnil(L,-1))
+      TR_WARN("Lua_Error: %s is no boolean.", name.c_str());
     if (exists)
       *exists = false;
     lua_pop(L, 1);

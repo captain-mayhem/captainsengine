@@ -97,10 +97,6 @@ public:
   CGE::Vec3<float*> operator[](int i);
   const float& at(int i) const {return data_[i];}
   float& at(int i) {return data_[i];}
-  //! get matrix from OpenGL
-	//void fromOpenGL();
-  //! multiply matrix with the OpenGL matrix stack
-	//void toOpenGL();
   //! transpose a matrix
 	Matrix transpose() const;
   //! invert a matrix

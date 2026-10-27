@@ -114,6 +114,12 @@ float StreetGenerator::getAngle(const Vec3f& v1, const Vec3f& v2, const Vec3f& n
 #define _finite finite
 #endif
 
+//! a vertex of the street geometry, facing up
+static SimpleMesh::Vertex streetVertex(const Vec3f& pos){
+  SimpleMesh::Vertex vtx = {{pos.x, pos.y, pos.z}, {0, 1, 0}};
+  return vtx;
+}
+
 Vec3f StreetGenerator::intersectLine(const Vec3f& p1, const Vec3f& dir1, const Vec3f& p2, const Vec3f& dir2){
   float my = ((p2.z - p1.z)*dir1.x + (p1.x - p2.x)*dir1.z)/(dir2.x*dir1.z-dir2.z*dir1.x);
   if (!_finite(my)){
@@ -126,21 +132,15 @@ void StreetGenerator::generateStreetGeometry(Ptr<MapChunk::Node> node, CGE::Octr
   //generate street crossing geometry
   if (node->succs_.size() >= 3){
     BBox crossingbox;
-    VertexBuffer* crossing = Engine::instance()->getRenderer()->createVertexBuffer();
-    crossing->create(VB_POSITION | VB_NORMAL, 2*(int)node->succs_.size()+1);
-    crossing->lockVertexPointer();
-    crossing->setPosition(0, mIntersections[node][mIntersections[node].size() - 1]);
-    crossing->setNormal(0, Vec3f(0,1,0));
+    std::vector<SimpleMesh::Vertex> crossing(2*mIntersections[node].size()+1);
+    crossing[0] = streetVertex(mIntersections[node][mIntersections[node].size() - 1]);
     crossingbox.addPoint(node->mPos);
     for (unsigned i = 0; i < mIntersections[node].size(); ++i){
-      crossing->setPosition(2*(i+1)-1, mIntersections[node][i]);
-      crossing->setNormal(2*(i+1)-1, Vec3f(0,1,0));
+      crossing[2*(i+1)-1] = streetVertex(mIntersections[node][i]);
       crossingbox.addPoint(mIntersections[node][i]);
-      crossing->setPosition(2*(i+1), node->mPos);
-      crossing->setNormal(2*(i+1), Vec3f(0, 1, 0));
+      crossing[2*(i+1)] = streetVertex(node->mPos);
     }
-    crossing->unlockVertexPointer();
-    SimpleMesh* crossingmesh = new SimpleMesh(crossing, NULL, VB_Tristrip);
+    SimpleMesh* crossingmesh = new SimpleMesh(*Engine::instance()->getRenderDevice(), crossing, {}, Gfx::PrimitiveType::TriangleStrip);
     Vec3f mx = crossingbox.getMax();
     Vec3f mn = crossingbox.getMin();
     crossingbox = BBox(mn-Vec3f(1,0.1f,1), mx+Vec3f(1,0.1f,1));
@@ -170,19 +170,8 @@ void StreetGenerator::generateStreetGeometry(Ptr<MapChunk::Node> node, CGE::Octr
     box.addPoint(sl);
     box.addPoint(er);
     box.addPoint(el);
-    VertexBuffer* vb = Engine::instance()->getRenderer()->createVertexBuffer();
-    vb->create(VB_POSITION | VB_NORMAL, 4);
-    vb->lockVertexPointer();
-    vb->setPosition(0, el);
-    vb->setNormal(0, Vec3f(0,1,0));
-    vb->setPosition(1, sl);
-    vb->setNormal(1, Vec3f(0,1,0));
-    vb->setPosition(2, er);
-    vb->setNormal(2, Vec3f(0,1,0));
-    vb->setPosition(3, sr);
-    vb->setNormal(3, Vec3f(0,1,0));
-    vb->unlockVertexPointer();
-    SimpleMesh* mesh = new SimpleMesh(vb, NULL, VB_Tristrip);
+    std::vector<SimpleMesh::Vertex> vb = {streetVertex(el), streetVertex(sl), streetVertex(er), streetVertex(sr)};
+    SimpleMesh* mesh = new SimpleMesh(*Engine::instance()->getRenderDevice(), vb, {}, Gfx::PrimitiveType::TriangleStrip);
     Vec3f mx = box.getMax();
     Vec3f mn = box.getMin();
     box = BBox(mn-Vec3f(1,0.1f,1), mx+Vec3f(1,0.1f,1));

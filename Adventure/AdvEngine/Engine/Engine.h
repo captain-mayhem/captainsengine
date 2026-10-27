@@ -21,6 +21,7 @@ class SaveStateProvider;
 class SoundPlayer;
 class ParticleEngine;
 class PostProcessor;
+class Graphics;
 class ItemObject;
 class GuiRoom;
 class Console;
@@ -33,13 +34,15 @@ class Engine{
 public:
   ~Engine();
   static void init() {mInstance = new Engine();}
-  static void deinit() {delete mInstance;}
+  static void deinit() {delete mInstance; mInstance = nullptr;}
   static Engine* instance() {return mInstance;}
   void setData(AdvDocument* doc);
   void render(unsigned time);
   void initGame(exit_callback exit_cb, set_mouse_callback set_mouse_cb);
   void exitGame();
-  CGE::Texture* genTexture(const CGE::Image* image, Vec2i& size, Vec2f& scale, const CGE::Image* alphaimage=NULL);
+  //! a texture of the image's size rounded up to powers of 2, with the image in its top left corner
+  /*! size gets the image's size, scale the part of the texture it covers. */
+  CGE::Gfx::Texture* genTexture(const CGE::Image* image, Vec2i& size, Vec2f& scale, const CGE::Image* alphaimage=NULL);
   void beginRendering();
   void endRendering(bool inverse=false);
   void insertToBlit(BaseBlitObject* obj);
@@ -70,6 +73,9 @@ public:
   bool walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir, float speedFactor);
   Animator* getAnimator() {return mAnimator;}
   SaveStateProvider* getSaver() {return mSaver;}
+  //! does a save hold the game's state completely: a room is shown, no
+  //! cutscene runs (saves don't keep it) and nothing is being loaded
+  bool isSaveable();
   Vec2i getResolution() {return mData->getProjectSettings()->resolution;}
   ItemObject* createItem(const std::string& name, int count);
   void setUseObject(const std::string& object, const std::string& objectInfo);
@@ -108,10 +114,10 @@ public:
   void enterText(const String& variable, int maxcharacters, ExecutionContext* suspensionReason);
   int getMouseWheelDelta() {return mWheelCount;}
   void setMouseWheelDelta(int delta) {mWheelCount = delta;}
-  void restoreRenderDefaults();
   void forceNotToRenderUnloadingRoom() {mForceNotToRenderUnloadingRoom = true;}
   AdvDocument* getData() {return mData;}
   PostProcessor* getPostProcessor() {return mPostProc;}
+  Graphics* getGraphics() {return mGraphics;}
   RoomObject* getMainRoom();
   void removeScript(ExecutionContext* ctx);
   void showMouse(bool doIt) {mMouseShown = doIt;}
@@ -146,9 +152,7 @@ public:
   void popupMenu();
   bool isCoinMenuActive() { return mCoinShown; }
   bool applyCommandToSelObj(bool prevObj);
-  void drawQuad();
-  void drawQuadLines();
-  void fillWithStdQuad(CGE::VertexBuffer* vb);
+  //! flips the model matrix vertically, so what is drawn into a render target is upright in its texture
   void flipTexture();
 protected:
   Engine();
@@ -156,8 +160,7 @@ protected:
   AdvDocument* mData;
   //rendering
   std::vector<std::list<BaseBlitObject*> > mBlitQueues;
-  CGE::VertexBuffer* mVerts;
-  CGE::IndexBuffer* mInds;
+  Graphics* mGraphics;
   bool mInitialized;
   Vec2i mScrollOffset;
   //data

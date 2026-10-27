@@ -1748,7 +1748,7 @@ int ScriptFunctions::function(lua_State* L){
     if (d.getInt() == 0){
       std::string txt = d.getString();
       bool loop = false;
-      CSTATE* state = (CSTATE*)func->getCode()->get(0);
+      CSTATE* state = (CSTATE*)CodeSegment::get(func->getCode(), 0);
       if ((txt.size() >= 3 && txt.substr(0, 3) == "inf") || txt == "*"){
         loop = true;
         state->setState(CSTATE::NORMAL);
@@ -1823,9 +1823,9 @@ int ScriptFunctions::enterText(lua_State* L){
     if (data.isEC()){
       ExecutionContext* text = data.getEC();
       //get and init the variable
-      CCode* code = text->getCode()->get(text->getCode()->numInstructions() - 2);
+      CCode* code = CodeSegment::get(text->getCode(), text->getCode()->numInstructions() - 2);
       if (code == NULL) //no string prepended to variable
-        code = text->getCode()->get(text->getCode()->numInstructions() - 1);
+        code = CodeSegment::get(text->getCode(), text->getCode()->numInstructions() - 1);
       if (code->getType() != CCode::LOAD){
         TR_USE(ADV_ScriptFunc);
         TR_BREAK("Something's wrong");

@@ -14,10 +14,18 @@ namespace CGE{
     | Service      | Windows | Linux (X11) | Android | Web     |
     |--------------|---------|-------------|---------|---------|
     | tick clock   | yes     | yes         | yes     | yes     |
-    | clipboard    | yes     | Phase 1c    | Phase 1c| Phase 1c|
-    | cursors      | yes     | yes         | -       | Phase 1c|
+    | clipboard    | yes     | yes (1)     | yes (2) | yes (3) |
+    | cursors      | yes     | yes         | yes (2) | yes     |
+    | text input   | -       | -           | yes (2) | yes     |
     | open URL     | yes     | xdg-open    | intent  | new tab |
     | open file    | yes     | xdg-open    | -       | -       |
+
+    (1) The CLIPBOARD selection. The window owns the copied text, so it is
+    gone when the application quits, unless a clipboard manager took it.
+    (2) With the engine's CgeActivity (Engine/android/java); a plain
+    NativeActivity has none of them. Cursors are for a mouse.
+    (3) The web reads the last text copied or pasted in the page (Ctrl+V
+    brings the system clipboard's text with it), not the clipboard itself.
 
     Where a service is missing, the functions do nothing and return false or
     an empty result. Text (clipboard, URLs) is UTF-8; file paths use the
@@ -52,6 +60,21 @@ public:
   static void setCursor(Cursor cursor);
   //! the cursor set last
   static Cursor getCursor();
+
+  //! shows the on-screen keyboard, for typing into a text field
+  /*! The typed text arrives as from a hardware keyboard: characters
+      (IApplication::onChar) and the keys backspace, delete and enter. ImGui's
+      platform backend calls it while one of its text fields is active, and
+      again for a tap while it stays active, which brings back a keyboard the
+      user closed (Android; on the web where the browser has the
+      VirtualKeyboard API). On the web the keyboard only opens shortly after a
+      tap or a click (a browser rule). Where there is no on-screen keyboard,
+      only isTextInputActive changes. */
+  static void startTextInput();
+  //! hides the on-screen keyboard
+  static void stopTextInput();
+  //! between startTextInput and stopTextInput
+  static bool isTextInputActive();
 
   //! opens a URL in the user's browser
   static bool openUrl(const std::string& url);

@@ -1,12 +1,14 @@
 #include "services.h"
 
 #include <chrono>
+#include <cstdlib>
 
 #include "../io/Tracing.h"
 #include "../system/engine.h"
 #include "../input/mouse.h"
 #include "../window/nativeWindows.h"
 #include "../window/nativeLinux.h"
+#include "../window/nativeEmscripten.h"
 #include "assets.h"
 #include "userdirs.h"
 #include "platform_internal.h"
@@ -27,6 +29,65 @@
 #endif
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
+
+// The browser's clipboard (guit3's approach): a page can't read it
+// synchronously, so a copy of its text is kept in Module.cgeClipboard. A copy
+// sets it and writes the system clipboard (navigator.clipboard, or a copy
+// event where that is missing, e.g. on plain HTTP); both need the user
+// activation of the key press or click that copies. Ctrl+V's default action
+// is a paste event with the clipboard's text, which updates the copy before
+// the next frame handles the key (the window keeps the default of
+// Ctrl+C/V/X). Without such an event, only the last copied or pasted text
+// can be pasted.
+EM_JS_DEPS(cge_clipboard, "$stringToNewUTF8,$UTF8ToString");
+
+EM_JS(void, cge_clipboard_install, (), {
+  if (typeof document === "undefined" || Module["cgeClipboard"] !== undefined)
+    return;
+  Module["cgeClipboard"] = "";
+  document.addEventListener("paste", function(e){
+    if (e.clipboardData)
+      Module["cgeClipboard"] = e.clipboardData.getData("text/plain");
+  }, true);
+});
+
+EM_JS(void, cge_clipboard_set, (const char* text), {
+  var s = UTF8ToString(text);
+  Module["cgeClipboard"] = s;
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(s).catch(function(err){
+      console.warn("CGE: can't write the clipboard: " + err);
+    });
+    return;
+  }
+  var onCopy = function(e){
+    e.clipboardData.setData("text/plain", s);
+    e.preventDefault();
+  };
+  document.addEventListener("copy", onCopy, true);
+  try{
+    document.execCommand("copy");
+  }
+  finally{
+    document.removeEventListener("copy", onCopy, true);
+  }
+});
+
+EM_JS(char*, cge_clipboard_get, (), {
+  var s = Module["cgeClipboard"];
+  return s ? stringToNewUTF8(s) : 0;
+});
+
+EM_JS(int, cge_clipboard_has_text, (), {
+  return Module["cgeClipboard"] ? 1 : 0;
+});
+
+//! sets the CSS cursor of the canvas
+EM_JS(void, cge_set_canvas_cursor, (const char* canvas, const char* cursor), {
+  var element = document.querySelector(UTF8ToString(canvas));
+  if (element)
+    element.style.cursor = UTF8ToString(cursor);
+});
 #endif
 
 using namespace CGE;
@@ -36,8 +97,39 @@ TR_CHANNEL(CGE_Platform);
 namespace{
 
 Platform::Cursor currentCursor = Platform::CURSOR_ARROW;
+//! the cursor ImGui wants while the mouse is over one of its windows, or -1
+int overrideCursor = -1;
+//! between startTextInput and stopTextInput
+bool textInputActive = false;
+
+//! the cursor shown over the window
+Platform::Cursor shownCursor(){
+  return overrideCursor >= 0 ? (Platform::Cursor)overrideCursor : currentCursor;
+}
 #ifdef ANDROID
 ANativeActivity* activity = nullptr;
+#endif
+
+#ifdef __EMSCRIPTEN__
+EmscriptenWindow* engineWindow(){
+  Engine* engine = Engine::instance();
+  return engine ? dynamic_cast<EmscriptenWindow*>(engine->getWindow()) : nullptr;
+}
+
+//! the CSS name of a cursor
+const char* cssCursor(Platform::Cursor cursor){
+  switch (cursor){
+    case Platform::CURSOR_IBEAM: return "text";
+    case Platform::CURSOR_HAND: return "pointer";
+    case Platform::CURSOR_WAIT: return "wait";
+    case Platform::CURSOR_CROSSHAIR: return "crosshair";
+    case Platform::CURSOR_RESIZE_H: return "ew-resize";
+    case Platform::CURSOR_RESIZE_V: return "ns-resize";
+    case Platform::CURSOR_MOVE: return "move";
+    case Platform::CURSOR_FORBIDDEN: return "not-allowed";
+    default: return "default";
+  }
+}
 #endif
 
 #ifdef WIN32
@@ -134,18 +226,82 @@ bool spawnDetached(const char* program, const std::string& arg){
 #endif
 
 #ifdef ANDROID
+//! the activity's pointer icon (PointerIcon.TYPE_), -1 while it's the default
+int shownPointerIcon = -1;
+
+//! the calling thread's JNIEnv, attached to the VM while it exists if it
+//! wasn't already
+class JavaEnv{
+public:
+  JavaEnv(){
+    if (!activity)
+      return;
+    if (activity->vm->GetEnv((void**)&env_, JNI_VERSION_1_6) == JNI_EDETACHED){
+      if (activity->vm->AttachCurrentThread(&env_, nullptr) != JNI_OK)
+        env_ = nullptr;
+      else
+        attached_ = true;
+    }
+  }
+  ~JavaEnv(){
+    if (attached_)
+      activity->vm->DetachCurrentThread();
+  }
+  JNIEnv* get() const {return env_;}
+private:
+  JNIEnv* env_ = nullptr;
+  bool attached_ = false;
+};
+
+//! a method of the activity (CgeActivity's, Engine/android/java); nullptr for
+//! a plain NativeActivity
+jmethodID activityMethod(JNIEnv* env, const char* name, const char* signature){
+  jclass activityClass = env->GetObjectClass(activity->clazz);
+  jmethodID method = env->GetMethodID(activityClass, name, signature);
+  env->DeleteLocalRef(activityClass);
+  if (env->ExceptionCheck()){
+    //NoSuchMethodError
+    env->ExceptionClear();
+    return nullptr;
+  }
+  return method;
+}
+
+//! calls a void method of the activity with one argument
+template<typename T>
+void callActivity(const char* name, const char* signature, T arg){
+  JavaEnv env;
+  if (!env.get())
+    return;
+  jmethodID method = activityMethod(env.get(), name, signature);
+  if (method)
+    env.get()->CallVoidMethod(activity->clazz, method, arg);
+  if (env.get()->ExceptionCheck())
+    env.get()->ExceptionClear();
+}
+
+//! PointerIcon.TYPE_ of a cursor
+int pointerIcon(Platform::Cursor cursor){
+  switch (cursor){
+    case Platform::CURSOR_IBEAM: return 1008; //TYPE_TEXT
+    case Platform::CURSOR_HAND: return 1002; //TYPE_HAND
+    case Platform::CURSOR_WAIT: return 1004; //TYPE_WAIT
+    case Platform::CURSOR_CROSSHAIR: return 1007; //TYPE_CROSSHAIR
+    case Platform::CURSOR_RESIZE_H: return 1014; //TYPE_HORIZONTAL_DOUBLE_ARROW
+    case Platform::CURSOR_RESIZE_V: return 1015; //TYPE_VERTICAL_DOUBLE_ARROW
+    case Platform::CURSOR_MOVE: return 1013; //TYPE_ALL_SCROLL
+    case Platform::CURSOR_FORBIDDEN: return 1012; //TYPE_NO_DROP
+    default: return 1000; //TYPE_ARROW
+  }
+}
+
 //! starts an ACTION_VIEW intent for the URL through JNI
 bool viewIntent(const std::string& url){
   TR_USE(CGE_Platform);
-  if (!activity)
+  JavaEnv javaEnv;
+  JNIEnv* env = javaEnv.get();
+  if (!env)
     return false;
-  JNIEnv* env = nullptr;
-  bool attached = false;
-  if (activity->vm->GetEnv((void**)&env, JNI_VERSION_1_6) != JNI_OK){
-    if (activity->vm->AttachCurrentThread(&env, nullptr) != JNI_OK)
-      return false;
-    attached = true;
-  }
   bool ok = false;
   jclass uriClass = env->FindClass("android/net/Uri");
   jclass intentClass = env->FindClass("android/content/Intent");
@@ -179,8 +335,6 @@ bool viewIntent(const std::string& url){
     env->DeleteLocalRef(uriClass);
   if (intentClass)
     env->DeleteLocalRef(intentClass);
-  if (attached)
-    activity->vm->DetachCurrentThread();
   if (!ok)
     TR_WARN("cannot open %s", url.c_str());
   return ok;
@@ -214,6 +368,30 @@ bool Platform::setClipboardText(const std::string& text){
   }
   CloseClipboard();
   return ok;
+#elif defined(LINUX)
+  X11Window* wnd = engineWindow();
+  if (!wnd)
+    return false;
+  wnd->setClipboardText(text);
+  return true;
+#elif defined(ANDROID)
+  JavaEnv javaEnv;
+  JNIEnv* env = javaEnv.get();
+  jmethodID method = env ? activityMethod(env, "setClipboardText", "([B)V") : nullptr;
+  if (!method)
+    return false;
+  jbyteArray utf8 = env->NewByteArray((jsize)text.size());
+  env->SetByteArrayRegion(utf8, 0, (jsize)text.size(), (const jbyte*)text.data());
+  env->CallVoidMethod(activity->clazz, method, utf8);
+  env->DeleteLocalRef(utf8);
+  if (env->ExceptionCheck()){
+    env->ExceptionClear();
+    return false;
+  }
+  return true;
+#elif defined(__EMSCRIPTEN__)
+  cge_clipboard_set(text.c_str());
+  return true;
 #else
   return false;
 #endif
@@ -233,6 +411,37 @@ std::string Platform::getClipboardText(){
   }
   CloseClipboard();
   return ret;
+#elif defined(LINUX)
+  X11Window* wnd = engineWindow();
+  std::string ret;
+  if (!wnd || !wnd->getClipboardText(ret))
+    return std::string();
+  return ret;
+#elif defined(ANDROID)
+  JavaEnv javaEnv;
+  JNIEnv* env = javaEnv.get();
+  jmethodID method = env ? activityMethod(env, "getClipboardText", "()[B") : nullptr;
+  if (!method)
+    return std::string();
+  jbyteArray utf8 = (jbyteArray)env->CallObjectMethod(activity->clazz, method);
+  std::string ret;
+  if (env->ExceptionCheck())
+    env->ExceptionClear();
+  else if (utf8){
+    ret.resize(env->GetArrayLength(utf8));
+    if (!ret.empty())
+      env->GetByteArrayRegion(utf8, 0, (jsize)ret.size(), (jbyte*)&ret[0]);
+  }
+  if (utf8)
+    env->DeleteLocalRef(utf8);
+  return ret;
+#elif defined(__EMSCRIPTEN__)
+  char* text = cge_clipboard_get();
+  if (!text)
+    return std::string();
+  std::string ret = text;
+  free(text);
+  return ret;
 #else
   return std::string();
 #endif
@@ -241,6 +450,23 @@ std::string Platform::getClipboardText(){
 bool Platform::hasClipboardText(){
 #ifdef WIN32
   return IsClipboardFormatAvailable(CF_UNICODETEXT) != FALSE;
+#elif defined(LINUX)
+  X11Window* wnd = engineWindow();
+  return wnd && wnd->hasClipboardText();
+#elif defined(ANDROID)
+  JavaEnv javaEnv;
+  JNIEnv* env = javaEnv.get();
+  jmethodID method = env ? activityMethod(env, "hasClipboardText", "()Z") : nullptr;
+  if (!method)
+    return false;
+  bool ret = env->CallBooleanMethod(activity->clazz, method) != JNI_FALSE;
+  if (env->ExceptionCheck()){
+    env->ExceptionClear();
+    ret = false;
+  }
+  return ret;
+#elif defined(__EMSCRIPTEN__)
+  return cge_clipboard_has_text() != 0;
 #else
   return false;
 #endif
@@ -253,6 +479,34 @@ void Platform::setCursor(Cursor cursor){
 
 Platform::Cursor Platform::getCursor(){
   return currentCursor;
+}
+
+void Platform::startTextInput(){
+  textInputActive = true;
+#if defined(ANDROID)
+  callActivity("setTextInput", "(Z)V", (jboolean)JNI_TRUE);
+#elif defined(__EMSCRIPTEN__)
+  EmscriptenWindow* wnd = engineWindow();
+  if (wnd)
+    wnd->setTextInput(true);
+#endif
+}
+
+void Platform::stopTextInput(){
+  if (!textInputActive)
+    return;
+  textInputActive = false;
+#if defined(ANDROID)
+  callActivity("setTextInput", "(Z)V", (jboolean)JNI_FALSE);
+#elif defined(__EMSCRIPTEN__)
+  EmscriptenWindow* wnd = engineWindow();
+  if (wnd)
+    wnd->setTextInput(false);
+#endif
+}
+
+bool Platform::isTextInputActive(){
+  return textInputActive;
 }
 
 bool Platform::openUrl(const std::string& url){
@@ -301,10 +555,13 @@ void init(int argc, char** argv, void* androidApp){
   android_app* app = (android_app*)androidApp;
   if (app && app->activity){
     activity = app->activity;
+    shownPointerIcon = -1;
     setAssetManager(activity->assetManager);
     setAndroidDataPath(activity->internalDataPath);
   }
-#elif !defined(__EMSCRIPTEN__)
+#elif defined(__EMSCRIPTEN__)
+  cge_clipboard_install();
+#else
   if (argc > 0 && argv[0]){
     std::string name = argv[0];
     name.erase(0, name.find_last_of('/') + 1);
@@ -316,11 +573,45 @@ void init(int argc, char** argv, void* androidApp){
   (void)androidApp;
 }
 
+#ifdef ANDROID
+std::vector<std::string> getActivityArguments(){
+  std::vector<std::string> args;
+  JavaEnv javaEnv;
+  JNIEnv* env = javaEnv.get();
+  jmethodID method = env ? activityMethod(env, "getArguments", "()[[B") : nullptr;
+  if (!method)
+    return args;
+  jobjectArray array = (jobjectArray)env->CallObjectMethod(activity->clazz, method);
+  if (env->ExceptionCheck()){
+    env->ExceptionClear();
+    return args;
+  }
+  jsize count = array ? env->GetArrayLength(array) : 0;
+  for (jsize i = 0; i < count; ++i){
+    jbyteArray utf8 = (jbyteArray)env->GetObjectArrayElement(array, i);
+    std::string arg((size_t)env->GetArrayLength(utf8), '\0');
+    env->GetByteArrayRegion(utf8, 0, (jsize)arg.size(), (jbyte*)&arg[0]);
+    env->DeleteLocalRef(utf8);
+    args.push_back(arg);
+  }
+  if (array)
+    env->DeleteLocalRef(array);
+  return args;
+}
+#endif
+
 void applyEngineSettings(const std::string& assetDir, const std::string& appName){
   if (!assetDir.empty())
     Assets::setRoot(assetDir);
   if (!appName.empty())
     UserDirs::setAppName(appName);
+}
+
+void setOverrideCursor(int cursor){
+  if (cursor == overrideCursor)
+    return;
+  overrideCursor = cursor;
+  applyCursor();
 }
 
 void applyCursor(){
@@ -332,14 +623,31 @@ void applyCursor(){
   POINT pt;
   RECT rect;
   if (GetCursorPos(&pt) && ScreenToClient(wnd, &pt) && GetClientRect(wnd, &rect) && PtInRect(&rect, pt))
-    SetCursor(systemCursor(currentCursor));
+    SetCursor(systemCursor(shownCursor()));
 #elif defined(LINUX)
   X11Window* wnd = engineWindow();
   Input::Mouse* mouse = Input::Mouse::instance();
   if (!wnd || !wnd->getDisplay() || (mouse && !mouse->isMouseActive()))
     return;
-  XDefineCursor(wnd->getDisplay(), wnd->getWindow(), systemCursor(wnd->getDisplay(), currentCursor));
+  XDefineCursor(wnd->getDisplay(), wnd->getWindow(), systemCursor(wnd->getDisplay(), shownCursor()));
   XFlush(wnd->getDisplay());
+#elif defined(__EMSCRIPTEN__)
+  EmscriptenWindow* wnd = engineWindow();
+  if (!wnd)
+    return;
+  Input::Mouse* mouse = Input::Mouse::instance();
+  cge_set_canvas_cursor(wnd->getCanvas().c_str(), mouse && !mouse->isMouseActive() ? "none" : cssCursor(shownCursor()));
+#elif defined(ANDROID)
+  if (!activity)
+    return;
+  Input::Mouse* mouse = Input::Mouse::instance();
+  //TYPE_NULL hides the pointer; the UI thread sets the icon, so it's only
+  //asked to when it changes
+  int icon = mouse && !mouse->isMouseActive() ? 0 : pointerIcon(shownCursor());
+  if (icon == shownPointerIcon)
+    return;
+  shownPointerIcon = icon;
+  callActivity("setPointerIcon", "(I)V", (jint)icon);
 #endif
 }
 

@@ -5,7 +5,6 @@
 #include "math/matrix.h"
 #include "system/engine.h"
 #include "renderer/scene.h"
-#include "renderer/rendertarget.h"
 #include "camera.h"
 
 namespace CGE{
@@ -26,6 +25,8 @@ public:
   void addModel(unsigned int idx);
   //! add a texture to the editor
   void addTexture(const std::string& filename);
+  //! add the meshes, textures, lights and models of a scene file
+  void loadScene(const std::string& filename);
   //! set transformation of a mesh
   void setTrafo(const int id, const CGE::Matrix& mat);
   //! get the scene
@@ -57,8 +58,6 @@ protected:
   CGE::Model* currModel_;
   //! the filename of the loaded scene
   std::string filename_;
-  //! the fbo
-  CGE::RenderTarget* mRT;
   //! the rendering technique
   CGE::RenderTechnique* mTechnique;
 };

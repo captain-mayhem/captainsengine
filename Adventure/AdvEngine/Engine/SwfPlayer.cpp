@@ -6,6 +6,7 @@
 
 #include "BlitObjects.h"
 #include "Engine.h"
+#include "Graphics.h"
 
 using namespace std;
 using namespace adv;
@@ -169,13 +170,13 @@ namespace swf{
   class Character{
   public:
     Character(const CGE::Image& img){
-      mTexture = CGE::Engine::instance()->getRenderer()->createTexture(&img, CGE::Texture::AUTO);
+      mTexture = Engine::instance()->getGraphics()->createTexture(img.getWidth(), img.getHeight(), &img);
     }
     ~Character(){
       delete mTexture;
     }
   protected:
-    CGE::Texture* mTexture;
+    CGE::Gfx::Texture* mTexture;
   };
 
   class Displayable{
@@ -401,9 +402,9 @@ swf::Displayable* SwfPlayer::getDisplayable(uint16 depth){
 
 void SwfPlayer::render(){
   mLayer->bind();
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  rend->setClearColor(CGE::Vec4f(mClearColor[0], mClearColor[1], mClearColor[2], 1.0f));
-  rend->clear(COLORBUFFER | ZBUFFER);
+  Graphics* gfx = Engine::instance()->getGraphics();
+  gfx->setClearColor(mClearColor[0], mClearColor[1], mClearColor[2], 1.0f);
+  gfx->clear();
   mLayer->unbind();
   ++mFrameNum;
 }

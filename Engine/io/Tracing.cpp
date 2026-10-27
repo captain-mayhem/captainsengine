@@ -12,10 +12,6 @@ using namespace CGE;
 
 #define BUF_SIZE 1024
 
-#ifdef ANDROID
-#include <android/log.h>
-#endif
-
 unsigned internal_groups = 0;
 
 void internal_trace(unsigned group, int level, const char* file, const char* function, const char* message, ...){
@@ -104,28 +100,4 @@ bool LogOutputter::init(){
 void LogOutputter::trace(unsigned channel, int level, const char* function, const char* message){
   mLog <<  level << "-" << /*file << " " <<*/ function << ": " << message << std::endl;
   mLog.flush();
-#ifdef ANDROID
-	int prio;
-	switch(level){
-		case TRACE_DEBUG_DETAIL:
-			prio = ANDROID_LOG_VERBOSE;
-			break;
-		case TRACE_DEBUG:
-			prio = ANDROID_LOG_DEBUG;
-			break;
-		case TRACE_INFO:
-			prio = ANDROID_LOG_INFO;
-			break;
-		case TRACE_WARNING:
-			prio = ANDROID_LOG_WARN;
-			break;
-		case TRACE_ERROR:
-			prio = ANDROID_LOG_ERROR;
-			break;
-		case TRACE_FATAL_ERROR:
-			prio = ANDROID_LOG_FATAL;
-			break;
-	}
-	__android_log_write(prio, mLogName.c_str(), (std::string(function)+": "+message).c_str());
-#endif
 }

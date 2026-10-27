@@ -4,10 +4,13 @@
 #include <cge_export.h>
 
 #include "../math/vector.h"
+#include "../math/matrix.h"
 
 namespace CGE{
 
-class Renderer;
+namespace Gfx{
+class RenderDevice;
+}
 
 //! The virtual resolution: the coordinate space of the GUI pass and the input events
 /*! The virtual area of width x height units is scaled uniformly to the largest
@@ -42,11 +45,12 @@ public:
   Vec2i toVirtual(int x, int y) const;
   //! maps virtual coordinates to window pixels
   Vec2i toWindow(int x, int y) const;
-  //! sets an orthographic projection that puts the virtual area at its place in the window
-  /*! With yDown, the origin is at the top left with y down. Otherwise it's at
-      the bottom left with y up, as in the engine's GUI pass. Covers the whole
-      viewport, which is expected to be the whole window. */
-  void ortho(Renderer* rend, bool yDown = false) const;
+  //! an orthographic projection for a render device that puts the virtual area at its place in the window
+  /*! For Gfx::DrawContext::setProjection. With yDown, the origin is at the
+      top left with y down. Otherwise it's at the bottom left with y up.
+      Covers the whole viewport, which is expected to
+      be the whole window. */
+  Matrix ortho(const Gfx::RenderDevice& device, bool yDown = false) const;
 private:
   void update();
   int width_;

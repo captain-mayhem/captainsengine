@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- placeholder icon: a mouse pointer over a door -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path android:fillColor="#E8743B" android:pathData="M38,32 L66,32 L66,78 L38,78 Z" />
+    <path android:fillColor="#FFD27A" android:pathData="M60,54 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0" />
+    <path android:fillColor="#FFFFFF" android:strokeColor="#000000" android:strokeWidth="1.5"
+        android:pathData="M54,50 L54,76 L60,70 L65,80 L69,78 L64,68 L72,68 Z" />
+</vector>

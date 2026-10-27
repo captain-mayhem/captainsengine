@@ -33,16 +33,20 @@
 #include <windows.h>
 #endif
 
+#include <memory>
 #include <string>
 
 #include "triangle.h"
 #include "../math/bbox.h"
 
 namespace CGE{
-class VertexBuffer;
-class IndexBuffer;
 class Material;
+namespace Gfx{
+class Buffer;
+class DrawContext;
+class RenderDevice;
 class Texture;
+}
 }
 
 namespace CGE{
@@ -82,14 +86,21 @@ public:
   void addSubMesh(int triangleFrom, int triangleCount, int materialIdx);
   //! loads a mesh from a file
   bool loadFromFile(std::string filename);
-  //! build vertex buffer object
-  void buildVBO();
-	//! draw the mesh
-	void draw(DrawPart part);
+  //! builds the buffers on a render device
+  /*! Also loads the materials' textures onto the device. A mesh that isn't
+      built gets its buffers when it is first drawn. */
+  bool buildBuffers(Gfx::RenderDevice& device);
+  //! draws the mesh through a render device with the context's lit shader
+  /*! Sets the context's material and texture per submesh. Submeshes
+      without a material are drawn white with the texture the context had,
+      and that texture is the context's again afterwards. */
+  void draw(Gfx::DrawContext& ctx, DrawPart part);
   //! get the name of the mesh
   std::string getName() const {return name_;}
   //! get the filename of the mesh
   std::string getFilename() const {return filename_;}
+  //! the file name a scene saves for the mesh
+  void setFilename(const std::string& filename) {filename_ = filename;}
 
   //! is the mesh visible
   bool isVisible() {return m_visible;}
@@ -126,6 +137,11 @@ protected:
 
   //! the submesh compare function
   static int submeshCompare(const void* p1, const void* p2);
+
+  //! the interleaved vertices (position, texture coordinates if any, normal) and the indices
+  void buildDrawData(std::vector<float>& vdata, std::vector<int>& idata);
+  //! the buffers and textures on a render device
+  bool createDeviceResources(Gfx::RenderDevice& device, const std::vector<float>& vdata, const std::vector<int>& idata);
   
   //! the number of vertices
   int numVertices_;
@@ -163,12 +179,6 @@ protected:
   //! the indices
   std::vector<unsigned short> indices_;
 
-  //! the vertex buffer
-  CGE::VertexBuffer* vb_;
-
-  //! the index buffer
-  IndexBuffer* mIB;
-
   //! the name of the mesh
   std::string name_;
 
@@ -184,14 +194,20 @@ protected:
   //! the materials
   std::vector<Material*> mMaterials;
 
-  //! the textures
-  std::vector<Texture*> mTextures;
-
   //! the sub meshes
   std::vector<SubMesh> mSubmeshes;
 
   //! draw list
   std::vector<SubMesh> mDrawList;
+
+  //! the vertex and index buffer on a render device
+  std::unique_ptr<Gfx::Buffer> mVertices;
+  std::unique_ptr<Gfx::Buffer> mIndices;
+  //! the materials' textures on the render device, by material index (nullptr: untextured)
+  std::vector<Gfx::Texture*> mMaterialTextures;
+  std::vector<std::unique_ptr<Gfx::Texture>> mDeviceTextures;
+  //! the device resources were created (or failed)
+  bool mDeviceTried;
 };
 
 }

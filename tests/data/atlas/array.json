@@ -1,0 +1,87 @@
+{
+ "frames": [
+  {
+   "filename": "red.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 2,
+    "h": 2
+   },
+   "rotated": false
+  },
+  {
+   "filename": "green.png",
+   "frame": {
+    "x": 2,
+    "y": 0,
+    "w": 2,
+    "h": 2
+   },
+   "rotated": false,
+   "trimmed": true,
+   "spriteSourceSize": {
+    "x": 1,
+    "y": 2,
+    "w": 2,
+    "h": 2
+   },
+   "sourceSize": {
+    "w": 4,
+    "h": 4
+   },
+   "pivot": {
+    "x": 0.25,
+    "y": 1
+   }
+  },
+  {
+   "filename": "blue_1.png",
+   "frame": {
+    "x": 4,
+    "y": 0,
+    "w": 2,
+    "h": 2
+   },
+   "rotated": false
+  },
+  {
+   "filename": "blue_10.png",
+   "frame": {
+    "x": 6,
+    "y": 0,
+    "w": 2,
+    "h": 2
+   },
+   "rotated": false
+  },
+  {
+   "filename": "blue_0.png",
+   "frame": {
+    "x": 0,
+    "y": 2,
+    "w": 2,
+    "h": 2
+   },
+   "rotated": false
+  },
+  {
+   "filename": "blue_2.png",
+   "frame": {
+    "x": 2,
+    "y": 2,
+    "w": 2,
+    "h": 2
+   },
+   "rotated": false
+  }
+ ],
+ "meta": {
+  "image": "page.png",
+  "size": {
+   "w": 8,
+   "h": 4
+  },
+  "scale": "1"
+ }
+}
