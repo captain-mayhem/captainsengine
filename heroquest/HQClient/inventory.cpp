@@ -8,6 +8,7 @@
 #include "player.h"
 #include "renderer.h"
 #include "renderer/forms.h"
+#include "renderer/drawcontext.h"
 #endif
 
 using std::cerr;
@@ -23,7 +24,7 @@ Inventory::Inventory(){
   belt_ = 0;
   breast_ = 0;
 #ifdef _CLIENT_
-  fnt_ = CGE::Engine::instance()->getFont(0);
+  fnt_ = CGE::Engine::instance()->getScreenText(0);
   //fnt_.setBase(text.getBase());
   //fnt_.setColor(0,1,1);
   page_ = 1;
@@ -328,17 +329,17 @@ void Inventory::render(){
 #ifdef _CLIENT_
   if (!visible_)
     return;
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  CGE::Gfx::DrawContext& ctx = *CGE::Engine::instance()->getDrawContext();
   //background
-  rend->enableBlend(false);
-  rend->setColor(1.0, 1.0, 1.0, 1.0);
-  TextureManager::instance()->otherTex[1]->activate();
-  //glBindTexture(GL_TEXTURE_2D, tex.otherTex[1]);
+  CGE::Gfx::BlendMode blend = ctx.getBlend();
+  ctx.setBlend(CGE::Gfx::BlendMode::Opaque);
+  ctx.setColor(1.0, 1.0, 1.0, 1.0);
+  ctx.setTexture(TextureManager::instance()->otherTex[1].get());
   CGE::Forms* forms = CGE::Engine::instance()->getForms();
-  forms->activateQuad();
   const CGE::VirtualScreen& screen = CGE::Engine::instance()->getVirtualScreen();
-  forms->drawQuad(Vec2f(), Vec2f((float)screen.getWidth(), (float)screen.getHeight()));
-  rend->enableBlend(true);
+  forms->drawQuad(ctx, Vec2f(), Vec2f((float)screen.getWidth(), (float)screen.getHeight()));
+  ctx.setTexture(nullptr);
+  ctx.setBlend(blend);
 
   //items
   Vector2D pos(50, 485);

@@ -5,6 +5,8 @@
 #include <queue>
 
 #include <input/keyboard.h>
+#include <math/matrixstack.h>
+#include <renderer/renderdevice.h>
 
 #include "AdvDoc.h"
 #include "SaveStateProvider.h"
@@ -18,6 +20,7 @@
 #include "ItemObject.h"
 #include "GuiRoom.h"
 #include "Console.h"
+#include "Graphics.h"
 #include <system/allocation.h>
 
 using namespace adv;
@@ -55,19 +58,7 @@ static CGE::Mutex trymtx(true);
 
 Engine::Engine() : mData(nullptr), mInitialized(false), mWheelCount(0), mExitRequested(false), mResetRequested(false), mMenuShown(false), mTimeFactor(1.0f), mTimeFactorFaded(false),
   mSaver(nullptr), mLoader(), mBlockingSpeaker(nullptr), mExitCall(nullptr), mSetMouseCall(nullptr) {
-  mVerts = CGE::Engine::instance()->getRenderer()->createVertexBuffer();
-  mVerts->create(VB_POSITION | VB_TEXCOORD | VB_NORMAL, 4);
-  mVerts->lockVertexPointer();
-  fillWithStdQuad(mVerts);
-  mVerts->unlockVertexPointer();
-  mInds = CGE::Engine::instance()->getRenderer()->createIndexBuffer(CGE::IndexBuffer::IB_USHORT, 5);
-  mInds->lockIndexPointer();
-  mInds->setIndex(0, 2U);
-  mInds->setIndex(1, 3U);
-  mInds->setIndex(2, 1U);
-  mInds->setIndex(3, 0U);
-  mInds->setIndex(4, 2U);
-  mInds->unlockIndexPointer();
+  mGraphics = new Graphics();
   mAnimator = new Animator();
   mFonts = nullptr;
   mInterpreter = nullptr;
@@ -91,8 +82,7 @@ Engine::~Engine(){
   delete mAnimator;
   delete mInterpreter;
   delete mSaver;
-  delete mVerts;
-  delete mInds;
+  delete mGraphics;
 }
 
 void Engine::setData(AdvDocument* doc){
@@ -115,7 +105,6 @@ void Engine::initGame(exit_callback exit_cb, set_mouse_callback set_mouse_cb){
     mExitCall = exit_cb;
   if (set_mouse_cb != nullptr)
     mSetMouseCall = set_mouse_cb;
-  //glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   //ExecutionContext* ctx = mInterpreter->parseProgram("playswf (snitt ; 106 ;120 ;427 ; 330)");
   //mInterpreter->execute(ctx, true);
   mMainRoomLoaded = false;
@@ -279,6 +268,11 @@ void Engine::exitGame(){
   delete mConsole;
 }
 
+bool Engine::isSaveable(){
+  return mInitialized && mMainRoomLoaded && mInterpreter->getCutscene() == nullptr &&
+    mPendingLoadRoom.room == nullptr && mRoomsToUnload.empty() && mLoader.isIdle();
+}
+
 CGE::Image* Engine::getImage(const std::string& name){
   if (name.empty())
     return nullptr;
@@ -307,7 +301,7 @@ unsigned Engine::roundToPowerOf2(unsigned x){
   return x + 1;
 }
 
-CGE::Texture* Engine::genTexture(const CGE::Image* image, Vec2i& size, Vec2f& scale, const CGE::Image* alphaimage){
+CGE::Gfx::Texture* Engine::genTexture(const CGE::Image* image, Vec2i& size, Vec2f& scale, const CGE::Image* alphaimage){
   if (!image)
     return 0;
   size.x = image->getWidth();
@@ -315,48 +309,7 @@ CGE::Texture* Engine::genTexture(const CGE::Image* image, Vec2i& size, Vec2f& sc
   Vec2i pow2(roundToPowerOf2(size.x), roundToPowerOf2(size.y));
   scale.x = ((float)size.x)/pow2.x;
   scale.y = ((float)size.y)/pow2.y;
-  CGE::Texture::Format format = CGE::Texture::RGBA;
-  unsigned char* buffer;
-  bool deleteBuffer = true;
-  int numchannels = 4;
-  if (image->getNumChannels() == 1){
-    format = CGE::Texture::GRAY;
-    buffer = image->getData();
-    deleteBuffer = false;
-    numchannels = 1;
-  }
-  else{
-    unsigned totalsize = size.x*size.y;
-    unsigned char* rgb = image->getData();
-    //unsigned char* alpha = image.GetAlpha();
-    buffer = new unsigned char[totalsize*4];
-    int channels = image->getNumChannels();
-    for (unsigned i = 0; i < totalsize; ++i){
-      buffer[4*i] = rgb[channels*i];
-      buffer[4*i+1] = rgb[channels*i+1];
-      buffer[4*i+2] = rgb[channels*i+2];
-      if (image->hasAlpha())
-        buffer[4*i+3] = rgb[channels*i+3];
-      else if (alphaimage){
-        buffer[4*i+3] = alphaimage->getPixelChannel(i%size.x, i/size.x, 0);
-      }
-      else{
-        if (rgb[channels*i] == 0xFF && rgb[channels*i+1] == 0x0 && rgb[channels*i+2] == 0xFF){
-          buffer[4*i+3] = 0;
-        }
-        else{
-          buffer[4*i+3] = 255;
-        }
-      }
-    }
-  }
-
-  CGE::Texture* tex = CGE::Engine::instance()->getRenderer()->createTexture(pow2.x, pow2.y, format);
-  tex->update(0, 0, size.x, size.y, buffer);
-
-  if (deleteBuffer)
-    delete buffer;
-  return tex;
+  return mGraphics->createTexture(pow2.x, pow2.y, image, alphaimage);
 }
 
 void Engine::render(unsigned time){
@@ -582,12 +535,8 @@ void Engine::render(unsigned time){
   }
 
   //build blit queue
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  if (mAnimator->isCamViewportMoving())
-    rend->enableScissorTest(true);
-  rend->clear(COLORBUFFER | ZBUFFER);
-  if (mAnimator->isCamViewportMoving())
-    rend->enableScissorTest(false);
+  //(only the moving viewport's area while the camera viewport moves)
+  mGraphics->clear();
   int roomdepth = 0;
   RoomObject* mainroom = nullptr;
   for (std::list<RoomObject*>::reverse_iterator iter = mRooms.rbegin(); iter != mRooms.rend(); ++iter){
@@ -606,10 +555,9 @@ void Engine::render(unsigned time){
       mRenderedMain->bind();
       beginRendering();
       mFonts->prepareBlit(interval, mainroom, true);
-      //glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-      rend->clear(COLORBUFFER | ZBUFFER);
-      rend->pushMatrix();
-      rend->resetModelView();
+      mGraphics->clear();
+      mGraphics->model().push();
+      mGraphics->model().loadIdentity();
       flipTexture();
     }
     (*iter)->render();
@@ -619,7 +567,7 @@ void Engine::render(unsigned time){
       if (mParticleEngine->getDepth() != DEPTH_PARTICLES_TOP) //render the particles now if they belong to the main room
         mParticleEngine->update(interval);
       endRendering();
-      rend->popMatrix();
+      mGraphics->model().pop();
       mRenderedMain->unbind();
       BlitObject* result = mPostProc->process(mRenderedMain, interval);
       result->render(Vec2i(), Vec2f(1.0f,1.0f), Vec2i());
@@ -861,7 +809,6 @@ void Engine::beginRendering(){
 }
 
 void Engine::endRendering(bool inverse){
-  restoreRenderDefaults();
   if (inverse){
     for (std::list<BaseBlitObject*>::reverse_iterator iter = mBlitQueues.back().rbegin(); iter != mBlitQueues.back().rend(); ++iter){ 
       (*iter)->blit();
@@ -1660,7 +1607,7 @@ void Engine::renderUnloadingRoom(){
   mainroom.realize();
   mainroom.setBlendMode(BlitObject::BLEND_PREMULT_ALPHA);
   mainroom.bind();
-  CGE::Engine::instance()->getRenderer()->clear(COLORBUFFER | ZBUFFER);
+  mGraphics->clear();
 
   beginRendering();
   //a workaround to make screen shots correct that are taken too late
@@ -1708,11 +1655,6 @@ void Engine::enterText(const String& variable, int maxcharacters, ExecutionConte
   mNumCharactersEnter = maxcharacters;
   mBlinkCursorVisible = true;
   mBlinkTimeAccu = 0;
-}
-
-void Engine::restoreRenderDefaults(){
-  mVerts->activate();
-  mInds->activate();
 }
 
 RoomObject* Engine::getMainRoom(){
@@ -1897,31 +1839,11 @@ bool Engine::applyCommandToSelObj(bool prevObj){
   return false;
 }
 
-void Engine::drawQuad(){
-  mVerts->draw(CGE::VB_Tristrip, nullptr);
-}
-
-void Engine::drawQuadLines(){
-  mVerts->draw(CGE::VB_Linestrip, mInds);
-}
-
 void Engine::flipTexture(){
-  if (CGE::Engine::instance()->getRenderer()->getRenderType() != CGE::DirectX){ //flip the quad in open gl case
-    CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-    rend->translate(0.0f, (float)Engine::instance()->getResolution().y, 0.0f);
-    rend->scale(1.0f, -1.0f, 1.0f);
+  if (!mGraphics->getDevice().getClipSpace().originTopLeft){ //flip the quad in open gl case
+    mGraphics->model().translate(0.0f, (float)Engine::instance()->getResolution().y, 0.0f);
+    mGraphics->model().scale(1.0f, -1.0f, 1.0f);
   }
-}
-
-void Engine::fillWithStdQuad(CGE::VertexBuffer* verts){
-  verts->setPosition(0, CGE::Vec3f(0, 1, 0));
-  verts->setPosition(1, CGE::Vec3f(0, 0, 0));
-  verts->setPosition(2, CGE::Vec3f(1, 1, 0));
-  verts->setPosition(3, CGE::Vec3f(1, 0, 0));
-  verts->setTexCoord(0, CGE::Vec2f(0, 1));
-  verts->setTexCoord(1, CGE::Vec2f(0, 0));
-  verts->setTexCoord(2, CGE::Vec2f(1, 1));
-  verts->setTexCoord(3, CGE::Vec2f(1, 0));
 }
 
 void Engine::popupMenu(){

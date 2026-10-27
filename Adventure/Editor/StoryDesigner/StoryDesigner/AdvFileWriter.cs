@@ -889,7 +889,19 @@ namespace StoryDesigner
             foreach (KeyValuePair<string, string> entry in files)
             {
                 string name = Path.GetFileName(entry.Value);
-                FileStream source = new FileStream(entry.Value, FileMode.Open);
+                string path = entry.Value;
+                if (output == "movie.dat")
+                {
+                    //videos added before the converter came are converted now; the
+                    //entry keeps its name, the engine tells the format by the content
+                    string error;
+                    string playable = VideoConverter.GetPlayableFile(path, out error);
+                    if (playable != null)
+                        path = playable;
+                    else
+                        MessageBox.Show(error, "Video", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                FileStream source = new FileStream(path, FileMode.Open);
                 int length = (int)source.Length;
                 byte [] buffer = new byte[length];
                 int count;
@@ -918,7 +930,13 @@ namespace StoryDesigner
                 ZipEntry entry = zis.GetNextEntry();
                 while (entry != null)
                 {
-                    writeFile(zis, Path.Combine(datadir, entry.Name));
+                    //the engine's files, some in folders (fonts/)
+                    if (!entry.IsDirectory)
+                    {
+                        string file = Path.Combine(datadir, entry.Name);
+                        Directory.CreateDirectory(Path.GetDirectoryName(file));
+                        writeFile(zis, file);
+                    }
                     entry = zis.GetNextEntry();
                 }
                 zis.Close();
@@ -927,10 +945,11 @@ namespace StoryDesigner
                 entry = zis.GetNextEntry();
                 while (entry != null)
                 {
-                    //string name = entry.Name;
-                    //if (name == "Adventure.exe")
-                    //name = runtimeName;
-                    writeFile(zis, Path.Combine(datadir, runtimeName));
+                    //the executable gets the game's name, the libraries keep theirs
+                    string name = entry.Name;
+                    if (name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                        name = runtimeName;
+                    writeFile(zis, Path.Combine(datadir, name));
                     entry = zis.GetNextEntry();
                 }
                 zis.Close();

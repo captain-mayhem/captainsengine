@@ -1,5 +1,8 @@
 #include "Screenchange.h"
 #include "Engine.h"
+#include "Graphics.h"
+#include <math/matrixstack.h>
+#include <renderer/renderdevice.h>
 #include <system/allocation.h>
 
 TR_CHANNEL(ADV_Screenchange);
@@ -24,13 +27,13 @@ Screenshot::Screenshot(int depth) : RenderableBlitObject(Engine::instance()->get
 }
 
 void Screenshot::take(){
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  Graphics* gfx = Engine::instance()->getGraphics();
   bind();
-  rend->clear(COLORBUFFER | ZBUFFER);
-  rend->pushMatrix();
+  gfx->clear();
+  gfx->model().push();
   Engine::instance()->flipTexture();
   Engine::instance()->renderUnloadingRoom();
-  rend->popMatrix();
+  gfx->model().pop();
   unbind();
 }
 
@@ -39,7 +42,6 @@ CircleScreenChange::CircleScreenChange(int width, int height, int depth, int dur
 }
 
 CircleScreenChange::~CircleScreenChange(){
-  delete mVerts;
 }
 
 bool CircleScreenChange::update(unsigned interval){
@@ -55,19 +57,17 @@ bool CircleScreenChange::update(unsigned interval){
   }
 
   bind();
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  rend->clear(COLORBUFFER | ZBUFFER);
-  rend->enableTexturing(false);
-  rend->blendFunc(CGE::BLEND_DST_COLOR, CGE::BLEND_ZERO);
-  rend->setColor(0, 0, 0, 0);
-  rend->pushMatrix();
-  rend->translate(mSize.x/2.0f, mSize.y/2.0f, 0.0f);
-  rend->scale(scale, scale*Engine::instance()->getResolution().y/Engine::instance()->getResolution().x, 1.0f);
-  mVerts->activate();
-  mVerts->draw(CGE::VB_Tristrip, NULL);
-  rend->popMatrix();
-  rend->enableTexturing(true);
-  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
+  Graphics* gfx = Engine::instance()->getGraphics();
+  gfx->clear();
+  gfx->setTexture(nullptr);
+  gfx->setBlend(Graphics::BLEND_MULTIPLY);
+  gfx->setColor(0, 0, 0, 0);
+  gfx->model().push();
+  gfx->model().translate(mSize.x/2.0f, mSize.y/2.0f, 0.0f);
+  gfx->model().scale(scale, scale*Engine::instance()->getResolution().y/Engine::instance()->getResolution().x, 1.0f);
+  gfx->draw(mVerts.get(), CGE::Gfx::PrimitiveType::TriangleStrip, mSegments*2+1);
+  gfx->model().pop();
+  gfx->setBlend(Graphics::BLEND_ALPHA);
   unbind();
   
   if (mCurrentTime >= mDuration && !mClosing){
@@ -85,18 +85,7 @@ bool CircleScreenChange::update(unsigned interval){
 }
 
 void CircleScreenChange::generateCircle(float radius){
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  float angle = (float)M_PI/4.0f;
-  mVerts = rend->createVertexBuffer();
-  mVerts->create(VB_POSITION | VB_TEXCOORD | VB_NORMAL, (mSegments * 2) + 1);
-  mVerts->lockVertexPointer();
-  mVerts->setPosition(0, CGE::Vec3f(radius*cos(angle), radius*sin(angle), 0.0f));
-  for (int i = 1; i <= mSegments; ++i){
-    angle += (float)(M_PI*2. / mSegments);
-    mVerts->setPosition(2 * i - 1, CGE::Vec3f(radius*cos(angle), radius*sin(angle), 0.0f));
-    mVerts->setPosition(2 * i, CGE::Vec3f(0.0f, 0.0f, 0.0f));
-  }
-  mVerts->unlockVertexPointer();
+  mVerts = createCircle(radius, (float)M_PI/4.0f, mSegments);
 }
 
 BlendScreenChange::BlendScreenChange(int width, int height, int depth, int duration) : ScreenChangeBase(width, height, depth), mDuration(duration), mCurrentTime(0), mShot(depth-1){
@@ -111,27 +100,26 @@ bool BlendScreenChange::update(unsigned interval){
   int alpha = (int)((mDuration-mCurrentTime)/(float)mDuration*255);
 
   bind();
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  rend->clear(COLORBUFFER | ZBUFFER);
-  
+  Graphics* gfx = Engine::instance()->getGraphics();
+  gfx->clear();
+
   //render previous room
-  rend->pushMatrix();
+  gfx->model().push();
   Engine::instance()->flipTexture();
   mShot.blit();
-  rend->popMatrix();
-  
+  gfx->model().pop();
+
   //multiply alpha
-  rend->pushMatrix();
-  rend->scale((float)mSize.x,(float)mSize.y,1.0f);
-  rend->blendFunc(CGE::BLEND_DST_COLOR, CGE::BLEND_ZERO);
-  rend->setColor(1.0f, 1.0f, 1.0f, alpha / 255.0f);
-  rend->enableTexturing(false);
-  Engine::instance()->drawQuad();
-  rend->popMatrix();
-  rend->enableTexturing(true);
-  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
+  gfx->model().push();
+  gfx->model().scale((float)mSize.x,(float)mSize.y,1.0f);
+  gfx->setBlend(Graphics::BLEND_MULTIPLY);
+  gfx->setColor(1.0f, 1.0f, 1.0f, alpha / 255.0f);
+  gfx->setTexture(nullptr);
+  gfx->drawQuad();
+  gfx->model().pop();
+  gfx->setBlend(Graphics::BLEND_ALPHA);
   unbind();
-  
+
   if (mCurrentTime >= mDuration){
     return false;
   }
@@ -156,30 +144,29 @@ bool FadeoutScreenChange::update(unsigned interval){
     alpha = 0;
 
   bind();
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  rend->clear(COLORBUFFER | ZBUFFER);
-  
+  Graphics* gfx = Engine::instance()->getGraphics();
+  gfx->clear();
+
   //render previous room
   if (mClosing){
-    rend->pushMatrix();
+    gfx->model().push();
     Engine::instance()->flipTexture();
     mShot.blit();
-    rend->popMatrix();
+    gfx->model().pop();
   }
-  
+
   //multiply alpha
-  rend->pushMatrix();
-  rend->scale((float)mSize.x,(float)mSize.y,1.0f);
-  rend->blendFunc(CGE::BLEND_DST_COLOR, CGE::BLEND_ZERO);
+  gfx->model().push();
+  gfx->model().scale((float)mSize.x,(float)mSize.y,1.0f);
+  gfx->setBlend(Graphics::BLEND_MULTIPLY);
   if (mClosing)
-    rend->setColor(alpha / 255.0f, alpha / 255.0f, alpha / 255.0f, 1.0f);
+    gfx->setColor(alpha / 255.0f, alpha / 255.0f, alpha / 255.0f, 1.0f);
   else
-    rend->setColor(1.0f, 1.0f, 1.0f, alpha / 255.0f);
-  rend->enableTexturing(false);
-  Engine::instance()->drawQuad();
-  rend->popMatrix();
-  rend->enableTexturing(true);
-  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
+    gfx->setColor(1.0f, 1.0f, 1.0f, alpha / 255.0f);
+  gfx->setTexture(nullptr);
+  gfx->drawQuad();
+  gfx->model().pop();
+  gfx->setBlend(Graphics::BLEND_ALPHA);
   unbind();
   if (mCurrentTime >= mDuration && !mClosing){
     return false;
@@ -209,23 +196,22 @@ bool ShuttersScreenChange::update(unsigned interval){
     scale = mCurrentTime/(float)mDuration;//*Engine::instance()->getResolution().y;
 
   bind();
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  rend->clear(COLORBUFFER | ZBUFFER);
-  rend->enableTexturing(false);
-  rend->blendFunc(CGE::BLEND_DST_COLOR, CGE::BLEND_ZERO);
-  rend->setColor(0, 0, 0, 0);
+  Graphics* gfx = Engine::instance()->getGraphics();
+  gfx->clear();
+  gfx->setTexture(nullptr);
+  gfx->setBlend(Graphics::BLEND_MULTIPLY);
+  gfx->setColor(0, 0, 0, 0);
   static const int numshutters = 10;
   for (int i = 0; i < numshutters; ++i){
     float posscale = 1+(i/(numshutters-1.0f));
-    rend->pushMatrix();
+    gfx->model().push();
     Engine::instance()->flipTexture();
-    rend->translate(0.0f, (i+1)*mSize.y/(float)numshutters, 0.0f);
-    rend->scale((float)Engine::instance()->getResolution().x, mSize.y/(float)numshutters*-scale*posscale, 1.0f);
-    Engine::instance()->drawQuad();
-    rend->popMatrix();
+    gfx->model().translate(0.0f, (i+1)*mSize.y/(float)numshutters, 0.0f);
+    gfx->model().scale((float)Engine::instance()->getResolution().x, mSize.y/(float)numshutters*-scale*posscale, 1.0f);
+    gfx->drawQuad();
+    gfx->model().pop();
   }
-  rend->enableTexturing(true);
-  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
+  gfx->setBlend(Graphics::BLEND_ALPHA);
   unbind();
   
   if (mCurrentTime >= mDuration && !mClosing){
@@ -247,7 +233,6 @@ ClockScreenChange::ClockScreenChange(int width, int height, int depth, int durat
 }
 
 ClockScreenChange::~ClockScreenChange(){
-  delete mVerts;
 }
 
 bool ClockScreenChange::update(unsigned interval){
@@ -267,20 +252,18 @@ bool ClockScreenChange::update(unsigned interval){
   }
 
   bind();
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  rend->clear(COLORBUFFER | ZBUFFER);
-  rend->enableTexturing(false);
-  rend->blendFunc(CGE::BLEND_DST_COLOR, CGE::BLEND_ZERO);
-  rend->setColor(0, 0, 0, 0);
-  rend->pushMatrix();
+  Graphics* gfx = Engine::instance()->getGraphics();
+  gfx->clear();
+  gfx->setTexture(nullptr);
+  gfx->setBlend(Graphics::BLEND_MULTIPLY);
+  gfx->setColor(0, 0, 0, 0);
+  gfx->model().push();
   Engine::instance()->flipTexture();
-  rend->translate(mSize.x/2.0f, mSize.y/2.0f, 0.0f);
-  rend->scale(Engine::instance()->getResolution().x*1.0f, Engine::instance()->getResolution().x*1.0f, 1.0f);
-  mVerts->activate();
-  mVerts->draw(CGE::VB_Tristrip, NULL, 0, (int)scale);
-  rend->popMatrix();
-  rend->enableTexturing(true);
-  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
+  gfx->model().translate(mSize.x/2.0f, mSize.y/2.0f, 0.0f);
+  gfx->model().scale(Engine::instance()->getResolution().x*1.0f, Engine::instance()->getResolution().x*1.0f, 1.0f);
+  gfx->draw(mVerts.get(), CGE::Gfx::PrimitiveType::TriangleStrip, (int)scale);
+  gfx->model().pop();
+  gfx->setBlend(Graphics::BLEND_ALPHA);
   unbind();
   
   if (mCurrentTime >= mDuration && !mClosing){
@@ -298,16 +281,17 @@ bool ClockScreenChange::update(unsigned interval){
 }
 
 void ClockScreenChange::generateCircle(float radius){
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  float angle = -(float)M_PI / 2.0f;
-  mVerts = rend->createVertexBuffer();
-  mVerts->create(VB_POSITION | VB_TEXCOORD | VB_NORMAL, (mSegments * 2) + 1);
-  mVerts->lockVertexPointer();
-  mVerts->setPosition(0, CGE::Vec3f(radius*cos(angle), radius*sin(angle), 0.0f));
-  for (int i = 1; i <= mSegments; ++i){
-    angle += (float)(M_PI*2. / mSegments);
-    mVerts->setPosition(2*i - 1, CGE::Vec3f(radius*cos(angle), radius*sin(angle), 0.0f));
-    mVerts->setPosition(2 * i, CGE::Vec3f(0.0f, 0.0f, 0.0f));
+  mVerts = createCircle(radius, -(float)M_PI/2.0f, mSegments);
+}
+
+std::unique_ptr<CGE::Gfx::Buffer> adv::createCircle(float radius, float angle, int segments){
+  //a triangle strip alternating between the rim and the centre
+  std::vector<Graphics::Vertex> verts((segments * 2) + 1);
+  verts[0] = {radius*cosf(angle), radius*sinf(angle), 0.0f, 0.0f, 0.0f};
+  for (int i = 1; i <= segments; ++i){
+    angle += (float)(M_PI*2. / segments);
+    verts[2*i - 1] = {radius*cosf(angle), radius*sinf(angle), 0.0f, 0.0f, 0.0f};
+    verts[2 * i] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
   }
-  mVerts->unlockVertexPointer();
+  return Engine::instance()->getGraphics()->createVertices((int)verts.size(), verts.data(), CGE::Gfx::Usage::Immutable);
 }

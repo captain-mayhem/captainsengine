@@ -4,6 +4,7 @@ SET(Engine_io_SRCS
 	${PRE}/BinFileReader.cpp
 	${PRE}/eventqueue.cpp
 	${PRE}/GZipReader.cpp
+	${PRE}/json.cpp
 	${PRE}/MemReader.cpp
   ${PRE}/MemWriter.cpp
 	${PRE}/TraceManager.cpp
@@ -16,6 +17,7 @@ SET(Engine_io_HDRS
 	${PRE}/BinFileReader.h
 	${PRE}/eventqueue.h
 	${PRE}/GZipReader.h
+	${PRE}/json.h
 	${PRE}/MemReader.h
   ${PRE}/MemWriter.h
 	${PRE}/Reader.h

@@ -1,8 +1,10 @@
 #include "BlitObjects.h"
 
-#include <system/engine.h>
+#include <math/matrixstack.h>
+#include <renderer/renderdevice.h>
 
 #include "Engine.h"
+#include "Graphics.h"
 
 #include <system/allocation.h>
 
@@ -10,11 +12,7 @@ TR_CHANNEL(ADV_Render_BlitObject);
 
 using namespace adv;
 
-#ifdef RENDER_EMBEDDED
-#define glClearDepth glClearDepthf
-#endif
-
-BaseBlitObject::BaseBlitObject(int depth, const Vec2i& size) : 
+BaseBlitObject::BaseBlitObject(int depth, const Vec2i& size) :
 mPos(), mSize(size), mDepth(depth){
 
 }
@@ -23,7 +21,7 @@ BaseBlitObject::~BaseBlitObject(){
 
 }
 
-BlitObject::BlitObject(int width, int height, int depth) : 
+BlitObject::BlitObject(int width, int height, int depth) :
 BaseBlitObject(depth, Vec2i(width, height)), mOffset(), mScale(1.0f, 1.0f), mTex(0), mImage(nullptr), mMirrorOffset(), mRotAngle(0.0f), mBlendMode(BLEND_ALPHA){
   Vec2i pow2(Engine::roundToPowerOf2(mSize.x), Engine::roundToPowerOf2(mSize.y));
   mScale.x = ((float)mSize.x)/pow2.x;
@@ -32,7 +30,7 @@ BaseBlitObject(depth, Vec2i(width, height)), mOffset(), mScale(1.0f, 1.0f), mTex
   mDeleteTex = true;
 }
 
-BlitObject::BlitObject(std::string texture, const Vec2i& size, int depth, Vec2i offset) : 
+BlitObject::BlitObject(std::string texture, const Vec2i& size, int depth, Vec2i offset) :
 BaseBlitObject(depth, Vec2i()), mOffset(offset), mScale(1.0f, 1.0f), mTex(0), mMirrorOffset(), mRotAngle(0.0f), mBlendMode(BLEND_ALPHA){
   mImage = Engine::instance()->getImage(texture);
 	if (mImage && size > Vec2i()){
@@ -49,7 +47,7 @@ BaseBlitObject(depth, Vec2i()), mOffset(offset), mScale(1.0f, 1.0f), mTex(0), mM
   mDeleteTex = true;
 }
 
-BlitObject::BlitObject(CGE::Texture* texture, const Vec2i& size, const Vec2f& scale, int depth, const Vec2i& offset):
+BlitObject::BlitObject(CGE::Gfx::Texture* texture, const Vec2i& size, const Vec2f& scale, int depth, const Vec2i& offset):
 BaseBlitObject(depth, size), mOffset(offset), mScale(scale), mTex(texture), mImage(nullptr), mMirrorOffset(), mRotAngle(0), mBlendMode(BLEND_ALPHA)
 {
   mZoomScale = Vec2f(1.0f,1.0f);
@@ -75,45 +73,40 @@ void BlitObject::render(const Vec2i& pos, const Vec2f& scale, const Vec2i& paren
 }
 
 void BlitObject::blit(){
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  if (!mTex)
+    return;
+  Graphics* gfx = Engine::instance()->getGraphics();
   if (mBlendMode == BLEND_ADDITIVE)
-    rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE);
+    gfx->setBlend(Graphics::BLEND_ADDITIVE);
   else if (mBlendMode == BLEND_PREMULT_ALPHA)
-    rend->blendFunc(CGE::BLEND_ONE, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
-  rend->pushMatrix();
-  
+    gfx->setBlend(Graphics::BLEND_PREMULT_ALPHA);
+  CGE::MatrixStack& model = gfx->model();
+  model.push();
+
   if (mZoomScale.x < 0){
-    rend->translate(mMirrorOffset.x*-mZoomScale.x, 0.0f, 0.0f);
+    model.translate(mMirrorOffset.x*-mZoomScale.x, 0.0f, 0.0f);
   }
   if (mZoomScale.y < 0){
-    rend->translate(0.0f, mMirrorOffset.y*-mZoomScale.y, 0.0f);
+    model.translate(0.0f, mMirrorOffset.y*-mZoomScale.y, 0.0f);
   }
 
-  rend->translate((float)mPos.x, (float)mPos.y, 0.0f);
-  
-  rend->translate((float)-mOffset.x, (float)-mOffset.y, 0.0f);
-  rend->scale(mZoomScale.x, mZoomScale.y, 1.0f);
-  rend->translate((float)mOffset.x, (float)mOffset.y, 0.0f);
-  
+  model.translate((float)mPos.x, (float)mPos.y, 0.0f);
+
+  model.translate((float)-mOffset.x, (float)-mOffset.y, 0.0f);
+  model.scale(mZoomScale.x, mZoomScale.y, 1.0f);
+  model.translate((float)mOffset.x, (float)mOffset.y, 0.0f);
+
   //TODO wrong for compound objects, maybe rotation of mOffset?
-  rend->translate((float)mSize.x/2,(float)mSize.y/2, 0.0f);
-  rend->rotate(mRotAngle, 0, 0, 1.0f);
-  rend->translate((float)-mSize.x/2,(float)-mSize.y/2, 0.0f);
+  model.translate((float)mSize.x/2,(float)mSize.y/2, 0.0f);
+  model.rotate(mRotAngle, 0, 0, 1.0f);
+  model.translate((float)-mSize.x/2,(float)-mSize.y/2, 0.0f);
 
-  rend->scale((float)mSize.x,(float)mSize.y,1.0f);
-  
-  rend->switchMatrixStack(CGE::MatTexture);
-  rend->resetModelView();
-  rend->scale(mScale.x, mScale.y, 1.0f);
-  rend->switchMatrixStack(CGE::Modelview);
+  model.scale((float)mSize.x,(float)mSize.y,1.0f);
 
-  mTex->activate();
-  rend->setColor(mColor.r/255.0f, mColor.g/255.0f, mColor.b/255.0f, mColor.a/255.0f);
-  Engine::instance()->drawQuad();
-  rend->popMatrix();
+  gfx->drawSprite(mTex, mScale, Vec2f(0, 0), mColor.r/255.0f, mColor.g/255.0f, mColor.b/255.0f, mColor.a/255.0f);
+  model.pop();
   if (mBlendMode != BLEND_ALPHA)
-    rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
-  mTex->deactivate();
+    gfx->setBlend(Graphics::BLEND_ALPHA);
 }
 
 BlitObject* BlitObject::clone(){
@@ -122,7 +115,12 @@ BlitObject* BlitObject::clone(){
 }
 
 void BlitObject::updateTexture(unsigned width, unsigned height, void* data){
-  mTex->update(0, 0, width, height, data);
+  if (!mTex)
+    return;
+  CGE::Gfx::TextureRegion region;
+  region.width = (int)width;
+  region.height = (int)height;
+  Engine::instance()->getGraphics()->getDevice().updateTexture(mTex, region, data);
 }
 
 void BlitObject::realize(){
@@ -133,17 +131,13 @@ void BlitObject::realize(){
   mImage = nullptr;
 }
 
-void BlitObject::realizeEmpty(CGE::Texture::Format format){
+void BlitObject::realizeEmpty(CGE::Gfx::Format format){
   Vec2i pow2(Engine::roundToPowerOf2(mSize.x), Engine::roundToPowerOf2(mSize.y));
-  mTex = CGE::Engine::instance()->getRenderer()->createTexture(pow2.x, pow2.y, format);
-  /*glGenTextures(1, &mTex);
-  GLint mOldTex;
-  glGetIntegerv(GL_TEXTURE_BINDING_2D, &mOldTex);
-  glBindTexture(GL_TEXTURE_2D, mTex);
-  glTexImage2D(GL_TEXTURE_2D, 0, format, pow2.x, pow2.y, 0, format, GL_UNSIGNED_BYTE, NULL);
-  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-  glBindTexture(GL_TEXTURE_2D, mOldTex);*/
+  CGE::Gfx::TextureDesc desc;
+  desc.format = format;
+  desc.width = pow2.x;
+  desc.height = pow2.y;
+  mTex = Engine::instance()->getGraphics()->getDevice().createTexture(desc).release();
 }
 
 LightingBlitObject::LightingBlitObject(int depth, const Vec2i& size) : BaseBlitObject(depth, size){
@@ -159,20 +153,17 @@ void LightingBlitObject::render(const Vec2i& pos){
 }
 
 void LightingBlitObject::blit(){
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  rend->enableTexturing(false);
-  //glEnable(GL_BLEND);
-  rend->blendFunc(CGE::BLEND_DST_COLOR, CGE::BLEND_ZERO);
-  rend->pushMatrix();
-  rend->translate((float)mPos.x,(float)mPos.y,0.0f);
-  rend->scale((float)mSize.x,(float)mSize.y,1.0f);
-  rend->setColor(mColor.r / 255.0f, mColor.g / 255.0f, mColor.b / 255.0f, mColor.a / 255.0f);
-  Engine::instance()->drawQuad();
-  rend->setColor(1.0f, 1.0f, 1.0f, 1.0f);
-  //glDisable(GL_BLEND);
-  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
-  rend->popMatrix();
-  rend->enableTexturing(true);
+  Graphics* gfx = Engine::instance()->getGraphics();
+  gfx->setTexture(nullptr);
+  gfx->setBlend(Graphics::BLEND_MULTIPLY);
+  gfx->model().push();
+  gfx->model().translate((float)mPos.x,(float)mPos.y,0.0f);
+  gfx->model().scale((float)mSize.x,(float)mSize.y,1.0f);
+  gfx->setColor(mColor.r / 255.0f, mColor.g / 255.0f, mColor.b / 255.0f, mColor.a / 255.0f);
+  gfx->drawQuad();
+  gfx->setColor(1.0f, 1.0f, 1.0f, 1.0f);
+  gfx->setBlend(Graphics::BLEND_ALPHA);
+  gfx->model().pop();
 }
 
 ScrollBlitObject::ScrollBlitObject(int depth) : BaseBlitObject(depth, Vec2i(0,0)){
@@ -182,53 +173,49 @@ ScrollBlitObject::~ScrollBlitObject(){
 }
 
 void ScrollBlitObject::blit(){
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  CGE::MatrixStack& model = Engine::instance()->getGraphics()->model();
   if (mDepth < 0){
-    rend->pushMatrix();
-    rend->translate((float)mPos.x, (float)mPos.y, 0);
+    model.push();
+    model.translate((float)mPos.x, (float)mPos.y, 0);
   }
   else
-    rend->popMatrix();
+    model.pop();
 }
 
 void ScrollBlitObject::render(const Vec2i& pos){
   mPos = pos;
 }
 
-RenderableBlitObject::RenderableBlitObject(int width, int height, int depth) : BlitObject(width,height,depth), mFrameBuffer(nullptr){
+RenderableBlitObject::RenderableBlitObject(int width, int height, int depth) : BlitObject(width,height,depth){
 }
 
 void RenderableBlitObject::realize(){
   TR_USE(ADV_Render_BlitObject);
-  BlitObject::realizeEmpty();
-  int powx = (int)(mSize.x/mScale.x);
-  int powy = (int)(mSize.y/mScale.y);
-
-  mFrameBuffer = CGE::Engine::instance()->getRenderer()->createRenderTarget(powx, powy);
-  mFrameBuffer->activate();
-  mFrameBuffer->addTexture(*mTex);
-  mFrameBuffer->addRenderbuffer(CGE::Texture::DEPTH);
-  if (!mFrameBuffer->isComplete()){
+  CGE::Gfx::RenderTargetDesc desc;
+  desc.width = Engine::roundToPowerOf2(mSize.x);
+  desc.height = Engine::roundToPowerOf2(mSize.y);
+  desc.depthFormat = CGE::Gfx::Format::Depth24;
+  mFrameBuffer = Engine::instance()->getGraphics()->getDevice().createRenderTarget(desc);
+  if (!mFrameBuffer){
     TR_ERROR("Unable to create framebuffer");
-    //TR_BREAK();
+    return;
   }
-  mFrameBuffer->deactivate();
+  //the texture belongs to the render target
+  mTex = mFrameBuffer->getColorTexture(0);
+  mDeleteTex = false;
 }
 
 RenderableBlitObject::~RenderableBlitObject(){
-  delete mFrameBuffer;
 }
 
 void RenderableBlitObject::bind(){
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  rend->getViewport(mOldViewport);
-  rend->viewport(0, 0, mSize.x, mSize.y);
-  mFrameBuffer->activate();
+  if (mFrameBuffer)
+    Engine::instance()->getGraphics()->pushTarget(mFrameBuffer.get(), mSize);
 }
 
 void RenderableBlitObject::unbind(){
-  mFrameBuffer->deactivate();
-  CGE::Engine::instance()->getRenderer()->viewport(mOldViewport[0], mOldViewport[1], mOldViewport[2], mOldViewport[3]);
+  if (mFrameBuffer)
+    Engine::instance()->getGraphics()->popTarget();
 }
 
 DynamicAnimation::DynamicAnimation(){
@@ -239,46 +226,41 @@ DynamicAnimation::~DynamicAnimation(){
 
 }
 
-MirrorObject::MirrorObject(int width, int height, int depth, unsigned char strength) : 
+MirrorObject::MirrorObject(int width, int height, int depth, unsigned char strength) :
 RenderableBlitObject(width, height, depth), mOpacity(strength), mIsWallMirror(false){
-  mPolygon = CGE::Engine::instance()->getRenderer()->createVertexBuffer();
-  mPolygon->create(VB_POSITION, 5);
   memset(mPoints, 0, 4 * sizeof(Vec2i));
 }
 
 MirrorObject::~MirrorObject(){
-  delete mPolygon;
 }
 
 bool MirrorObject::update(unsigned interval){
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  Graphics* gfx = Engine::instance()->getGraphics();
+  CGE::MatrixStack& model = gfx->model();
   bind();
   //setup
-  rend->enableTexturing(false);
-  rend->setClearColor(CGE::Vec4f(0.0f, 0.0f, 0.0f, 0.0f));
-  rend->setClearDepth(0.0f);
-  rend->clear(COLORBUFFER | ZBUFFER);
-  rend->enableDepthTest(true);
-  rend->depthFunc(CGE::CMP_GEQUAL);
-  
-  //draw mirror surface
-  rend->enableColorWrite(false);
-  rend->setColor(1.0f, 1.0f, 0.0f, 1.0f);
-  rend->pushMatrix();
-  rend->resetModelView();
+  gfx->setTexture(nullptr);
+  gfx->setClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+  gfx->setClearDepth(0.0f);
+  gfx->clear();
+  gfx->setClearDepth(1.0f);
+
+  //draw mirror surface, into the depth buffer only
+  gfx->setDepth(true, true, CGE::Gfx::CompareFunc::GreaterEqual);
+  gfx->setColorWrite(false);
+  gfx->setColor(1.0f, 1.0f, 0.0f, 1.0f);
+  model.push();
+  model.loadIdentity();
   Engine::instance()->flipTexture();
-  rend->pushMatrix();
-  rend->translate((float)mRoom->getScrollOffset().x, (float)mRoom->getScrollOffset().y, 0.0f);
-  mPolygon->activate();
-  mPolygon->draw(CGE::VB_Tristrip, nullptr);
-  rend->popMatrix();
-  rend->enableColorWrite(true);
-  
-  //render characters
-  rend->enableDepthWrite(false);
-  rend->depthFunc(CGE::CMP_EQUAL);
-  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
-  rend->enableTexturing(true);
+  model.push();
+  model.translate((float)mRoom->getScrollOffset().x, (float)mRoom->getScrollOffset().y, 0.0f);
+  gfx->draw(mPolygon.get(), CGE::Gfx::PrimitiveType::TriangleStrip, 5);
+  model.pop();
+  gfx->setColorWrite(true);
+
+  //render characters where the surface is
+  gfx->setDepth(true, false, CGE::Gfx::CompareFunc::Equal);
+  gfx->setBlend(Graphics::BLEND_ALPHA);
   Engine::instance()->beginRendering();
   CharacterObject* self = Engine::instance()->getCharacter("self");
   if (self)
@@ -289,22 +271,18 @@ bool MirrorObject::update(unsigned interval){
     }
   }
   Engine::instance()->endRendering(true);
-  rend->enableDepthWrite(true);
-  rend->enableDepthTest(false);
+  gfx->setDepth(false, false);
 
   //multiply alpha
-  rend->scale((float)mSize.x,(float)mSize.y,1.0f);
-  rend->blendFunc(CGE::BLEND_DST_COLOR, CGE::BLEND_ZERO);
-  rend->setColor(1.0f, 1.0f, 1.0f, mOpacity / 255.0f);
-  rend->enableTexturing(false);
-  Engine::instance()->drawQuad();
-  //GL()drawArrays(GL_TRIANGLE_STRIP, 0, 4);
-  rend->popMatrix();
-  rend->enableTexturing(true);
+  model.scale((float)mSize.x,(float)mSize.y,1.0f);
+  gfx->setBlend(Graphics::BLEND_MULTIPLY);
+  gfx->setColor(1.0f, 1.0f, 1.0f, mOpacity / 255.0f);
+  gfx->setTexture(nullptr);
+  gfx->drawQuad();
+  model.pop();
 
   //restore
-  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
-  Engine::instance()->restoreRenderDefaults();
+  gfx->setBlend(Graphics::BLEND_ALPHA);
   unbind();
   return true;
 }
@@ -364,11 +342,10 @@ void MirrorObject::setWallMirror(Vec2i offset, bool positionDependent){
 
 void MirrorObject::realize(){
   RenderableBlitObject::realize();
-  mPolygon->lockVertexPointer();
-  mPolygon->setPosition(0, CGE::Vec3f((float)mPoints[1].x, (float)mPoints[1].y, 0.0f));
-  mPolygon->setPosition(1, CGE::Vec3f((float)mPoints[2].x, (float)mPoints[2].y, 0.0f));
-  mPolygon->setPosition(2, CGE::Vec3f((float)mPoints[0].x, (float)mPoints[0].y, 0.0f));
-  mPolygon->setPosition(3, CGE::Vec3f((float)mPoints[3].x, (float)mPoints[3].y, 0.0f));
-  mPolygon->setPosition(4, CGE::Vec3f((float)mPoints[0].x, (float)mPoints[0].y, 0.0f));
-  mPolygon->unlockVertexPointer();
+  //a triangle strip around the four points
+  const int order[5] = {1, 2, 0, 3, 0};
+  Graphics::Vertex polygon[5];
+  for (int i = 0; i < 5; ++i)
+    polygon[i] = {(float)mPoints[order[i]].x, (float)mPoints[order[i]].y, 0.0f, 0.0f, 0.0f};
+  mPolygon = Engine::instance()->getGraphics()->createVertices(5, polygon, CGE::Gfx::Usage::Immutable);
 }

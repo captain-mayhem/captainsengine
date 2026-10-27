@@ -24,6 +24,7 @@ SET(HQClient_SRCS
 	templates.cpp
 	textureManager.cpp
 	trade.cpp
+	widgets.cpp
 	world.cpp
 )
 
@@ -54,6 +55,7 @@ SET(HQClient_HDRS
 	templates.h
 	textureManager.h
 	trade.h
+	widgets.h
 	world.h
 )
 
@@ -63,6 +65,8 @@ else()
 ADD_EXECUTABLE(HQClient ${HQClient_SRCS} ${HQClient_HDRS})
 endif()
 target_compile_definitions(HQClient PRIVATE _CLIENT_)
+# the shaders are compiled in as heroquest/...
+cge_embed_shaders(HQClient ${CMAKE_CURRENT_SOURCE_DIR}/shaders heroquest/ registerHeroquestShaders)
 
 TARGET_LINK_LIBRARIES(HQClient PRIVATE CGE::Engine)
 IF (${OS} STREQUAL "windows")

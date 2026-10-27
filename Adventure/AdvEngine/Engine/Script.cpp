@@ -992,12 +992,12 @@ int PcdkScript::luaPcdkCall(lua_State* L){
   lua_getfield(L, -1, "ec");
   ExecutionContext* script = (ExecutionContext*)lua_touserdata(L, -1);
   lua_pop(L, 2);
-  CCode* code = script->mCode->get(script->mPC);
+  CCode* code = CodeSegment::get(script->mCode, script->mPC);
   while (code){
     int result = script->mPC = code->execute(*script, script->mPC);
     if (script->mSuspended)
       return lua_yieldk(L, lua_gettop(L), 0, luaPcdkCall);
-    code = script->mCode->get(script->mPC);
+    code = CodeSegment::get(script->mCode, script->mPC);
   }
   return lua_gettop(L);
 }

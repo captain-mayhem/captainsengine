@@ -15,8 +15,6 @@
 #include <cassert>
 #include "math/vector.h"
 #include "system/engine.h"
-#include "renderer/renderer.h"
-#include "renderer/indexbuffer.h"
 #include "renderer/camera.h"
 #include "renderer/font.h"
 
@@ -50,8 +48,6 @@ public:
   }
   void insert(const CGE::Vec3<index>& center, value val);
   //value& at(index x, index y, index z);
-  void buildDebugVertexBuffer();
-  void renderDebug();
   void render(const CGE::Camera* cam);
   void setRenderCallback(void (*func)(value val)){mRenderCB = func;}
 protected:
@@ -69,13 +65,10 @@ protected:
   Node* recurse(Node* node, int& data1, void* data2, void (*func)(Node* node, int& data1, void* data2));
   void recurseCullAndRender(const CGE::Camera* cam, Node* node, bool passThrough);
 
-  static void insertVertex(Node* node, int& data1, void* data2);
-
   Node* mRoot;
   value mDefault;
   CGE::Vec3<index> mCenter;
   CGE::Vec3<index> mSpan;
-  CGE::VertexBuffer* mVB;
   int mNodeCount;
   void (*mRenderCB)(value val);
 };
@@ -83,13 +76,12 @@ protected:
 //impl
 
 template<typename index, typename value> 
-Octree<index,value>::Octree() : mRoot(NULL), mDefault(0), mCenter(), mSpan(), mVB(NULL), mNodeCount(0), mRenderCB(NULL) {
+Octree<index,value>::Octree() : mRoot(NULL), mDefault(0), mCenter(), mSpan(), mNodeCount(0), mRenderCB(NULL) {
 
 }
 
 template<typename index, typename value> 
 Octree<index,value>::~Octree(){
-  delete mVB;
 }
 
 //template<typename index, typename value> 
@@ -175,57 +167,6 @@ typename Octree<index,value>::Node** Octree<index,value>::recurseCreate(const CG
   Node** grandchild = recurseCreate(idx,child,split,span/2,level+1);
   (*grandchild)->mParent = *child;
   return grandchild;
-}
-
-template<typename index, typename value>
-void Octree<index,value>::insertVertex(Node* node, int& data1, void* data2){
-  CGE::VertexBuffer* vb = (CGE::VertexBuffer*)data2;
-  vb->setPosition(data1,CGE::Vec3f((float)node->mIndex.x,(float)node->mIndex.y,(float)node->mIndex.z));
-  ++data1;
-}
-
-template<typename index, typename value>
-void Octree<index,value>::buildDebugVertexBuffer(){
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  mVB = rend->createVertexBuffer();
-  mVB->create(VB_POSITION,mNodeCount);
-  mVB->lockVertexPointer();
-  int vbpos = 0;
-  recurse(mRoot,vbpos,mVB,insertVertex);
-  mVB->unlockVertexPointer();
-}
-
-template<typename index, typename value> 
-void Octree<index,value>::renderDebug(){
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  rend->pushMatrix();
-  rend->translate((float)mCenter.x,(float)mCenter.y,(float)mCenter.z);
-  CGE::VertexBuffer* vb = rend->createVertexBuffer();
-  CGE::IndexBuffer* indbuf = rend->createIndexBuffer(IndexBuffer::IB_USHORT, 24);
-  vb->create(VB_POSITION,8);
-  vb->lockVertexPointer();
-  CGE::Vec3<index> p = mCenter-mCenter;
-  vb->setPosition(0,CGE::Vec3f((float)p.x-(float)mSpan.x,(float)p.y-(float)mSpan.y,(float)p.z-(float)mSpan.z));
-  vb->setPosition(1,CGE::Vec3f((float)p.x-(float)mSpan.x,(float)p.y-(float)mSpan.y,(float)p.z+(float)mSpan.z));
-  vb->setPosition(2,CGE::Vec3f((float)p.x+(float)mSpan.x,(float)p.y-(float)mSpan.y,(float)p.z+(float)mSpan.z));
-  vb->setPosition(3,CGE::Vec3f((float)p.x+(float)mSpan.x,(float)p.y-(float)mSpan.y,(float)p.z-(float)mSpan.z));
-  vb->setPosition(4,CGE::Vec3f((float)p.x-(float)mSpan.x,(float)p.y+(float)mSpan.y,(float)p.z-(float)mSpan.z));
-  vb->setPosition(5,CGE::Vec3f((float)p.x-(float)mSpan.x,(float)p.y+(float)mSpan.y,(float)p.z+(float)mSpan.z));
-  vb->setPosition(6,CGE::Vec3f((float)p.x+(float)mSpan.x,(float)p.y+(float)mSpan.y,(float)p.z+(float)mSpan.z));
-  vb->setPosition(7,CGE::Vec3f((float)p.x+(float)mSpan.x,(float)p.y+(float)mSpan.y,(float)p.z-(float)mSpan.z));
-  vb->unlockVertexPointer();
-  short* ind = (short*)indbuf->lockIndexPointer();
-  ind[0] = 0; ind[1] = 1; ind[2] = 1; ind[3] = 2; ind[4] = 2; ind[5] = 3; ind[6] = 3; ind[7] = 0;
-  ind[8] = 4; ind[9] = 5; ind[10] = 5; ind[11] = 6; ind[12] = 6; ind[13] = 7; ind[14] = 7; ind[15] = 4;
-  ind[16] = 0; ind[17] = 4; ind[18] = 1; ind[19] = 5; ind[20] = 2; ind[21] = 6; ind[22] = 3; ind[23] = 7;
-  indbuf->unlockIndexPointer();
-  vb->activate();
-  vb->draw(CGE::VB_Lines, indbuf);
-  mVB->activate();
-  mVB->draw(CGE::VB_Points, NULL);
-  rend->popMatrix();
-  delete vb;
-  delete indbuf;
 }
 
 template<typename index, typename value>

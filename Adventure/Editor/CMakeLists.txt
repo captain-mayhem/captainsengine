@@ -1,4 +1,6 @@
-if (NOT CMAKE_HOST_WIN32)
+# the StoryDesigner is a Windows program; the web and Android builds have
+# only the Adventure
+if (NOT CMAKE_HOST_WIN32 OR EMSCRIPTEN OR ANDROID)
   return()
 endif()
 
@@ -28,6 +30,25 @@ endfunction()
 
 ADD_SUBDIRECTORY(sharpzip)
 ADD_SUBDIRECTORY(StoryDesigner)
+# the video converter as a 32-bit program, for the 32-bit codecs (Cinepak);
+# other generators than Visual Studio build it for the engine's platform
+if (CMAKE_GENERATOR MATCHES "Visual Studio")
+  include(ExternalProject)
+  ExternalProject_Add(videoconv
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/VideoConverter
+    BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/videoconv-win32
+    INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/videoconv-win32/out
+    CMAKE_GENERATOR ${CMAKE_GENERATOR}
+    CMAKE_GENERATOR_PLATFORM Win32
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+    BUILD_COMMAND ${CMAKE_COMMAND} --build <BINARY_DIR> --config Release
+    INSTALL_COMMAND ${CMAKE_COMMAND} --install <BINARY_DIR> --config Release
+    BUILD_ALWAYS ON)
+  INSTALL(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/videoconv-win32/out/videoconv.exe DESTINATION StoryDesigner COMPONENT StoryDesignerRuntime)
+else()
+  ADD_SUBDIRECTORY(VideoConverter)
+  INSTALL(TARGETS videoconv RUNTIME DESTINATION StoryDesigner COMPONENT StoryDesignerRuntime)
+endif()
 
 SET(STORY_DESIGNER_VERSION_ORIG "${STORY_DESIGNER_VERSION}")
 SET(STORY_DESIGNER_VERSION "${STORY_DESIGNER_VERSION}.0")

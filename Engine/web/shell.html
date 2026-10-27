@@ -1,0 +1,150 @@
+<!doctype html>
+<!--
+  The engine's web page for applications (cge_web_application). The canvas
+  fills the browser window; the engine sizes its drawing buffer with
+  devicePixelRatio. Data packages made with cge_web_package are named in the
+  query, e.g. Adventure.html?data=demo loads demo.js and demo.data before
+  the application starts.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Captain's Game Engine</title>
+<style>
+  html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+  }
+  /* the canvas mustn't have a border or padding, or the mouse positions are off */
+  #canvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    border: 0;
+    padding: 0;
+    outline: none;
+    background: #000;
+  }
+  #loader {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    font-family: system-ui, sans-serif;
+    font-size: 15px;
+    color: #c8c8c8;
+    background: #000;
+  }
+  #loader.hidden {
+    display: none;
+  }
+  #bar {
+    width: min(360px, 70vw);
+    height: 6px;
+    border-radius: 3px;
+    background: #333;
+    overflow: hidden;
+  }
+  #bar > div {
+    width: 0;
+    height: 100%;
+    background: #6aa0ff;
+    transition: width 0.1s;
+  }
+  #loader.error #bar {
+    display: none;
+  }
+  #loader.error #status {
+    color: #ff8080;
+    max-width: 80vw;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<canvas id="canvas" tabindex="-1"></canvas>
+<div id="loader">
+  <div id="bar"><div></div></div>
+  <div id="status">Loading...</div>
+</div>
+<!-- the application's script, started after the data packages (see below) -->
+<template id="main-script">{{{ SCRIPT }}}</template>
+<script>
+  var loader = document.getElementById("loader");
+  var statusText = document.getElementById("status");
+  var bar = document.querySelector("#bar > div");
+  var failed = false;
+
+  function fail(text) {
+    failed = true;
+    loader.classList.remove("hidden");
+    loader.classList.add("error");
+    statusText.textContent = text;
+  }
+
+  var Module = {
+    canvas: document.getElementById("canvas"),
+    print: function(text) { console.log(text); },
+    printErr: function(text) { console.error(text); },
+    // emscripten reports downloads as "text (done/total)" and "" when all is there
+    setStatus: function(text) {
+      if (failed)
+        return;
+      var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+      if (m) {
+        statusText.textContent = m[1].trim();
+        bar.style.width = (100 * parseFloat(m[2]) / parseInt(m[4])) + "%";
+      } else if (text) {
+        statusText.textContent = text;
+      }
+      loader.classList.toggle("hidden", !text);
+    },
+    totalDependencies: 0,
+    monitorRunDependencies: function(left) {
+      this.totalDependencies = Math.max(this.totalDependencies, left);
+      Module.setStatus(left ? "Preparing... (" + (this.totalDependencies - left) + "/" + this.totalDependencies + ")" : "");
+    },
+    onAbort: function(what) {
+      fail("The application stopped: " + what);
+    }
+  };
+  window.addEventListener("error", function(e) {
+    fail("Error: " + e.message + " (see the browser console)");
+  });
+  Module.canvas.addEventListener("webglcontextlost", function(e) {
+    fail("The graphics context was lost. Please reload the page.");
+    e.preventDefault();
+  });
+  Module.setStatus("Downloading...");
+
+  // Loads the data packages from ?data=a,b one after another, then the
+  // application's script, so the packages are ready when it starts.
+  (function() {
+    var param = new URLSearchParams(location.search).get("data");
+    var packages = param ? param.split(",").filter(function(p) { return /^[\w.\-\/]+$/.test(p); }) : [];
+    var main = document.getElementById("main-script").content.querySelector("script");
+    function load(src, next) {
+      var script = document.createElement("script");
+      script.src = src;
+      script.onload = next;
+      script.onerror = function() { fail("Can't load " + src); };
+      document.body.appendChild(script);
+    }
+    function next() {
+      if (packages.length > 0)
+        load(packages.shift() + ".js", next);
+      else
+        load(main.getAttribute("src"), function() {});
+    }
+    next();
+  })();
+</script>
+</body>
+</html>

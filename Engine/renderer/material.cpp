@@ -1,11 +1,10 @@
 #include "material.h"
 #include <system/file.h>
 #include <system/engine.h>
-#include <renderer/renderer.h>
 
 using namespace CGE;
 
-Material::Material(std::string const& name) : mName(name), mDiffuseTex(NULL), mOpacityTex(NULL){
+Material::Material(std::string const& name) : mName(name){
   mAmbient = Color(0.0f,0.0f,0.0f,1.0f);
   mDiffuse = Color(1.0f,1.0f,1.0f,1.0f);
   mSpecular = Color(0.0f,0.0f,0.0f,1.0f);
@@ -16,7 +15,7 @@ Material::Material(std::string const& name) : mName(name), mDiffuseTex(NULL), mO
 Material::~Material(){
 }
 
-bool Material::loadFromMTL(std::string const& filename, std::vector<Material*>& materials, std::vector<Texture*>& textures){
+bool Material::loadFromMTL(std::string const& filename, std::vector<Material*>& materials){
   FILE* f = fopen(filename.c_str(), "r");
   if (!f)
     return false;
@@ -26,12 +25,6 @@ bool Material::loadFromMTL(std::string const& filename, std::vector<Material*>& 
   
   Material* currMat = NULL;
   Color col;
-
-  std::map<std::string, Texture*> texturemap;
-  for (unsigned i = 0; i < textures.size(); ++i){
-    Texture* tex = textures[i];
-    texturemap[tex->getName()] = tex;
-  }
 
   while (fgets(line, 2000, f)){
     switch (line[0]){
@@ -47,14 +40,7 @@ bool Material::loadFromMTL(std::string const& filename, std::vector<Material*>& 
         texture.resize(texture.size()-1);
         std::string path = Filesystem::getPathComponent(filename);
         texture = Filesystem::combinePath(path, texture);
-        Texture* tex = texturemap[texture];
-        if (tex == NULL){
-          tex = Engine::instance()->getRenderer()->createTexture(texture);
-          texturemap[texture] = tex;
-          if (tex)
-            textures.push_back(tex);
-        }
-        currMat->setDiffuseTex(tex);
+        currMat->setDiffuseTexFile(texture);
       }
       else if (memcmp(line, "map_d", 5) == 0){
         int count = 6;
@@ -64,14 +50,7 @@ bool Material::loadFromMTL(std::string const& filename, std::vector<Material*>& 
         texture.resize(texture.size()-1);
         std::string path = Filesystem::getPathComponent(filename);
         texture = Filesystem::combinePath(path, texture);
-        Texture* tex = texturemap[texture];
-        if (tex == NULL){
-          tex = Engine::instance()->getRenderer()->createTexture(texture, Texture::ALPHA);
-          texturemap[texture] = tex;
-          if (tex)
-            textures.push_back(tex);
-        }
-        currMat->setOpacityTex(tex);
+        currMat->setOpacityTexFile(texture);
       }
       break;
     case 'n':

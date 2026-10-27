@@ -31,7 +31,7 @@ public:
 	void initEnv();
   //! get a setting as integer
   int getNumberSetting(const std::string& name);
-  //! get a setting as boolean
+  //! get a setting as boolean; a missing one is only traced without exists
   bool getBoolSetting(const std::string& name, bool* exists = nullptr);
   //! get a setting as string
   //! a string from engine.ini, empty (with a warning if warnIfMissing) if it isn't set

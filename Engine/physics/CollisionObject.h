@@ -8,6 +8,9 @@
 
 namespace CGE{
   class Camera;
+  namespace Gfx{
+  class DrawContext;
+  }
 }
 
 namespace CGE{
@@ -22,7 +25,7 @@ public:
   virtual void setOrientation(const Matrix& orientation);
   virtual Vec3f getPosition();
   virtual Matrix getOrientation();
-  virtual void render(const CGE::Camera& cam)=0;
+  virtual void render(Gfx::DrawContext& ctx, const CGE::Camera& cam)=0;
 protected:
   dGeomID mGeom;
 };

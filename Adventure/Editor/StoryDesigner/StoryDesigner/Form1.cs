@@ -1119,7 +1119,7 @@ namespace StoryDesigner
         internal void videoToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog fod = new OpenFileDialog();
-            fod.Filter = "Video files|*.avi;*.swf;*.mpeg;*.mpg;*.wmv";
+            fod.Filter = "Video files|*.avi;*.swf;*.mpeg;*.mpg;*.wmv;*.ogv";
             fod.InitialDirectory = mPersistence.VideoLoadPath;
             fod.Multiselect = true;
 
@@ -1131,9 +1131,22 @@ namespace StoryDesigner
                 foreach (string filename in fod.FileNames)
                 {
                     string file = System.IO.Path.GetFileNameWithoutExtension(filename);
+                    if (mData.Videos.ContainsKey(file.ToLower()))
+                    {
+                        MessageBox.Show("Video with same name already added");
+                        return;
+                    }
+                    //the engine plays MPEG-1 and Theora; others are converted now
+                    string error;
+                    string playable = VideoConverter.GetPlayableFile(filename, out error);
+                    if (playable == null)
+                    {
+                        MessageBox.Show(error, "Video", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        continue;
+                    }
                     try
                     {
-                        mData.Videos.Add(file.ToLower(), filename);
+                        mData.Videos.Add(file.ToLower(), playable);
                     }
                     catch (ArgumentException)
                     {

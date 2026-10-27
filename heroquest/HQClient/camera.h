@@ -15,6 +15,7 @@
 #include <list>
 
 #include "math/vector.h"
+#include "math/matrix.h"
 #include "field.h"
 
 using ::CGE::Vector3D;
@@ -70,8 +71,8 @@ public:
   void checkCameraCollision(const std::list<CGE::Model*>& models, const CGE::Mesh* mesh);
   //! This updates the camera's view and calls framerate calculation
   void update();
-  //! Gives the lookAt parameters to OpenGL
-  void look();
+  //! the view matrix looking from the position at the view point
+  CGE::Matrix getViewMatrix() const;
   //! Determines the 2D looking direction
   Direction getLookDirection(); 
 

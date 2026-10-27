@@ -2,7 +2,6 @@
 #include "system/engine.h"
 #include "system/application.h"
 #include "platform/userdirs.h"
-#include "renderer/renderer.h"
 #include "gamestate.h"
 #include "camera.h"
 #include "world.h"
@@ -36,10 +35,12 @@ class HQClientApp : public CGE::IApplication{
 public:
   void init(int argc, char** argv) override;
   void render() override {HQRenderer::paint();}
+  void shutdown() override {HQRenderer::releaseResources();}
   void onResize(int width, int height) override {HQRenderer::resize(width, height);}
   void onKeyDown(int key) override {HQRenderer::special(key);}
   void onKeyUp(int key) override {HQRenderer::keyUp(key);}
-  void onChar(unsigned char ch) override {HQRenderer::ascii(ch);}
+  //! its keys are ASCII letters
+  void onChar(unsigned int ch) override {if (ch < 0x80) HQRenderer::ascii((unsigned char)ch);}
   void onMouseDown(int x, int y, int button) override {HQRenderer::buttonDown(x, y, button);}
   void onMouseMove(int x, int y, int buttons) override {HQRenderer::mouseMove(x, y, buttons);}
 };
@@ -55,8 +56,7 @@ void HQClientApp::init(int argc, char** argv){
   CGE::UserDirs::setAppName("heroquest");
   home = CGE::UserDirs::getDataDir() + "/";
   TR_DEBUG("Home is: %s", home.c_str());
-  Renderer* rend = Engine::instance()->getRenderer();
-  HQRenderer::init(rend);
+  HQRenderer::init();
   HQRenderer::initialize();
 }
 

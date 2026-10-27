@@ -12,8 +12,7 @@
 #include <cmath>
 
 #include <mesh/mesh.h>
-#include <renderer/font.h>
-#include <renderer/renderer.h>
+#include <renderer/screentext.h>
 #include "math.h"
 #include "renderer.h"
 //#include "font.hh"
@@ -262,17 +261,17 @@ void Camera::update(){
   //Print position
   char temp[100];
   sprintf(temp, "Coordinates(2D): x: %d y: %d", modelPos_.x, modelPos_.y);
-  CGE::Engine::instance()->getFont(0)->setColor(0, 1, 0);
-  CGE::Engine::instance()->getFont(0)->print(20, 700, temp, 0);
+  CGE::Engine::instance()->getScreenText(0)->setColor(0, 1, 0);
+  CGE::Engine::instance()->getScreenText(0)->print(20, 700, temp, 0);
 }
 
 
 // set lookat of the camera
-void Camera::look(){
-  CGE::Engine::instance()->getRenderer()->lookAt(position_, view_, upVector_);
-  //gluLookAt(position_.x, position_.y, position_.z,
-	//    view_.x, view_.y, view_.z,
-	//    upVector_.x, upVector_.y, upVector_.z);
+CGE::Matrix Camera::getViewMatrix() const{
+  CGE::Vec3f forward = (view_ - position_).normalized();
+  CGE::Vec3f side = forward.cross(upVector_).normalized();
+  CGE::Vec3f up = side.cross(forward);
+  return CGE::Matrix(side, up, forward*-1, CGE::Vec3f())*CGE::Matrix(CGE::Matrix::Translation, position_*-1);
 }
 
 // update movement on the map

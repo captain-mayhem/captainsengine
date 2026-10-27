@@ -6,6 +6,7 @@ SET(Engine_math_SRCS
 	${PRE}/bsphere.cpp
 	${PRE}/frustum.cpp
 	${PRE}/matrix.cpp
+	${PRE}/matrixstack.cpp
 	${PRE}/plane.cpp
 #	${PRE}/quaternion.cpp
 	${PRE}/ray.cpp
@@ -18,6 +19,7 @@ SET(Engine_math_HDRS
 	${PRE}/bsphere.h 
 	${PRE}/frustum.h
 	${PRE}/matrix.h
+	${PRE}/matrixstack.h
 	${PRE}/plane.h
 	${PRE}/quaternion.h 
 	${PRE}/ray.h 

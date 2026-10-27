@@ -5,6 +5,8 @@
 #include "ScriptFunc.h"
 #include "Sound.h"
 #include "SoundPlayer.h"
+#include "Graphics.h"
+#include <math/matrixstack.h>
 #include <system/allocation.h>
 
 using namespace adv;
@@ -290,7 +292,7 @@ void Object2D::activateNextState(){
     return;
   mState = mNextStates.front();
   mNextStates.pop_front();
-  if (mState > 0 && mAnimations[mState-1]->exists())
+  if (mState > 0 && Animation::exists(mAnimations[mState-1]))
     mAnimations[mState-1]->registerAnimationEndHandler(this);
 }
 
@@ -306,7 +308,7 @@ Object2D* Object2D::clone(){
 
 unsigned Object2D::getNumDefinedStates(){
   for (unsigned i = 0; i < mAnimations.size(); ++i){
-    if (!mAnimations[i]->exists())
+    if (!Animation::exists(mAnimations[i]))
       return i;
   }
   return (unsigned)mAnimations.size();
@@ -417,21 +419,20 @@ void ButtonObject::blit(){
     BlitObject::blit();
     return;
   }
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  rend->pushMatrix();
-  rend->enableTexturing(false);
+  Graphics* gfx = Engine::instance()->getGraphics();
+  gfx->model().push();
+  gfx->setTexture(nullptr);
   if (mState == 1 || mHighlightText)
-    rend->setColor(mBackgroundColor.r / 255.0f, mBackgroundColor.g / 255.0f, mBackgroundColor.b / 255.0f, mBackgroundColor.a*mLightingColor.a / 255 / 255.0f);
+    gfx->setColor(mBackgroundColor.r / 255.0f, mBackgroundColor.g / 255.0f, mBackgroundColor.b / 255.0f, mBackgroundColor.a*mLightingColor.a / 255 / 255.0f);
   else if (mState == 2)
-    rend->setColor(mHighlightColor.r / 255.0f, mHighlightColor.g / 255.0f, mHighlightColor.b / 255.0f, mHighlightColor.a*mLightingColor.a / 255 / 255.0f);
-  rend->translate((float)BaseBlitObject::mPos.x,(float)BaseBlitObject::mPos.y,0.0f);
-  rend->scale((float)BaseBlitObject::mSize.x,(float)BaseBlitObject::mSize.y,1.0f);
-  Engine::instance()->drawQuad();
-  rend->setColor(mBorderColor.r / 255.0f, mBorderColor.g / 255.0f, mBorderColor.b / 255.0f, mBorderColor.a*mLightingColor.a / 255 / 255.0f);
-  Engine::instance()->drawQuadLines();
-  rend->enableTexturing(true);
-  rend->setColor(1.0f, 1.0f, 1.0f, 1.0f);
-  rend->popMatrix();
+    gfx->setColor(mHighlightColor.r / 255.0f, mHighlightColor.g / 255.0f, mHighlightColor.b / 255.0f, mHighlightColor.a*mLightingColor.a / 255 / 255.0f);
+  gfx->model().translate((float)BaseBlitObject::mPos.x,(float)BaseBlitObject::mPos.y,0.0f);
+  gfx->model().scale((float)BaseBlitObject::mSize.x,(float)BaseBlitObject::mSize.y,1.0f);
+  gfx->drawQuad();
+  gfx->setColor(mBorderColor.r / 255.0f, mBorderColor.g / 255.0f, mBorderColor.b / 255.0f, mBorderColor.a*mLightingColor.a / 255 / 255.0f);
+  gfx->drawQuadLines();
+  gfx->setColor(1.0f, 1.0f, 1.0f, 1.0f);
+  gfx->model().pop();
 }
 
 CursorObject::CursorObject(const Vec2i& pos, int rightclick) : Object2D(1, pos, Vec2i(32,32), "xxx"), mSavedState(0), mRightclick(rightclick) {
@@ -457,7 +458,7 @@ int CursorObject::getNextCommand(bool& leftClickRequired, const Vec2i& pos){
   }
   //right click changes to icon 1
   else if (mRightclick == 1){
-    if (2-1 >= (int)mAnimations.size()-1 || !mAnimations[2-1]->exists()){ //no command bound
+    if (2-1 >= (int)mAnimations.size()-1 || !Animation::exists(mAnimations[2-1])){ //no command bound
       mState = 1;
       leftClickRequired = true;
       return mCommands[2] != 0 ? mCommands[2] : 2;  //take the next action
@@ -476,7 +477,7 @@ int CursorObject::getNextCommand(bool& leftClickRequired, const Vec2i& pos){
   //classic mode
   else{
     ++mState;
-    if (mState-1 >= (int)mAnimations.size()-1 || !mAnimations[mState-1]->exists()){ //no command bound
+    if (mState-1 >= (int)mAnimations.size()-1 || !Animation::exists(mAnimations[mState-1])){ //no command bound
       if (mState == 2){
         mState = 1;
         leftClickRequired = true;
@@ -501,7 +502,7 @@ void CursorObject::setCommand(int command){
   for (unsigned i = 0; i < mCommands.size(); ++i){
     if (mCommands[i] == command){
       state = i+1;
-      if (state - 1 >= (int)mAnimations.size() - 1 || !mAnimations[state - 1]->exists()){
+      if (state - 1 >= (int)mAnimations.size() - 1 || !Animation::exists(mAnimations[state - 1])){
         state = 1;
       }
       break;
@@ -907,7 +908,7 @@ void RoomObject::getBBox(Vec2i& min, Vec2i& max){
   min.x = INT_MAX; min.y = INT_MAX;
   max.x = INT_MIN; max.y = INT_MIN;
   for (unsigned i = 0; i < mObjects.size(); ++i){
-    if (!mObjects[i]->getAnimation()->exists())
+    if (!Animation::exists(mObjects[i]->getAnimation()))
       continue;
     Vec2i minpos = mObjects[i]->getPosition();
     Vec2i maxpos = minpos+mObjects[i]->getSize();
@@ -1214,10 +1215,10 @@ void CharacterObject::setState(int state){
   mState = state;
   //mNextStates.clear();
   //fallback to lower states when they not exist (walk,talk  back => walk back)
-  if (!getAnimation()->exists()){
+  if (!Animation::exists(getAnimation())){
     if (mState > 3)
       mState = calculateState(mState, isWalking(), false, false);
-		if (!getAnimation()->exists())
+		if (!Animation::exists(getAnimation()))
 			mState = oldstate;
   }
   Vec2i newoffset;
@@ -1242,10 +1243,10 @@ void CharacterObject::update(unsigned interval){
       //int oldstate = getState();
       float rnd = rand()/(float)RAND_MAX;
       int nextbored = (int)(rnd+0.5f);
-      if (!mAnimations[13-1+nextbored]->exists()){
+      if (!Animation::exists(mAnimations[13-1+nextbored])){
         nextbored = 1 - nextbored;
       }
-      if (mAnimations[13-1+nextbored]->exists()){
+      if (Animation::exists(mAnimations[13-1+nextbored])){
         setState(13+nextbored);
         getAnimation()->registerAnimationEndHandler(this);
         addNextState(0);
@@ -1319,7 +1320,7 @@ void CharacterObject::activateNextState(){
     updateState(false, true);
   else{
     setState(mNextStates.front());
-    if (mState > 0 && mAnimations[mState-1]->exists())
+    if (mState > 0 && Animation::exists(mAnimations[mState-1]))
       mAnimations[mState-1]->registerAnimationEndHandler(this);
   }
   mNextStates.pop_front();

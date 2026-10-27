@@ -1,0 +1,24 @@
+4-CGE::Engine::Engine: Engine instance created
+4-CGE::Script::initEnv: Initialize Lua Scripting environment
+4-CGE::Gfx::RenderDevice::create: Render backend OpenGL
+4-CGE::WindowsWindow::init: Initializing window
+4-CGE::Gfx::GLDevice::doInit: OpenGL 3.3.0 - Build 32.0.101.8724 on Intel(R) Graphics, core profile
+4-`anonymous-namespace'::logMessage: miniaudio: [WASAPI]
+4-`anonymous-namespace'::logMessage: miniaudio:   Speakers (Cirrus Logic XU (with APO Extensions)) (Playback)
+4-`anonymous-namespace'::logMessage: miniaudio:     Format:      32-bit IEEE Floating Point -> 32-bit IEEE Floating Point
+4-`anonymous-namespace'::logMessage: miniaudio:     Channels:    2 -> 2
+4-`anonymous-namespace'::logMessage: miniaudio:     Sample Rate: 48000 -> 48000
+4-`anonymous-namespace'::logMessage: miniaudio:     Buffer Size: 480*3 (1440)
+4-`anonymous-namespace'::logMessage: miniaudio:     Conversion:
+4-`anonymous-namespace'::logMessage: miniaudio:       Pre Format Conversion:  NO
+4-`anonymous-namespace'::logMessage: miniaudio:       Post Format Conversion: NO
+4-`anonymous-namespace'::logMessage: miniaudio:       Channel Routing:        NO
+4-`anonymous-namespace'::logMessage: miniaudio:       Resampling:             NO
+4-`anonymous-namespace'::logMessage: miniaudio:       Passthrough:            YES
+4-`anonymous-namespace'::logMessage: miniaudio:       Channel Map In:         {CHANNEL_FRONT_LEFT CHANNEL_FRONT_RIGHT}
+4-`anonymous-namespace'::logMessage: miniaudio:       Channel Map Out:        {CHANNEL_FRONT_LEFT CHANNEL_FRONT_RIGHT}
+4-CGE::Audio::init: Audio output: WASAPI, Speakers (Cirrus Logic XU (with APO Extensions)), 48000 Hz
+4-CGE::Engine::shutdown: engine shutting down
+2-`anonymous-namespace'::WGLContext::shutdown: Release of device context failed
+4-CGE::WindowsWindow::kill: Killing window
+2-CGE::WindowsWindow::kill: Destroying window failed

@@ -3,24 +3,15 @@
 
 #include "CollisionSpace.h"
 #include "../system/engine.h"
-#include "../renderer/renderer.h"
-#include "../renderer/forms.h"
-#include "../renderer/vertexbuffer.h"
+#include "../renderer/drawcontext.h"
+#include "../math/matrixstack.h"
 
 using namespace CGE;
 
 CollisionBody::CollisionBody(const Simulator& sim) : CollisionObject(), Body(sim){
-  mPhysicsVB = NULL;
-  for (int i = 0; i < 3; ++i){
-    mPhysicsInds[i] = NULL;
-  }
 }
 
 CollisionBody::~CollisionBody(){
-  delete mPhysicsVB;
-  for (int i = 0; i < 3; ++i){
-    delete mPhysicsInds[i];
-  }
 }
 
 CollisionBase::Type CollisionBody::getType(){
@@ -39,7 +30,8 @@ void CollisionBody::initCylinder(const CollisionSpace& space, float height, floa
   mGeom = dCreateCylinder(space.mSpace, radius, height);
   dGeomSetBody(mGeom, mBody);
   dGeomSetData(mGeom, this);
-  mPhysicsVB = CGE::Forms::createCylinder(radius, height, 32, mPhysicsInds);
+  if (Gfx::RenderDevice* device = Engine::instance()->getRenderDevice())
+    mShape = Forms::createCylinder(*device, radius, height, 32);
 }
 
 void CollisionBody::initBox(const CollisionSpace& space, float width, float height, float depth, float mass){
@@ -47,7 +39,8 @@ void CollisionBody::initBox(const CollisionSpace& space, float width, float heig
   mGeom = dCreateBox(space.mSpace, depth, height, width);
   dGeomSetBody(mGeom, mBody);
   dGeomSetData(mGeom, this);
-  mPhysicsVB = CGE::Forms::createBox(width, height, depth, mPhysicsInds);
+  if (Gfx::RenderDevice* device = Engine::instance()->getRenderDevice())
+    mShape = Forms::createBox(*device, width, height, depth);
 }
 
 void CollisionBody::initSphere(const CollisionSpace& space, float radius, float mass){
@@ -57,20 +50,14 @@ void CollisionBody::initSphere(const CollisionSpace& space, float radius, float 
   dGeomSetData(mGeom, this);
 }
 
-void CollisionBody::render(const CGE::Camera& cam){
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  rend->pushMatrix();
+void CollisionBody::render(Gfx::DrawContext& ctx, const CGE::Camera& cam){
+  if (!mShape)
+    return;
+  MatrixStack& model = ctx.model();
+  model.push();
   Vec3f trans = getPosition();
-  rend->translate(trans.x,trans.y,trans.z);
-  rend->multiplyMatrix(getOrientation());
-  mPhysicsVB->activate();
-  if (dGeomGetClass(mGeom) == dCylinderClass){
-    mPhysicsVB->draw(CGE::VB_Tristrip, mPhysicsInds[0]);
-    mPhysicsVB->draw(CGE::VB_Tristrip, mPhysicsInds[1]);
-    mPhysicsVB->draw(CGE::VB_Tristrip, mPhysicsInds[2]);
-  }
-  else if (dGeomGetClass(mGeom) == dBoxClass){
-    mPhysicsVB->draw(CGE::VB_Triangles, mPhysicsInds[0]);
-  }
-  rend->popMatrix();
+  model.translate(trans.x,trans.y,trans.z);
+  model.multiply(getOrientation());
+  Forms::drawShape(ctx, *mShape);
+  model.pop();
 }

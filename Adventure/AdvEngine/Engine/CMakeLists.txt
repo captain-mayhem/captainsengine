@@ -1,36 +1,11 @@
 ###OPTIONS###
-# The sound code uses the FFmpeg 2.x API, which only the bundled Windows
-# libraries provide (current Linux distributions ship FFmpeg 5+). It moves to
-# the engine's audio module later; until then Linux builds without sound.
-if (OS STREQUAL "linux")
-  set(DISABLE_SOUND_DEFAULT ON)
-else()
-  set(DISABLE_SOUND_DEFAULT OFF)
-endif()
-OPTION(DISABLE_SOUND "disables the ffmpeg and openal backends" ${DISABLE_SOUND_DEFAULT})
-OPTION(FFMPEG_OLD_API "activate use of older ffmpeg API" OFF)
-OPTION(JNI_FRONTEND "enables a JNI frontend for Android" OFF)
-OPTION(EMSCRIPTEN_FRONTEND "enables a C frontend for emscripten" OFF)
-OPTION(DISABLE_EFX "disables EFX sound effects" ${EMSCRIPTEN_FRONTEND})
+# The sound goes through the engine's audio module (Sound.cpp, SoundPlayer.cpp)
+# on every platform.
 
-# the frontend (window and main loop) and the libraries only it needs
-SET(ADVENTURE_LINK_LIBS)
-IF(RENDER_EMBEDDED)
-  IF(JNI_FRONTEND)
-    SET(ADVENTURE_SRCS JNIFrontend.cpp)
-    SET(ADVENTURE_LINK_LIBS GLESv2 log)
-  ELSEIF(EMSCRIPTEN_FRONTEND)
-    SET(ADVENTURE_SRCS CFrontend.cpp)
-    SET(ADVENTURE_LINK_LIBS GLESv2)
-  ELSE()
-    SET(ADVENTURE_SRCS CgeWindow.cpp CgeWindow.h)
-    SET(ADVENTURE_LINK_LIBS OpenSLES)
-  ENDIF()
-ELSE(RENDER_EMBEDDED)
-  find_package(OpenGL REQUIRED)
-  SET(ADVENTURE_SRCS CgeWindow.cpp CgeWindow.h)
-  SET(ADVENTURE_LINK_LIBS OpenGL::GL)
-ENDIF(RENDER_EMBEDDED)
+# the frontend (window and main loop): an engine application that draws
+# through the engine's render device, without own GL calls, on every platform
+# (on the web in the browser, on Android in the engine's CgeActivity)
+SET(ADVENTURE_SRCS CgeWindow.cpp CgeWindow.h)
 
 ###ANTLR###
 
@@ -50,43 +25,37 @@ if (MSVC)
   target_compile_definitions(antlr PRIVATE _CRT_SECURE_NO_DEPRECATE)
 endif()
 
-# Java runs ANTLR (the script parser) and jar (the StoryDesigner runtime packages)
-if (OS STREQUAL "android")
-  INCLUDE(FindJava)
-  if (NOT Java_JAVA_EXECUTABLE)
-    set(Java_JAVA_EXECUTABLE dalvikvm CACHE FILEPATH "" FORCE)
-  endif()
-else()
-  find_package(Java COMPONENTS Runtime Development)
-  if (NOT Java_JAVA_EXECUTABLE OR NOT Java_JAR_EXECUTABLE)
-    message(FATAL_ERROR "The Adventure needs a Java JDK (java and jar): set JAVA_HOME, "
-      "put the JDK's bin folder in PATH, or turn the Adventure off (PROJECT_ADVENTURE=OFF)")
-  endif()
+# Java runs ANTLR (the script parser) and jar (the StoryDesigner runtime
+# packages), on the build machine for every platform (for Android the JDK
+# that Gradle runs on)
+find_package(Java COMPONENTS Runtime Development)
+if (NOT Java_JAVA_EXECUTABLE OR NOT Java_JAR_EXECUTABLE)
+  message(FATAL_ERROR "The Adventure needs a Java JDK (java and jar): set JAVA_HOME, "
+    "put the JDK's bin folder in PATH, or turn the Adventure off (PROJECT_ADVENTURE=OFF)")
 endif()
 
 SET(PARSER_SRCS
-${CMAKE_CURRENT_BINARY_DIR}/pcdkParser.c
+${CMAKE_CURRENT_BINARY_DIR}/pcdkParser.cpp
 ${CMAKE_CURRENT_BINARY_DIR}/pcdkParser.h
-${CMAKE_CURRENT_BINARY_DIR}/pcdkLexer.c
+${CMAKE_CURRENT_BINARY_DIR}/pcdkLexer.cpp
 ${CMAKE_CURRENT_BINARY_DIR}/pcdkLexer.h
 )
 
-SET_SOURCE_FILES_PROPERTIES(
-${PARSER_SRCS}
-PROPERTIES
-GENERATED TRUE
-LANGUAGE CXX
-)
-
-if(${OS} STREQUAL "android")
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/antlrworks_android.jar DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-set(ANTLR ${CMAKE_CURRENT_BINARY_DIR}/antlrworks_android.jar)
-else()
-set(ANTLR ${CMAKE_CURRENT_SOURCE_DIR}/antlrworks-1.2.3.jar)
+SET_SOURCE_FILES_PROPERTIES(${PARSER_SRCS} PROPERTIES GENERATED TRUE)
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  # ANTLR's generated code has "if ((a == b))"
+  SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_BINARY_DIR}/pcdkParser.cpp ${CMAKE_CURRENT_BINARY_DIR}/pcdkLexer.cpp
+    PROPERTIES COMPILE_OPTIONS -Wno-parentheses-equality)
 endif()
 
+set(ANTLR ${CMAKE_CURRENT_SOURCE_DIR}/antlrworks-1.2.3.jar)
+
+# ANTLR writes C sources, which are compiled as C++: renamed to .cpp, since
+# clang deprecates C files in C++ mode
 ADD_CUSTOM_COMMAND(OUTPUT ${PARSER_SRCS}
-COMMAND ${JAVA_RUNTIME} -cp ${ANTLR} org.antlr.Tool -o ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/pcdk.g
+COMMAND ${Java_JAVA_EXECUTABLE} -cp ${ANTLR} org.antlr.Tool -o ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/pcdk.g
+COMMAND ${CMAKE_COMMAND} -E rename pcdkParser.c pcdkParser.cpp
+COMMAND ${CMAKE_COMMAND} -E rename pcdkLexer.c pcdkLexer.cpp
 DEPENDS pcdk.g
 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 COMMENT "antlr'ing grammar"
@@ -120,6 +89,8 @@ SET(AppBuilder_SRCS
   ExecutionContext.h
   Font.cpp
   Font.h
+  Graphics.cpp
+  Graphics.h
   GuiRoom.h
   Ids.h
   Inventory.cpp
@@ -149,6 +120,8 @@ SET(AppBuilder_SRCS
   Sound.h
   SoundPlayer.cpp
   SoundPlayer.h
+  StreamVideoPlayer.cpp
+  StreamVideoPlayer.h
   String.cpp
   String.h
   SwfPlayer.cpp
@@ -161,186 +134,66 @@ SET(AppBuilder_SRCS
 )
 
 ADD_LIBRARY(AdventureBase STATIC ${AppBuilder_SRCS})
+# the shaders (post-processing effects and the quads) are compiled in as adventure/...
+cge_embed_shaders(AdventureBase ${CMAKE_CURRENT_SOURCE_DIR}/shaders adventure/ registerAdventureShaders)
 
 # the generated parser and the copied AST.h are in the binary directory
 target_include_directories(AdventureBase PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(AdventureBase PUBLIC CGE::Engine antlr xml)
 
-IF(DISABLE_EFX)
-  target_compile_definitions(AdventureBase PUBLIC DISABLE_EFX)
-ENDIF()
-
-find_package(OpenAL)
-if (NOT OPENAL_FOUND)
-	if (OS STREQUAL "windows")
-		# the StoryDesigner's runtime packages (engine2.dat) contain OpenAL32.dll
-		message(FATAL_ERROR "The Adventure needs OpenAL on Windows: set OPENAL_LIBRARY and OPENAL_INCLUDE_DIR, "
-			"or turn the Adventure off (PROJECT_ADVENTURE=OFF)")
-	endif()
-	message(WARNING "Setting option DISABLE_SOUND as OpenAL was not found")
-	set(DISABLE_SOUND ON CACHE BOOL "" FORCE)
+# the Lua module, a shared library that a stand-alone Lua interpreter loads to
+# drive the engine (require "cge"); nothing in a web page or an APK loads it
+if (NOT EMSCRIPTEN AND NOT ANDROID)
+  ADD_SUBDIRECTORY(lua)
 endif()
-
-IF(NOT DISABLE_SOUND)
-###Open AL###
-target_include_directories(AdventureBase PUBLIC
-	${OPENAL_INCLUDE_DIR}
-	${OPENAL_INCLUDE_DIR}/..
-)
-target_link_libraries(AdventureBase PUBLIC ${OPENAL_LIBRARY})
-
-###ALUT###
-ADD_SUBDIRECTORY(alut)
-target_link_libraries(AdventureBase PUBLIC alut)
-
-###FFMPEG###
-SET(FFMPEG_LIBS avformat avcodec avutil swscale)
-IF(NOT FFMPEG_OLD_API)
-  LIST(APPEND FFMPEG_LIBS swresample)
-ENDIF()
-IF (OS STREQUAL windows)
-  # prebuilt FFmpeg 2.x import libraries and headers
-  foreach(lib ${FFMPEG_LIBS})
-    add_library(${lib} STATIC IMPORTED)
-    set_target_properties(${lib} PROPERTIES
-      IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/lib/${CPU}/${lib}.lib
-      INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/include
-    )
-  endforeach()
-ELSEIF (OS STREQUAL "android")
-  foreach(lib ${FFMPEG_LIBS})
-    add_library(${lib} STATIC IMPORTED)
-    set_target_properties(${lib} PROPERTIES
-      IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/../../../extern/ffmpeg/c4droid_build/lib${lib}/lib${lib}.a
-      INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/include
-    )
-  endforeach()
-ELSE()
-  # system FFmpeg
-  target_link_directories(AdventureBase PUBLIC /usr/local/lib)
-ENDIF()
-target_link_libraries(AdventureBase PUBLIC ${FFMPEG_LIBS})
-
-ELSE(NOT DISABLE_SOUND)
-target_compile_definitions(AdventureBase PUBLIC DISABLE_SOUND)
-ENDIF(NOT DISABLE_SOUND)
-IF(FFMPEG_OLD_API)
-target_compile_definitions(AdventureBase PUBLIC FFMPEG_OLD_API)
-ENDIF(FFMPEG_OLD_API)
-
-ADD_SUBDIRECTORY(lua)
 
 ###Adventure###
 
-IF(JNI_FRONTEND)
-
-ADD_LIBRARY(Adventure SHARED
-	${ADVENTURE_SRCS}
-  CmdReceiver.h
-  CmdReceiver.cpp
-)
-
-ADD_SUBDIRECTORY(java)
-
-ELSEIF(EMSCRIPTEN_FRONTEND)
-
-SET(ADV_SUFFIX .js)
-
-ADD_EXECUTABLE(Adventure${ADV_SUFFIX}
-	${ADVENTURE_SRCS}
-  CmdReceiver.h
-  CmdReceiver.cpp
-)
-
-SET_TARGET_PROPERTIES(Adventure${ADV_SUFFIX} PROPERTIES LINK_FLAGS "-O2 -s FULL_ES2=1 -s OUTLINING_LIMIT=10000 -s TOTAL_MEMORY=268435456 -s ASM_JS=1 -s EXPORTED_FUNCTIONS=\"['_main', '_fsMounted', '_fileWritten', '_fileSynced']\"")
-#-s ALLOW_MEMORY_GROWTH=1
-
-
-elseif(OS STREQUAL "android")
-
-ADD_LIBRARY(Adventure SHARED
-	${ADVENTURE_SRCS}
-  CmdReceiver.h
-  CmdReceiver.cpp
-)
-
-
-ELSE(JNI_FRONTEND)
-
-ADD_EXECUTABLE(Adventure
+# an executable, or on Android the library libAdventure.so that CgeActivity
+# loads (the Gradle project in Adventure/android)
+cge_add_application(Adventure WIN32
   ${ADVENTURE_SRCS}
   CmdReceiver.h
   CmdReceiver.cpp
 )
 
-ENDIF(JNI_FRONTEND)
+TARGET_LINK_LIBRARIES(Adventure PRIVATE AdventureBase)
 
-TARGET_LINK_LIBRARIES(Adventure${ADV_SUFFIX} PRIVATE AdventureBase ${ADVENTURE_LINK_LIBS})
+# the web page Adventure.html; a game comes as a data package that the page
+# loads (Adventure.html?data=demo, see test/CMakeLists.txt) to data/game.dat
+cge_web_application(Adventure PRELOAD engine.ini@engine.ini)
 
-IF (NOT RENDER_EMBEDDED)
-SET_TARGET_PROPERTIES(Adventure
-PROPERTIES
-WIN32_EXECUTABLE TRUE)
-ENDIF(NOT RENDER_EMBEDDED)
-
-ADD_SUBDIRECTORY(eax2efx)
-
-if (EMSCRIPTEN_FRONTEND)
-add_subdirectory(emscripten)
-endif()
-
-if(NOT RENDER_EMBEDDED)
-# engine1.dat is the runtime the StoryDesigner unpacks: the Adventure and the engine library
-add_custom_command(TARGET Adventure${ADV_SUFFIX} POST_BUILD
-COMMAND ${Java_JAR_EXECUTABLE} cfM engine1.dat -C $<TARGET_FILE_DIR:Adventure${ADV_SUFFIX}> $<TARGET_FILE_NAME:Adventure${ADV_SUFFIX}>
-  -C $<TARGET_FILE_DIR:Engine> $<TARGET_FILE_NAME:Engine>)
+if(NOT RENDER_EMBEDDED AND NOT EMSCRIPTEN)
+# engine1.dat is the runtime the StoryDesigner unpacks: the Adventure, the
+# engine library and its OpenGL backend plugin
+add_custom_command(TARGET Adventure POST_BUILD
+COMMAND ${Java_JAR_EXECUTABLE} cfM engine1.dat -C $<TARGET_FILE_DIR:Adventure> $<TARGET_FILE_NAME:Adventure>
+  -C $<TARGET_FILE_DIR:Engine> $<TARGET_FILE_NAME:Engine>
+  -C $<TARGET_FILE_DIR:EngineGL> $<TARGET_FILE_NAME:EngineGL>)
 endif()
 
 #install
 
-cge_copy_runtime(Adventure${ADV_SUFFIX})
-INSTALL(TARGETS Adventure${ADV_SUFFIX} RUNTIME DESTINATION adventure LIBRARY	DESTINATION adventure COMPONENT adv_runtime)
-cge_install_runtime(Adventure${ADV_SUFFIX} adventure COMPONENT adv_runtime)
+cge_copy_runtime(Adventure)
+INSTALL(TARGETS Adventure RUNTIME DESTINATION adventure LIBRARY	DESTINATION adventure COMPONENT adv_runtime)
+cge_install_runtime(Adventure adventure COMPONENT adv_runtime)
+if (NOT RENDER_EMBEDDED AND NOT EMSCRIPTEN)
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/engine1.dat DESTINATION StoryDesigner COMPONENT StoryDesignerEngine)
+endif()
 
+# engine2.dat is the StoryDesigner's package of the engine's other files (it
+# held the OpenAL and FFmpeg libraries): the engine's fonts in fonts/
 if (OS STREQUAL windows)
-#openal
-get_filename_component(OPENAL_PATH ${OPENAL_LIBRARY} PATH)
-set (OPENAL_PATH ${OPENAL_PATH}/../bin)
-set(OPENAL_FILE OpenAL32.dll)
-set(OPENAL_DLL "${OPENAL_PATH}/${OPENAL_FILE}")
-message(STATUS "OpenAL: ${OPENAL_DLL}")
-
+file(GLOB CGE_FONT_FILES CONFIGURE_DEPENDS ${CGE_FONTS_DIR}/*)
 add_custom_command(OUTPUT engine2.dat
-COMMAND ${Java_JAR_EXECUTABLE} cfM engine2.dat -C ${OPENAL_PATH} ${OPENAL_FILE}
--C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU} avcodec-55.dll
--C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU} avformat-55.dll
--C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU} avutil-52.dll
--C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU} swresample-0.dll
--C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU} swscale-2.dll
--C ${CMAKE_CURRENT_SOURCE_DIR}/../../../Engine/lib/${CPU} d3dcompiler_47.dll
-DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avcodec-55.dll
-${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avformat-55.dll
-${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avutil-52.dll
-${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/swresample-0.dll
-${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/swscale-2.dll
-${CMAKE_CURRENT_SOURCE_DIR}/../../../Engine/lib/${CPU}/d3dcompiler_47.dll
+COMMAND ${Java_JAR_EXECUTABLE} cfM engine2.dat -C ${CGE_FONTS_DIR}/.. fonts
+DEPENDS ${CGE_FONT_FILES}
 )
-
 add_custom_target(pack_engine_deps ALL DEPENDS engine2.dat)
-
-INSTALL(FILES ${OPENAL_DLL} DESTINATION adventure)
-
-#ffmpeg
-INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avcodec-55.dll
-${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avformat-55.dll
-${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avutil-52.dll
-${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/swresample-0.dll
-${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/swscale-2.dll
-${CMAKE_CURRENT_SOURCE_DIR}/../../../Engine/lib/${CPU}/d3dcompiler_47.dll
-DESTINATION adventure)
-
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/engine2.dat DESTINATION StoryDesigner COMPONENT StoryDesignerEngine)
 endif()
 
-INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/engine.ini DESTINATION adventure)
+# the web page has it in its data
+if (NOT EMSCRIPTEN)
+INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/engine.ini DESTINATION adventure)
+endif()

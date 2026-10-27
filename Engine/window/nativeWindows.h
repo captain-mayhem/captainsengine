@@ -13,25 +13,36 @@ namespace CGE{
 
 class CGE_API WindowsWindow : public AppWindow{
 public:
-  WindowsWindow(CGE::Renderer* renderer);
+  WindowsWindow(Gfx::RenderDevice* device, const Gfx::DeviceDesc& desc);
   ~WindowsWindow();
   //! init the window
-  void init(const std::string& name);
+  void init(const std::string& name) override;
   //! get window handle
-  inline void* getHandle(){return handle_;}
+  inline void* getHandle() override {return handle_;}
+  Gfx::NativeWindow getNativeWindow() const override;
+  //! the window's DPI / 96 (the process is made per-monitor DPI aware)
+  float getContentScale() const override;
   //! kill the window
-  void kill();
-  virtual void changeSize(int width, int height);
+  void kill() override;
+  virtual void changeSize(int width, int height) override;
+  void setFullscreen(bool fullscreen) override;
+  //! the window's DPI changed (WM_DPICHANGED) and suggests a new rectangle
+  void dpiChanged(const RECT& suggested);
 
-  virtual void messageBox(const std::string& title, const std::string& message);
+  virtual void messageBox(const std::string& title, const std::string& message) override;
 
-  virtual void show(bool doit);
+  virtual void show(bool doit) override;
 
-  virtual void setTitle(const std::string& title);
+  virtual void setTitle(const std::string& title) override;
 protected:
-  void applyResolution();
+  //! sizes the window to its windowed size and centres it on its monitor's work area
+  void placeWindow();
+  //! fits the window to its monitor (fullscreen)
+  void fitToMonitor();
   HWND handle_;
   HINSTANCE instance_;
+  //! the placement outside fullscreen, while fullscreen
+  WINDOWPLACEMENT windowedPlacement_;
 };
 
 }
@@ -43,7 +54,7 @@ protected:
 namespace CGE{
 class CGE_API WindowsWindow : public AppWindow{
 public:
-  WindowsWindow(CGE::Renderer* renderer) : AppWindow(renderer) {}
+  WindowsWindow(Gfx::RenderDevice* device, const Gfx::DeviceDesc& desc) : AppWindow(device, desc) {}
   ~WindowsWindow() {}
 };
 }

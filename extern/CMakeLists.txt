@@ -55,8 +55,17 @@ add_subdirectory(freetype)
 
 add_subdirectory(imgui)
 add_subdirectory(miniaudio)
+# libogg finds its integer types with check_type_size, which reads the sizes
+# from the test program; linked with emscripten that is a .js file without
+# them (CMake before 4.x), so the checks only compile on the web
+if (EMSCRIPTEN)
+  set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
+endif()
 add_subdirectory(libogg)
+unset(CMAKE_TRY_COMPILE_TARGET_TYPE)
 add_subdirectory(libvorbis)
+add_subdirectory(libtheora)
+add_subdirectory(pl_mpeg)
 
 add_subdirectory(lua)
 add_subdirectory(libxml)
@@ -75,5 +84,5 @@ if (CGE_BUILD_TESTS)
   add_subdirectory(googletest)
 endif()
 if (NOT OS STREQUAL "android")
-  add_subdirectory(glew)
+  add_subdirectory(glad)
 endif()

@@ -3,9 +3,6 @@
 
 #include <cge_export.h>
 
-#ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0500
-#endif
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -32,16 +29,14 @@
 
 namespace CGE{
 class AppWindow;
-class Renderer;
-class Font;
+class Audio;
+class ScreenText;
 class Forms;
-}
-
-namespace Gui{
-class GuiElement;
-class InputField;
-class Button;
 class Console;
+namespace Gfx{
+class DrawContext;
+class SpriteBatch;
+}
 }
 
 //! changes a string to an integer
@@ -85,6 +80,7 @@ CGE_API double getTime();
 #include "thread.h"
 #include "application.h"
 #include "virtualscreen.h"
+#include "../renderer/renderdevice.h"
 
 namespace CGE{
 
@@ -93,7 +89,6 @@ class CGE_API Engine{
     static void init();
     inline static Engine* instance() {return eng;}
     void startup(int argc, char** argv);
-    bool startupRenderer(const std::string& renderer);
     //! runs one frame: processes the window events, calls the application's
     //! update as often as needed, renders and waits for the frame limit
     void runFrame();
@@ -102,6 +97,10 @@ class CGE_API Engine{
         started from update or init. Must not be called from render or from an
         input handler. Returns false once a shutdown is requested. */
     bool pumpFrame();
+    //! runs a frame while the system runs an event loop of its own, as
+    //! Windows does while the window is moved or sized
+    /*! Does nothing while a frame runs (e.g. from pumpFrame). */
+    void runModalFrame();
     void shutdown();
     //! the application, or nullptr while it isn't initialised
     inline IApplication* getApplication() {return app_;}
@@ -112,48 +111,42 @@ class CGE_API Engine{
     //! the application comes back from the background
     void resume();
     inline bool isPaused() {return paused_;}
-    inline CGE::Renderer* getRenderer() {return rend_.get();}
+    //! creates the render device and everything on it again, as after a
+    //! lost context (Android)
+    /*! The application gets onDeviceLost before and onDeviceRestored after.
+        The engine does this itself when the device reports that its context
+        was lost; calling it tests that path on any platform. Not from
+        render or from an input handler. */
+    void restartRenderDevice();
+    //! the render device, which owns the window's graphics context
+    /*! The backend that renderer in engine.ini names (default OpenGL), or
+        the Null device when engine.ini says graphics = false. */
+    inline Gfx::RenderDevice* getRenderDevice() {return device_.get();}
+    //! the engine's drawing state on the render device, for Forms, Mesh, Scene and the render techniques
+    inline Gfx::DrawContext* getDrawContext() {return draw_.get();}
     //! the virtual resolution of the GUI pass and the input events
     /*! Its window size is updated from the window on every call. */
     CGE::VirtualScreen& getVirtualScreen();
-    inline CGE::Font* getFont(int idx) {return fnt_[idx].get();}
+    //! the engine's screen texts 0 to 2, drawn over each frame (status and debug lines)
+    inline CGE::ScreenText* getScreenText(int idx) {return texts_[idx].get();}
     //! Get the standard forms
     inline CGE::Forms* getForms() {return forms_.get();}
+    //! batched sprites on the draw context (not without graphics)
+    inline Gfx::SpriteBatch* getSpriteBatch() {return sprites_.get();}
     //! get the window
     inline CGE::AppWindow* getWindow() {return win_.get();}
     //! get the console
-    inline ::Gui::Console* getConsole() {return console_.get();}
+    inline CGE::Console* getConsole() {return console_.get();}
+    //! the audio: sounds, music, players and streams (audio/audio.h)
+    /*! Opened at startup unless engine.ini says audio = false; without an
+        output device it stays closed and plays nothing. */
+    inline CGE::Audio* getAudio() {return audio_.get();}
+    //! is Dear ImGui set up? (not without graphics)
+    /*! The engine draws ImGui on top of each frame: applications call ImGui's
+        functions in their render() (see ui/imgui_impl_cge_platform.h). */
+    inline bool hasImGui() const {return imgui_;}
     inline double getFrameInterval() {return frameInterval_;}
     inline int getFPS() {return fps_;}
-   
-    //! get the input field list
-    //inline list< ::Gui::InputField*>& getInputFields() {return listeners_;}
-    //! get the button list
-    inline std::list< ::Gui::GuiElement*>& getGuiElements() {return guiElems_;}
-    //! adds an input field for mouse click checking
-    //void addInputListener(::Gui::InputField* in, bool immediate=true){if (immediate)listeners_.push_back(in);
-    //  else newIn_.push_back(in);}
-    //! adds a button for mouse click checking
-    void addGuiListener(::Gui::GuiElement* element, bool immediate=true){if (immediate)guiElems_.push_back(element);
-      else newBut_.push_back(element);}
-    //! set the current input field that should be active
-    void setActiveInput(::Gui::InputField* field);
-    //! get the current input field that should be active
-    inline ::Gui::InputField* getActiveInput() {return input_;}
-    //! clears the input and button listeners
-    void clearListeners(bool immediate=true);
-    //! remove the input listener at position idx
-    //void removeInputListener(int idx);
-    //! remove the button listener at position idx
-    void removeGuiListener(int idx, bool immediate=true);
-    //! remove the button listener with a certain name
-    void removeGuiListener(const std::string& name);
-    //! remove all button listeners beginning at idx
-    void removeGuiListeners(int idx);
-    //! get a button by name
-    ::Gui::GuiElement* getGuiListener(const std::string& name);
-    //! get the gui mutex
-    Mutex& getGuiMutex() {return guitex_;}
     void requestShutdown();
     inline bool isShutdownRequested() {return mShutdownRequested;}
     void messageBox(const std::string& message, const std::string& title);
@@ -174,24 +167,40 @@ class CGE_API Engine{
     void processEvents();
     //! one frame, with or without updating the application
     void frame(bool update);
-    //! renders the application and the GUI and swaps buffers
+    //! renders the application and the GUI and presents the frame
     void renderFrame();
-    //! applies the deferred changes to the GUI element list
-    void updateGuiElements();
+    //! draws the screen texts in their own pass
+    void renderScreenTexts();
+    //! creates the engine's objects on the render device: the draw context,
+    //! the forms and the sprite batch
+    void createDeviceObjects();
+    //! deletes them before the device goes
+    void destroyDeviceObjects();
+    //! creates the ImGui context and its backends for the window and the device
+    void startupImGui();
+    void shutdownImGui();
+    //! draws the ImGui frame the application and the console built
+    void renderImGui();
     //! sleeps until the frame limit (maxFramerate in engine.ini) is reached
     void limitFrame();
 
     //! The window
     std::unique_ptr<CGE::AppWindow> win_;
-    
-    //! The renderer
-    std::unique_ptr<CGE::Renderer> rend_;
+    //! the render device
+    std::unique_ptr<Gfx::RenderDevice> device_;
+    //! what the device was initialised with (engine.ini)
+    Gfx::DeviceDesc deviceDesc_;
+    //! drawing on the render device; destroyed before it
+    std::unique_ptr<Gfx::DrawContext> draw_;
+
     //! the virtual resolution
     CGE::VirtualScreen virtual_;
-    //! The fonts
-    std::array<std::unique_ptr<CGE::Font>, 3> fnt_;
+    //! the screen texts
+    std::array<std::unique_ptr<CGE::ScreenText>, 3> texts_;
     //! Stadard forms
     std::unique_ptr<CGE::Forms> forms_;
+    //! the sprite batch on draw_
+    std::unique_ptr<Gfx::SpriteBatch> sprites_;
     //! is the engine initialized and running?
     bool isUp_;
     //! graphics subsystem
@@ -202,6 +211,8 @@ class CGE_API Engine{
     bool paused_;
     //! is a frame being rendered? (pumpFrame isn't allowed then)
     bool rendering_;
+    //! the frames running at the moment (pumpFrame nests them)
+    int frameDepth_;
     //! max framerate (0 means unlimited)
     int maxFramerate_;
     //! the fixed update interval
@@ -219,33 +230,21 @@ class CGE_API Engine{
     //! fps
     int fps_;
 
-    //! waiting input fields
-    //list< ::Gui::InputField*> listeners_;
-    //! waiting buttons
-    std::list< ::Gui::GuiElement*> guiElems_;
-    //! the new input fields
-    //list< ::Gui::InputField*> newIn_;
-    //! the new buttons
-    std::list< ::Gui::GuiElement*> newBut_;
-    //! if the input listeners should be cleared
-    bool clear_;
-    //! which buttons should be removed
-    std::vector<short> remBut_;
-    //! where should the keyboard input go to?
-    ::Gui::InputField* input_;
     //! the game console
-    std::unique_ptr< ::Gui::Console> console_;
-    //! a gui lock mutex
-    Mutex guitex_;
+    std::unique_ptr<CGE::Console> console_;
+    //! the audio
+    std::unique_ptr<CGE::Audio> audio_;
+    //! is ImGui set up?
+    bool imgui_;
     bool mShutdownRequested;
     
-#ifdef LINUX
-    //! the time of the last click, to detect double clicks
-    double lastClick_;
-#endif
 #ifdef ANDROID
-	static int32_t handleInput(struct android_app* app, AInputEvent* event);
-	static void handleCmd(struct android_app* app, int32_t cmd);
+    //! the activity's lifecycle (android_app::onAppCmd)
+    static void handleCmd(struct android_app* app, int32_t cmd);
+    //! starts the engine on the activity's new window, or attaches it to the device
+    void windowCreated();
+    //! pauses or resumes the engine after a change of the activity's state
+    void updateActivity();
     struct android_app* m_app;
 #endif
 };

@@ -17,7 +17,7 @@
 #include "common.h"
 #include "opcodes.h"
 #include "world.h"
-#include "gui/console.h"
+#include "ui/console.h"
 #include "message.h"
 #include "templates.h"
 #include "trade.h"
@@ -31,7 +31,7 @@ using std::ios;
 using std::ifstream;
 using std::ostringstream;
 
-#define line *CGE::Engine::instance()->getFont(0)
+#define line *CGE::Engine::instance()->getScreenText(0)
 
 extern ClientSocket* sock;
 extern string path;
@@ -70,7 +70,7 @@ void Player::login(const string& name){
   }
   
   consol << "Enter password: ";
-  consol.setParams(Vector3D(), CGE::Color(0,0,0,0), 0);
+  consol.setPasswordInput(true);
   void (*p)(const string&, int, void*);
   p = &Message::special;
   consol.setSpecialFunc(p, LOGIN, NULL);

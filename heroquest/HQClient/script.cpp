@@ -11,12 +11,12 @@
 
 #include <ctype.h>
 
+#include "widgets.h"
 #include "common.h"
 #include "world.h"
 #include "script.h"
 #ifdef _CLIENT_
-#include "gui/console.h"
-#include "gui/messagebox.h"
+#include "ui/console.h"
 #include "message.h"
 #include "player.h"
 #include "gamestate.h"
@@ -34,7 +34,7 @@ using std::string;
 using std::vector;
 using std::cerr;
 
-#define line *CGE::Engine::instance()->getFont(0)
+#define line *CGE::Engine::instance()->getScreenText(0)
 
 //using namespace CGE;
 #ifdef _CLIENT_
@@ -1231,7 +1231,7 @@ int Script::messageBox(lua_State* L){
 	string msg = string(luaL_checkstring(L, 1));
   MessageBox* mb = new MessageBox();
   mb->setMessage(msg);
-  CGE::Engine::instance()->addGuiListener(mb, false);
+  widgets.add(mb, false);
 #endif
   return 0;
 }

@@ -22,14 +22,14 @@
 
 #include "system/engine.h"
 #include "common.h"
+#include "widgets.h"
 #include "opcodes.h"
 #include "renderer.h"
 #include "world.h"
 #include "camera.h"
 #include "player.h"
 #include "gamestate.h"
-#include "gui/console.h"
-#include "gui/dropdown.h"
+#include "ui/console.h"
 #include "clientsocket.h"
 #include "socketexception.h"
 #include "script.h"
@@ -54,7 +54,7 @@ using std::endl;
 using Gui::Button;
 using Gui::DropDownButton;
 
-#define line *CGE::Engine::instance()->getFont(0)
+#define line *CGE::Engine::instance()->getScreenText(0)
 
 extern string path;
 extern string home;
@@ -844,32 +844,30 @@ void Message::process(){
 		  line << "Logged in.";
       
 		  //setup GUI to choose level
-      CGE::Engine::instance()->getGuiMutex().lock();
-      CGE::Engine::instance()->clearListeners(false);
+      widgets.getMutex().lock();
+      widgets.clear(false);
 		  //only the player with admin status can create games
 		  if (plyr.getStatus() == 2){
 			  (line).print(120, 450, "Package:",1, (float)HUGE_VAL);
 			  DropDownButton* but = new DropDownButton();
 			  but->setPosition(Vector2D(200,450));
-        but->calcDDPos(1);
 			  but->setText("basic");
         but->setCbFunc(Menu::level);
-        CGE::Engine::instance()->addGuiListener(but,false);
+        widgets.add(but,false);
 
 			  (line).print(120, 400, "Level:", 1, (float)HUGE_VAL);
 			  DropDownButton* but2 = new DropDownButton();
 			  but2->setPosition(Vector2D(200,400));
-        but2->calcDDPos(1);
-        CGE::Engine::instance()->addGuiListener(but2,false);
+        widgets.add(but2,false);
         game.choosePackage(but, but2);
 
 			  Button* but3 = new Button();
 			  but3->setPosition(Vector2D(200,300));
 			  but3->setText("     Load");
 			  but3->setCbFunc(Menu::loadLevel);
-        CGE::Engine::instance()->addGuiListener(but3,false);
+        widgets.add(but3,false);
 		  }
-      CGE::Engine::instance()->getGuiMutex().unlock();
+      widgets.getMutex().unlock();
 	  break;
       
 	  case LIST:
@@ -894,20 +892,20 @@ void Message::process(){
 			  //yet logged in, so there exist choose-level-GUI-elements on
 			  //the screen and they are no longer needed
 			  if (plyr.getStatus() != 0){
-          CGE::Engine::instance()->clearListeners(false);
+          widgets.clear(false);
 			  }
 
         Button* but = new Button();
         but->setPosition(Vector2D(900, 90));
         but->setText("Zargon");
         but->setCbFunc(Menu::zargon);
-        CGE::Engine::instance()->addGuiListener(but, false);
+        widgets.add(but, false);
     
         but = new Button();
         but->setPosition(Vector2D(900, 50));
         but->setText("Create hero");
         but->setCbFunc(Menu::createHero);
-        CGE::Engine::instance()->addGuiListener(but, false);
+        widgets.add(but, false);
         
         scr.intro();
 			  break;
@@ -934,19 +932,19 @@ void Message::process(){
 		      but->setPosition(Vector2D(900, 170));
 		      but->setText("Start");
 		      but->setCbFunc(Menu::start);
-          CGE::Engine::instance()->addGuiListener(but);
+          widgets.add(but);
           
           but = new Button();
           but->setPosition(Vector2D(900, 130));
           but->setText("Shop");
           but->setCbFunc(Menu::shop);
-          CGE::Engine::instance()->addGuiListener(but);
+          widgets.add(but);
   				
           but = new Button();
           but->setPosition(Vector2D(900, 50));
           but->setText("Create hero");
           but->setCbFunc(Menu::createHero);
-          CGE::Engine::instance()->addGuiListener(but);
+          widgets.add(but);
           
           break;
 			  }
@@ -970,25 +968,25 @@ void Message::process(){
 		      but->setPosition(Vector2D(900, 170));
 		      but->setText("Start");
 		      but->setCbFunc(Menu::start);
-          CGE::Engine::instance()->addGuiListener(but);
+          widgets.add(but);
 
           but = new Button();
           but->setPosition(Vector2D(900, 130));
           but->setText("Shop");
           but->setCbFunc(Menu::shop);
-          CGE::Engine::instance()->addGuiListener(but);
+          widgets.add(but);
 
           but = new Button();
           but->setPosition(Vector2D(900, 90));
           but->setText("Zargon");
           but->setCbFunc(Menu::zargon);
-          CGE::Engine::instance()->addGuiListener(but);
+          widgets.add(but);
 
           but = new Button();
           but->setPosition(Vector2D(900, 50));
           but->setText("Create hero");
           but->setCbFunc(Menu::createHero);
-          CGE::Engine::instance()->addGuiListener(but);
+          widgets.add(but);
         }
 		    plyr.setActCreature(heroe.getName());
       }
@@ -1009,56 +1007,56 @@ void Message::process(){
 		  but->setText("Attack");
 		  //p = &Renderer::attack;
 		  but->setCbFunc(Menu::attack);
-      CGE::Engine::instance()->addGuiListener(but, false);
+      widgets.add(but, false);
         
       but = new Button();
       but->setPosition(Vector2D(900, 210));
       but->setText("Search");
 		  //p = &Renderer::search;
 		  but->setCbFunc(Menu::search);
-      CGE::Engine::instance()->addGuiListener(but,false);
+      widgets.add(but,false);
       
       but = new Button();
       but->setPosition(Vector2D(900, 180));
       but->setText("Inventory");
 		  //p = &Renderer::inventory;
 		  but->setCbFunc(Menu::inventory);
-      CGE::Engine::instance()->addGuiListener(but,false);
+      widgets.add(but,false);
 
       but = new Button();
       but->setPosition(Vector2D(900, 150));
       but->setText("Trap");
 		  //p = &Renderer::trapMenu;
 		  but->setCbFunc(Menu::trapMenu);
-      CGE::Engine::instance()->addGuiListener(but,false);
+      widgets.add(but,false);
    
 		  but = new Button();
 		  but->setPosition(Vector2D(900, 120));
 		  but->setText("Open Door");
 		  //p = &Renderer::open;
 		  but->setCbFunc(Menu::open);
-      CGE::Engine::instance()->addGuiListener(but,false);
+      widgets.add(but,false);
 
 		  but = new Button();
 		  but->setPosition(Vector2D(900, 90));
 		  but->setText("Move");
 		  //p = &Renderer::move;
 		  but->setCbFunc(Menu::move);
-      CGE::Engine::instance()->addGuiListener(but,false);
+      widgets.add(but,false);
         
 		  but = new Button();
 		  but->setPosition(Vector2D(900, 60));
 		  but->setText("Other");
 		  //p = &Renderer::other;
 		  but->setCbFunc(Menu::other);
-      CGE::Engine::instance()->addGuiListener(but,false);
+      widgets.add(but,false);
   		
       but = new Button();
 		  but->setPosition(Vector2D(900, 30));
 		  but->setText("End turn");
 		  //p = &Renderer::endTurn;
 		  but->setCbFunc(Menu::endTurn);
-      CGE::Engine::instance()->addGuiListener(but,false);
+      widgets.add(but,false);
       
       //now run level init
       scr.levelInit();
@@ -1198,7 +1196,7 @@ void Message::process(){
 			  //void (Renderer::*p)();
 			  //p = &Renderer::defend;
 			  but->setCbFunc(Menu::defend);
-        CGE::Engine::instance()->addGuiListener(but);
+        widgets.add(but);
         toDefend_ = true;
 		  }
 	  }
@@ -1267,18 +1265,11 @@ void Message::process(){
           }
         }
         assert(msh);
-        CGE::Texture* tex = nullptr;
-        std::vector<CGE::Texture*> textures = wrld.getScene().getTextures();
-        for (unsigned i = 0; i < textures.size(); ++i){
-          if (textures[i]->getName() == "textures/world/door.jpg"){
-            tex = textures[i];
-            break;
-          }
-        }
+        CGE::Gfx::Texture* tex = wrld.getScene().getDeviceTexture("textures/world/door.jpg");
         assert(tex);
         CGE::Model* mdl = new CGE::Model(msh);
         mdl->setTrafo(wrld.getScene().getModel(id)->getTrafo());
-        mdl->assignTexture(tex, 0);
+        mdl->assignDeviceTexture(tex, 0);
         mdl->setAttrib(0, 1003);
         mdl->setAttrib(1, 0);
         d->setModel(mdl);
@@ -1582,10 +1573,9 @@ void Message::special_(const string& message, int mode, void* additional){
   string toSend;
   switch (mode){
     case LOGIN:
-      //hidden input for password entering
-      consol.setParams(Vector3D(1,1,1), CGE::Color(0,0,0,0), 0);
+      //the password is entered: show the input again
+      consol.setPasswordInput(false);
       toSend = std::to_string(LOGIN)+" "+plyr.getName() + " " + message;
-      consol.hideLastInput();
       *ss_ << toSend;
     break;
     

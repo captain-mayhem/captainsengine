@@ -1,7 +1,9 @@
 #include "Forward.h"
 #include <renderer/scene.h>
-#include <renderer/renderer.h>
 #include <renderer/camera.h>
+#include <renderer/light.h>
+#include <renderer/drawcontext.h>
+#include <renderer/renderdevice.h>
 #include <system/engine.h>
 
 using namespace CGE;
@@ -16,24 +18,26 @@ static int compareLightDist(const void * a, const void * b){
   return (int)((l1dist - l2dist) * 100);
 }
 
-void ForwardRenderer::render(Mesh::DrawPart part){
+void ForwardRenderer::render(Gfx::DrawContext& ctx, const Gfx::PassDesc& output){
+  if (!ctx.getDevice().beginPass(output))
+    return;
+  render(ctx, Mesh::DRAW_ALL);
+  ctx.getDevice().endPass();
+}
+
+void ForwardRenderer::render(Gfx::DrawContext& ctx, Mesh::DrawPart part){
   if (!mScene)
     return;
-  Renderer* rend = Engine::instance()->getRenderer();
-  rend->enableLighting(true);
+  Camera* cam = mScene->getActiveCam();
+  if (cam)
+    cam->activate(ctx);
   std::vector<Light*> lights = mScene->getLights();
-  unsigned numLights = (unsigned)lights.size();
-  if (numLights > 8){
-    numLights = 8;
-    if (mScene->getActiveCam()){
-      camPos = mScene->getActiveCam()->getPosition();
-      qsort(lights.data(), lights.size(), sizeof(Light*), compareLightDist);
-    }
+  if (lights.size() > Gfx::MAX_LIGHTS && cam){
+    camPos = cam->getPosition();
+    qsort(lights.data(), lights.size(), sizeof(Light*), compareLightDist);
   }
-  rend->setNumLights(numLights);
-  for (unsigned i = 0; i < numLights; ++i){
-    rend->setLight(i, *lights[i]);
-  }
-  mScene->render(part);
-  rend->enableLighting(false);
+  ctx.setLights(lights);
+  ctx.setDepth(true, true);
+  mScene->render(ctx, part);
+  ctx.clearLights();
 }

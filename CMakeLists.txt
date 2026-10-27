@@ -11,6 +11,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 # target platform, derived from the (cross-)compilation target
 if (ANDROID)
   set(OS "android")
+elseif (EMSCRIPTEN)
+  set(OS "web")
 elseif (WIN32)
   set(OS "windows")
 elseif (UNIX)
@@ -53,6 +55,20 @@ option(CGE_WITH_PHYSICS "build the physics library (CGE::Physics, based on ODE)"
 option(PHYSICS_DOUBLE_PRECISION "enable double precision physics calculations" ON)
 if (PROJECT_OSMRACER AND NOT CGE_WITH_PHYSICS)
   message(FATAL_ERROR "OSMRacer needs CGE_WITH_PHYSICS")
+endif()
+
+# The web has two configurations: single-threaded (the default; the page
+# needs no special server headers) and threaded with pthreads and ASYNCIFY,
+# for applications that wait for input in nested loops (Engine::pumpFrame).
+# Threads need every object file compiled with -pthread, so the option
+# applies to everything built with the engine; a threaded page must be served
+# cross-origin isolated (COOP/COEP headers).
+if (EMSCRIPTEN)
+  option(CGE_WEB_THREADS "web: build with pthreads and ASYNCIFY instead of single-threaded" OFF)
+  if (CGE_WEB_THREADS)
+    add_compile_options(-pthread)
+    add_link_options(-pthread)
+  endif()
 endif()
 
 # unit tests (googletest, run with ctest); by default only for desktop builds

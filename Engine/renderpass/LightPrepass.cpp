@@ -2,555 +2,215 @@
 #include "LightPrepass.h"
 
 #include <renderer/scene.h>
-#include <renderer/rendertarget.h>
-#include <renderer/renderer.h>
 #include <system/engine.h>
 #include <window/window.h>
-#include <renderer/shader.h>
 #include <renderer/camera.h>
+#include <renderer/drawcontext.h>
+#include <renderer/renderdevice.h>
+#include <renderer/uniformstream.h>
+
+#include <cstring>
 
 using namespace CGE;
 
-static char const * vs_src_base =
-"@GLSL\n"
-"attribute vec3 pos;\n"
-"attribute vec2 texcoord;\n"
-"attribute vec3 normal;\n"
-"\n"
-"uniform mat4 mvp;\n"
-"uniform mat4 normalmat;\n"
-"\n"
-"varying vec3 vnormal;\n"
-"varying vec2 uvcoord;\n"
-"\n"
-"void main(){\n"
-"  vnormal = normalize((normalmat * vec4(normal, 0.0)).xyz);\n"
-"  uvcoord = texcoord;\n"
-"  gl_Position = mvp*vec4(pos, 1.0);\n"
-"}\n"
-""
-""
-"@HLSL\n"
-"cbuffer perObject{\n"
-"  matrix mvp;\n"
-"  matrix normalmat;\n"
-"};\n"
-"\n"
-"struct VSInput{\n"
-"  float3 pos : POSITION;\n"
-"  float2 texcoord: TEXCOORD0;\n"
-"  float3 normal: NORMAL;\n"
-"};\n"
-"\n"
-"struct VSOutput{\n"
-"  float4 vPos : SV_POSITION;\n"
-"  float3 vnormal : NORMAL0;\n"
-"  float2 uvcoord : TEXCOORD0;\n"
-"};\n"
-"\n"
-"VSOutput main(VSInput inp){\n"
-"  VSOutput outp;\n"
-"  float4 vPos = float4(inp.pos, 1.0);\n"
-"  outp.vnormal = normalize( mul(normalmat, float4(inp.normal, 0.0)).xyz );\n"
-"  outp.uvcoord = inp.texcoord;\n"
-"  outp.vPos = mul(mvp, vPos);\n"
-"  return outp;\n"
-"}\n"
-"\n";
+TR_CHANNEL(CGE_LightPrepass);
 
-static char const * fs_src_base =
-"@GLSL\n"
-#ifdef RENDER_EMBEDDED
-"precision mediump float;"
-#endif
-"uniform sampler2D texture;\n"
-"\n"
-"varying vec3 vnormal;\n"
-"varying vec2 uvcoord;\n"
-"\n"
-"uniform bool textureEnabled;\n"
-"uniform vec4 matDiffuse;\n"
-"uniform vec4 matSpecular;\n"
-"uniform float matShininess;\n"
-"\n"
-"void main(){\n"
-"  gl_FragData[0].rgb = normalize(vnormal);\n"
-"  gl_FragData[0].a = matShininess;\n"
-"  \n"
-"  vec4 color = matDiffuse;\n"
-"  if (textureEnabled)\n"
-"    color *= texture2D(texture, uvcoord);\n"
-#ifndef RENDER_EMBEDDED
-"  gl_FragData[1] = color;\n"
-"  gl_FragData[2] = matSpecular;\n"
-#endif
-"  \n"
-"}\n"
-""
-""
-"@HLSL\n"
-"Texture2D tex;\n"
-"SamplerState sampl;\n"
-"\n"
-"cbuffer perDraw{\n"
-"  int textureEnabled;\n"
-"  float4 matDiffuse;\n"
-"  float4 matSpecular;\n"
-"  float matShininess;\n"
-"};\n"
-"\n"
-"struct PSInput{\n"
-"  float4 vPos : SV_POSITION;\n"
-"  float3 vnormal : NORMAL0;\n"
-"  float2 uvcoord : TEXCOORD0;\n"
-"};\n"
-"\n"
-"struct PSOutput{\n"
-"  float4 normal : SV_TARGET0;\n"
-"  float4 diffuse : SV_TARGET1;\n"
-"  float4 specular : SV_TARGET2;\n"
-"};\n"
-"\n"
-"PSOutput main(PSInput inp){\n"
-"  PSOutput outp;\n"
-"  outp.normal.rgb = normalize(inp.vnormal);\n"
-"  outp.normal.a = matShininess;\n"
-"  \n"
-"  float4 color = matDiffuse;\n"
-"  if (textureEnabled != 0)\n"
-"    color *= tex.Sample(sampl, inp.uvcoord);\n"
-"  outp.diffuse = color;\n"
-"  outp.specular = matSpecular;\n"
-"  return outp;\n"
-"  \n"
-"}\n"
-"\n";
-
-static char const * vs_src_light =
-"@GLSL\n"
-"attribute vec3 pos;\n"
-"attribute vec2 texcoord;\n"
-"\n"
-"uniform vec2 nearPlaneSize;\n"
-"\n"
-"varying vec2 uvcoord;\n"
-"varying vec3 eyeDir;\n"
-"\n"
-"void main(){\n"
-"  uvcoord = vec2(texcoord.x, 1.0-texcoord.y);\n"
-"  eyeDir = vec3(2.0*nearPlaneSize*uvcoord - nearPlaneSize, -1.0);\n"
-"  gl_Position = vec4(2.0*pos.x, 2.0*pos.y, 2.0*pos.z, 1.0);\n"
-"}\n"
-""
-""
-"@HLSL\n"
-"cbuffer perCam{\n"
-"  float2 nearPlaneSize;\n"
-"};\n"
-"\n"
-"struct VSInput{\n"
-"  float3 pos : POSITION;\n"
-"  float2 texcoord: TEXCOORD0;\n"
-"};\n"
-"\n"
-"struct VSOutput{\n"
-"  float4 vPos : SV_POSITION;\n"
-"  float3 eyeDir : TEXCOORD4;\n"
-"  float2 uvcoord : TEXCOORD0;\n"
-"};\n"
-"\n"
-"VSOutput main(VSInput inp){\n"
-"  VSOutput outp;\n"
-"  outp.uvcoord = float2(inp.texcoord.x, inp.texcoord.y);\n"
-"  float2 eyeCoord = float2(inp.texcoord.x, 1-inp.texcoord.y);\n"
-"  outp.eyeDir = float3(2.0*nearPlaneSize*eyeCoord - nearPlaneSize, -1.0);\n"
-"  outp.vPos = float4(2*inp.pos.x, 2*inp.pos.y, 2*inp.pos.z, 1.0);\n"
-"  return outp;\n"
-"}\n"
-"\n";
-;
-
-static char const * fs_src_light =
-"@GLSL\n"
-#ifdef RENDER_EMBEDDED
-"precision mediump float;\n"
-#endif
-"uniform sampler2D texture;\n"
-"uniform sampler2D depthTex;\n"
-"\n"
-"uniform float camNear;\n"
-"uniform float camFar;\n"
-"\n"
-"varying vec2 uvcoord;\n"
-"varying vec3 eyeDir;\n"
-"\n"
-"uniform vec4 lightPos;\n"
-"uniform vec3 lightDir;\n"
-"uniform vec4 lightColor;\n"
-"uniform float lightCutoff;\n"
-"uniform float lightAttenuation;\n"
-"\n"
-"void main(){\n"
-"  vec4 color = texture2D(texture, uvcoord);\n"
-"  vec3 normal = normalize(color.xyz);\n"
-"  float shininess = color.a;\n"
-"  float depth = texture2D(depthTex, uvcoord).r;\n"
-"  depth = camNear * camFar / (camFar - depth * (camFar-camNear));\n"
-//"  float depth = 2.0*texture2D(depthTex, uvcoord).r - 1.0;\n"
-//"  depth = 2 * camNear * camFar / (camFar + camNear - depth * (camFar - camNear));\n"
-"  vec3 vpos = eyeDir*depth;\n"
-"  vec3 eye = normalize(-vpos);\n"
-"  \n"
-"  vec3 lightvec;\n"
-"  float att = 1.0;\n"
-"  if (lightPos.w == 0.0)\n"
-"    lightvec = normalize(lightPos.xyz);\n"
-"  else{\n"
-"    lightvec = normalize(lightPos.xyz - vpos);\n"
-"    float lightAngle = acos(dot(-lightvec, normalize(lightDir)));\n"
-"    if (lightAngle > lightCutoff){\n"
-"      att = 0.0;\n"
-"    }\n"
-"    else{\n"
-"      float lightDist = length(lightPos.xyz-vpos);\n"
-"      att = 1.0/(1.0+lightAttenuation*pow(lightDist, 2.0));\n"
-"    }\n"
-"  }\n"
-"  vec3 refl = normalize(reflect(-lightvec, normal));\n"
-"  float NL = max(dot(normal,lightvec), 0.0);\n"
-"  float spec = 0.0;\n"
-"  if (NL > 0.0)\n"
-"    spec = pow(max(dot(refl, eye), 0.0), shininess);\n"
-"  \n"
-"  vec3 diffuse = lightColor.rgb*NL*att;\n"
-//"  vec3 specular = lightColor.rgb*spec*NL*att;\n"
-//"  gl_FragColor.a = 0.299*specular.r+0.587*specular.g+0.114*specular.b;\n"
-"  \n"
-//"  float showdepth = (depth - camNear)/(camFar-camNear);\n"
-"  gl_FragColor.rgb = diffuse;\n"
-"  gl_FragColor.a = spec*att;\n"
-"}\n"
-""
-""
-"@HLSL\n"
-"Texture2D tex : register(t0);\n"
-"SamplerState texSampl : register(s0);\n"
-"Texture2D depthTex : register(t2);\n"
-"SamplerState depthSampl : register(s2);\n"
-"\n"
-"cbuffer perCam{\n"
-"  float camNear;\n"
-"  float camFar;\n"
-"}\n"
-"\n"
-"cbuffer perFrame{\n"
-"  float4 lightPos;\n"
-"  float3 lightDir;\n"
-"  float4 lightColor;\n"
-"  float lightCutoff;\n"
-"  float lightAttenuation;\n"
-"};\n"
-"\n"
-"struct PSInput{\n"
-"  float4 vPos : SV_POSITION;\n"
-"  float3 eyeDir : TEXCOORD4;\n"
-"  float2 uvcoord : TEXCOORD0;\n"
-"};\n"
-"\n"
-"float4 main(PSInput inp) : SV_TARGET {\n"
-"  float4 color = tex.Sample(texSampl, inp.uvcoord);\n"
-"  float3 normal = normalize(color.xyz);\n"
-"  float shininess = color.a;\n"
-"  float depth = depthTex.Sample(depthSampl, inp.uvcoord).r;\n"
-//"  depth = depth*2-1;\n"
-"  depth = camNear * camFar / (camFar - depth * (camFar-camNear));\n"
-//"  depth = (depth+1)*0.5;\n"
-//"  depth = ((- camNear * camFar)/(camFar-camNear)) / (depth - camFar / (camFar - camNear));\n"
-//"  float showdepth = (depth - camNear)/(camFar-camNear);\n"
-//"  depth = depth * (camNear-camFar) / (camFar+camNear*camFar);\n"
-"  float3 vpos = inp.eyeDir*depth;\n"
-//"  float zdist = dot(float3(0, 0, -1), normalize(inp.eyeDir));\n"
-//"  float3 vpos = normalize(inp.eyeDir)*depth/zdist;\n"
-"  float3 eye = normalize(-vpos);\n"
-"  \n"
-"  float3 lightvec;\n"
-"  float att = 1.0;\n"
-"  if (lightPos.w == 0.0)\n"
-"    lightvec = normalize(lightPos.xyz);\n"
-"  else{\n"
-"    lightvec = normalize(lightPos.xyz - vpos);\n"
-"    float lightAngle = acos(dot(-lightvec, normalize(lightDir)));\n"
-"    if (lightAngle > lightCutoff){\n"
-"      att = 0.0;\n"
-"    }\n"
-"    else{\n"
-"      float lightDist = length(lightPos.xyz-vpos);\n"
-"      att = 1.0/(1.0+lightAttenuation*pow(lightDist, 2.0));\n"
-"    }\n"
-"  }\n"
-"  float3 refl = normalize(reflect(-lightvec, normal));\n"
-"  float NL = max(dot(normal,lightvec), 0.0);\n"
-"  float spec = 0.0;\n"
-"  if (NL > 0.0)\n"
-"    spec = pow(max(dot(refl, eye), 0.0), shininess);\n"
-"  \n"
-"  float3 diffuse = lightColor.rgb*NL*att;\n"
-"  float4 retColor;\n"
-"  retColor.rgb = diffuse;\n"
-"  retColor.a = spec*att;\n"
-"  return retColor;\n"
-"}\n"
-;
-
-static char const * vs_src_compositing =
-"@GLSL\n"
-"attribute vec3 pos;\n"
-"attribute vec2 texcoord;\n"
-"\n"
-"varying vec2 uvcoord;\n"
-"\n"
-"void main(){\n"
-"  uvcoord = vec2(texcoord.x, 1.0-texcoord.y);\n"
-"  gl_Position = vec4(2.0*pos.x, 2.0*pos.y, 2.0*pos.z, 1.0);\n"
-"}\n"
-""
-""
-"@HLSL\n"
-"struct VSInput{\n"
-"  float3 pos : POSITION;\n"
-"  float2 texcoord: TEXCOORD0;\n"
-"};\n"
-"\n"
-"struct VSOutput{\n"
-"  float4 vPos : SV_POSITION;\n"
-"  float2 uvcoord : TEXCOORD0;\n"
-"};\n"
-"\n"
-"VSOutput main(VSInput inp){\n"
-"  VSOutput outp;\n"
-"  outp.uvcoord = float2(inp.texcoord.x, inp.texcoord.y);\n"
-"  outp.vPos = float4(2*inp.pos.x, 2*inp.pos.y, 2*inp.pos.z, 1.0);\n"
-"  return outp;\n"
-"}\n"
-;
-
-static char const * fs_src_compositing =
-"@GLSL\n"
-#ifdef RENDER_EMBEDDED
-"precision mediump float;\n"
-#endif
-"uniform sampler2D lightBuffer;\n"
-"uniform sampler2D diffuseTex;\n"
-"uniform sampler2D specTex;\n"
-"\n"
-"varying vec2 uvcoord;\n"
-"\n"
-"void main(){\n"
-"  vec4 diffuse = texture2D(diffuseTex, uvcoord);\n"
-"  if (diffuse.a == 0.0)\n"
-"    discard;\n"
-"  vec4 specular = texture2D(specTex, uvcoord);\n"
-"  vec4 lcolor = texture2D(lightBuffer, uvcoord);\n"
-"  vec3 chroma = lcolor.rgb/(0.299*lcolor.r+0.587*lcolor.g+0.114*lcolor.b+0.0);\n"
-"  vec3 spec = chroma*lcolor.aaa;\n"
-"  gl_FragColor.rgb = diffuse.rgb*lcolor.rgb + specular.rgb*spec;\n"
-"  gl_FragColor.a = 1.0;\n"
-"}\n"
-""
-""
-"@HLSL\n"
-"Texture2D lightBuffer : register(t0);\n"
-"SamplerState lightSampl : register(s0);\n"
-"Texture2D diffuseTex : register(t1);\n"
-"SamplerState diffuseSampl : register(s1);\n"
-"Texture2D specTex : register(t2);\n"
-"SamplerState specSampl : register(s2);\n"
-"\n"
-"struct PSInput{\n"
-"  float4 vPos : SV_POSITION;\n"
-"  float2 uvcoord : TEXCOORD0;\n"
-"};\n"
-"\n"
-"float4 main(PSInput inp) : SV_TARGET {\n"
-"  float4 diffuse = diffuseTex.Sample(diffuseSampl, inp.uvcoord);\n"
-"  if (diffuse.a == 0.0)\n"
-"    discard;\n"
-"  float4 specular = specTex.Sample(specSampl, inp.uvcoord);\n"
-"  float4 lcolor = lightBuffer.Sample(lightSampl, inp.uvcoord);\n"
-"  float3 chroma = lcolor.rgb/(0.299*lcolor.r+0.587*lcolor.g+0.114*lcolor.b+0.0);\n"
-"  float3 spec = chroma*lcolor.aaa;\n"
-"  float4 retColor;\n"
-"  retColor.rgb = diffuse.rgb*lcolor.rgb + specular.rgb*spec; \n"
-"  retColor.a = 1.0;\n"
-"  return retColor;\n"
-"}\n"
-;
-
-void LightPrepassRenderer::init(){
-  Renderer* rend = Engine::instance()->getRenderer();
-  mBaseShader = rend->createShader();
-  mBaseShader->registerMatCB(applyMaterial, this);
-  mBaseShader->addShader(Shader::VERTEX_SHADER, vs_src_base, 0);
-  mBaseShader->addShader(Shader::FRAGMENT_SHADER, fs_src_base, 0);
- 
-  mBaseShader->linkShaders();
-  mBaseShader->activate();
-  mBaseShader->syncMatrix("mvp", CGE::MVP);
-  mBaseShader->syncMatrix("normalmat", CGE::MatNormal);
-  mTexEnabledLoc = mBaseShader->getUniformLocation(Shader::FRAGMENT_SHADER, "textureEnabled");
-  mColorLoc = mBaseShader->getUniformLocation(Shader::FRAGMENT_SHADER, "matDiffuse");
-  mSpecularLoc = mBaseShader->getUniformLocation(Shader::FRAGMENT_SHADER, "matSpecular");
-  mShininessLoc = mBaseShader->getUniformLocation(Shader::FRAGMENT_SHADER, "matShininess");
-  mBaseShader->deactivate();
-
-  mGBuffer = rend->createRenderTarget(rend->getWindow()->getWidth(), rend->getWindow()->getHeight());
-  mGBuffer->activate();
-  mGBuffer->addTexture(Texture::FLOAT);//normal + shininess
-  mGBuffer->addTexture(Texture::RGBA);//diffuse
-  mGBuffer->addTexture(Texture::DEPTH);//depth
-  mGBuffer->addTexture(Texture::RGBA);//specular
-  mGBuffer->isComplete();
-  mGBuffer->deactivate();
-
-  mLightShader = rend->createShader();
-  mLightShader->registerLightCB(applyLight, this);
-  mLightShader->addShader(Shader::VERTEX_SHADER, vs_src_light, 0);
-  mLightShader->addShader(Shader::FRAGMENT_SHADER, fs_src_light, 0);
-
-  mLightShader->linkShaders();
-  mLightShader->activate();
-  mNearPlaneSizeLoc = mLightShader->getUniformLocation(Shader::VERTEX_SHADER, "nearPlaneSize");
-  mLightShader->uniform(mLightShader->getUniformLocation(Shader::FRAGMENT_SHADER, "texture"), 0);
-  mLightShader->uniform(mLightShader->getUniformLocation(Shader::FRAGMENT_SHADER, "depthTex"), 2);
-  mCamFarLoc = mLightShader->getUniformLocation(Shader::FRAGMENT_SHADER, "camFar");
-  mCamNearLoc = mLightShader->getUniformLocation(Shader::FRAGMENT_SHADER, "camNear");
-  mLightPosLoc = mLightShader->getUniformLocation(Shader::FRAGMENT_SHADER, "lightPos");
-  mLightDirLoc = mLightShader->getUniformLocation(Shader::FRAGMENT_SHADER, "lightDir");
-  mLightCutoffLoc = mLightShader->getUniformLocation(Shader::FRAGMENT_SHADER, "lightCutoff");
-  mLightColorLoc = mLightShader->getUniformLocation(Shader::FRAGMENT_SHADER, "lightColor");
-  mLightAttenuationLoc = mLightShader->getUniformLocation(Shader::FRAGMENT_SHADER, "lightAttenuation");
-  //mLightShader->syncMatrix("mvp", CGE::MVP);
-  //mLightShader->syncMatrix("normalmat", CGE::MatNormal);
-  mLightShader->deactivate();
-
-  mLightBuffer = rend->createRenderTarget(rend->getWindow()->getWidth(), rend->getWindow()->getHeight());
-  mLightBuffer->activate();
-  mLightBuffer->addTexture(Texture::RGBA);
-  mLightBuffer->addRenderbuffer(Texture::DEPTH);
-  mLightBuffer->isComplete();
-  mLightBuffer->deactivate();
-
-  mCompositingShader = rend->createShader();
-  mCompositingShader->addShader(Shader::VERTEX_SHADER, vs_src_compositing, 0);
-  mCompositingShader->addShader(Shader::FRAGMENT_SHADER, fs_src_compositing, 0);
-  mCompositingShader->linkShaders();
-  mCompositingShader->activate();
-  mCompositingShader->uniform(mCompositingShader->getUniformLocation(Shader::FRAGMENT_SHADER, "lightBuffer"), 0);
-  mCompositingShader->uniform(mCompositingShader->getUniformLocation(Shader::FRAGMENT_SHADER, "diffuseTex"), 1);
-  mCompositingShader->uniform(mCompositingShader->getUniformLocation(Shader::FRAGMENT_SHADER, "specTex"), 2);
-  mCompositingShader->deactivate();
-
-  mCompositingBuffer = rend->createRenderTarget(rend->getWindow()->getWidth(), rend->getWindow()->getHeight());
-  mCompositingBuffer->activate();
-  mCompositingBuffer->addTexture(Texture::RGBA);
-  mCompositingBuffer->addTexture(*mGBuffer->getTexture(2));
-  mCompositingBuffer->isComplete();
-  mCompositingBuffer->deactivate();
+LightPrepassRenderer::LightPrepassRenderer(){
 }
 
-void LightPrepassRenderer::deinit(){
-  delete mBaseShader;
-  delete mGBuffer;
-  delete mLightShader;
-  delete mLightBuffer;
-  delete mCompositingShader;
-  delete mCompositingBuffer;
+LightPrepassRenderer::~LightPrepassRenderer(){
 }
 
-void LightPrepassRenderer::render(){
-  if (!mScene)
+namespace{
+
+//! the uniform buffer slot of the CGE_PrepassLight block (prepass_light.frag)
+const int SLOT_PREPASS_LIGHT = 4;
+
+//! the CGE_PrepassLight block (std140)
+struct PrepassLightUniforms{
+  Matrix inverseProjection = Matrix(Matrix::Identity);
+  //! x: 1 if clip-space depth runs from 0 to 1
+  float clipDepth[4] = {0, 0, 0, 0};
+  float position[4] = {0, 0, 0, 0};
+  float direction[4] = {0, 0, 0, 0};
+  float color[4] = {0, 0, 0, 0};
+  float attenuation[4] = {0, 0, 0, 0};
+};
+static_assert(sizeof(PrepassLightUniforms) == 144, "PrepassLightUniforms must match CGE_PrepassLight");
+
+//! the G-buffer's colour attachments
+enum GBufferAttachment{
+  GBUFFER_NORMAL,
+  GBUFFER_DIFFUSE,
+  GBUFFER_SPECULAR,
+};
+
+}
+
+struct LightPrepassRenderer::DeviceResources{
+  std::unique_ptr<Gfx::Shader> gbufferShader;
+  std::unique_ptr<Gfx::Shader> lightShader;
+  std::unique_ptr<Gfx::Shader> composeShader;
+  std::unique_ptr<Gfx::Pipeline> lightPipeline;
+  std::unique_ptr<Gfx::Pipeline> composePipeline;
+  //! for texelFetch, which ignores the filters
+  std::unique_ptr<Gfx::Sampler> sampler;
+  std::unique_ptr<Gfx::RenderTarget> gbuffer;
+  std::unique_ptr<Gfx::RenderTarget> lightBuffer;
+};
+
+bool LightPrepassRenderer::createResources(Gfx::DrawContext& ctx){
+  using namespace Gfx;
+  TR_USE(CGE_LightPrepass);
+  RenderDevice& device = ctx.getDevice();
+  if (device.getCaps().maxColorAttachments < 3){
+    TR_ERROR("The light prepass needs 3 colour attachments");
+    return false;
+  }
+  mDevice = std::make_unique<DeviceResources>();
+
+  ShaderDesc desc;
+  desc.name = "engine/prepass_gbuffer";
+  if (ShaderLibrary::loadDesc("engine/lit.vert", "engine/prepass_gbuffer.frag", desc))
+    mDevice->gbufferShader = device.createShader(desc);
+
+  desc = ShaderDesc();
+  desc.name = "engine/prepass_light";
+  if (ShaderLibrary::loadDesc("engine/fullscreen.vert", "engine/prepass_light.frag", desc)){
+    desc.uniformBlocks.push_back({"CGE_PrepassLight", SLOT_PREPASS_LIGHT});
+    desc.textures = {{"cge_gbufferNormal", 0}, {"cge_gbufferDepth", 1}};
+    mDevice->lightShader = device.createShader(desc);
+  }
+
+  desc = ShaderDesc();
+  desc.name = "engine/prepass_compose";
+  if (ShaderLibrary::loadDesc("engine/fullscreen.vert", "engine/prepass_compose.frag", desc)){
+    desc.textures = {{"cge_lightBuffer", 0}, {"cge_gbufferDiffuse", 1}, {"cge_gbufferSpecular", 2}, {"cge_gbufferDepth", 3}};
+    mDevice->composeShader = device.createShader(desc);
+  }
+  if (!mDevice->gbufferShader || !mDevice->lightShader || !mDevice->composeShader){
+    mDevice.reset();
+    return false;
+  }
+
+  //every light adds to the light buffer
+  PipelineDesc pipeline;
+  pipeline.shader = mDevice->lightShader.get();
+  pipeline.blend.enabled = true;
+  pipeline.blend.srcColor = pipeline.blend.dstColor = BlendFactor::One;
+  pipeline.blend.srcAlpha = pipeline.blend.dstAlpha = BlendFactor::One;
+  pipeline.name = "prepass light";
+  mDevice->lightPipeline = device.createPipeline(pipeline);
+
+  //the composition writes the G-buffer's depth for the transparent surfaces
+  pipeline = PipelineDesc();
+  pipeline.shader = mDevice->composeShader.get();
+  pipeline.depth.test = true;
+  pipeline.depth.write = true;
+  pipeline.depth.compare = Gfx::CompareFunc::AlwaysPass;
+  pipeline.name = "prepass compose";
+  mDevice->composePipeline = device.createPipeline(pipeline);
+
+  SamplerDesc sampler;
+  sampler.minFilter = sampler.magFilter = Filter::Nearest;
+  sampler.addressU = sampler.addressV = AddressMode::ClampToEdge;
+  mDevice->sampler = device.createSampler(sampler);
+  if (!mDevice->lightPipeline || !mDevice->composePipeline || !mDevice->sampler){
+    mDevice.reset();
+    return false;
+  }
+  return true;
+}
+
+void LightPrepassRenderer::releaseResources(Gfx::DrawContext& ctx){
+  if (!mDevice)
     return;
-  Renderer* rend = Engine::instance()->getRenderer();
-  mBaseShader->activate();
-  mGBuffer->activate();
-  rend->setClearColor(Vec4f(0, 0, 0, 0));
-  rend->clear(ZBUFFER | COLORBUFFER);
-  mScene->render(Mesh::DRAW_OPAQUE);
-  mGBuffer->deactivate();
-  mBaseShader->deactivate();
-
-  mLightShader->activate();
-  mLightShader->lockUniforms(Shader::FRAGMENT_SHADER);
-  mLightShader->uniform(mCamNearLoc, mScene->getActiveCam()->getFrustum().getNearDist());
-  mLightShader->uniform(mCamFarLoc, mScene->getActiveCam()->getFrustum().getFarDist());
-  mLightShader->unlockUniforms(Shader::FRAGMENT_SHADER);
-  float npy = tanf(mScene->getActiveCam()->getFrustum().getAngle() / 180.0f*(float)M_PI / 2.0f);
-  mLightShader->lockUniforms(Shader::VERTEX_SHADER);
-  mLightShader->uniform(mNearPlaneSizeLoc, npy*mScene->getActiveCam()->getFrustum().getRatio(), npy);
-  mLightShader->unlockUniforms(Shader::VERTEX_SHADER);
-  
-  mLightBuffer->activate();
-  rend->enableBlend(true);
-  rend->blendFunc(BLEND_ONE, BLEND_ONE); //additive without alpha
-  rend->clear(ZBUFFER | COLORBUFFER);
-  for (unsigned i = 0; i < mScene->getLights().size(); ++i){
-    Light* l = mScene->getLights()[i];
-    rend->setLight(0, *l);
-    mGBuffer->drawFullscreen(false);
-  }
-  rend->enableBlend(false);
-  mLightBuffer->deactivate();
-  mGBuffer->getTexture(3)->deactivate(3);
-  
-  mLightShader->deactivate();
-
-  mGBuffer->getTexture(3)->activate(2); //overwrite depth binding before acivating compositingbuffer
-  mCompositingBuffer->activate();
-  rend->clear(COLORBUFFER);
-  mCompositingShader->activate();
-  mGBuffer->getTexture(1)->activate(1);
-  mLightBuffer->drawFullscreen(false);
-  mCompositingShader->deactivate();
-
-  rend->blendFunc(BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA);
-  rend->enableDepthTest(true);
-  mTransRend.render(Mesh::DRAW_TRANSPARENT);
-  mCompositingBuffer->deactivate();
-
-  mCompositingBuffer->drawFullscreen(true);
-  mGBuffer->getTexture(1)->deactivate(1);
-  mGBuffer->getTexture(3)->deactivate(2);
+  ctx.forgetShader(mDevice->gbufferShader.get());
+  mDevice.reset();
 }
 
-void LightPrepassRenderer::applyMaterial(Shader* shader, Material const& mat, void* userdata){
-  LightPrepassRenderer* rend = (LightPrepassRenderer*)userdata;
-  shader->lockUniforms(Shader::FRAGMENT_SHADER);
-  Color diff = mat.getDiffuse();
-  diff.a = mat.getOpacity();
-  shader->uniform(rend->mColorLoc, diff);
-  shader->uniform(rend->mAmbientLoc, mat.getAmbient());
-  shader->uniform(rend->mShininessLoc, mat.getPower());
-  shader->uniform(rend->mSpecularLoc, mat.getSpecular());
-  Texture const* tex = mat.getDiffuseTex();
-  if (!tex)
-    tex = mat.getOpacityTex();
-  if (tex){
-    shader->uniform(rend->mTexEnabledLoc, 1);
-    tex->activate();
-  }
-  else
-    shader->uniform(rend->mTexEnabledLoc, 0);
-  shader->unlockUniforms(Shader::FRAGMENT_SHADER);
+bool LightPrepassRenderer::createTargets(Gfx::RenderDevice& device, int width, int height){
+  using namespace Gfx;
+  if (mDevice->gbuffer && mDevice->gbuffer->getDesc().width == width && mDevice->gbuffer->getDesc().height == height)
+    return mDevice->lightBuffer != nullptr;
+  mDevice->gbuffer.reset();
+  mDevice->lightBuffer.reset();
+  RenderTargetDesc desc;
+  desc.width = width;
+  desc.height = height;
+  //normal and shininess, diffuse colour, specular colour (see prepass_gbuffer.frag)
+  desc.colorFormats = {Format::RGBA8, Format::RGBA8, Format::RGBA8};
+  desc.depthFormat = Format::Depth24;
+  mDevice->gbuffer = device.createRenderTarget(desc);
+  desc.colorFormats = {Format::RGBA8};
+  desc.depthFormat = Format::Undefined;
+  mDevice->lightBuffer = device.createRenderTarget(desc);
+  return mDevice->gbuffer && mDevice->lightBuffer;
 }
 
-void LightPrepassRenderer::applyLight(Shader* shader, int number, Light const& light, void* userdata){
-  LightPrepassRenderer* rend = (LightPrepassRenderer*)userdata;
-  shader->lockUniforms(Shader::FRAGMENT_SHADER, 1);
-  Vec4f pos = light.getPosition();
-  shader->uniform(rend->mLightPosLoc, pos.x, pos.y, pos.z, pos.w);
-  shader->uniform(rend->mLightDirLoc, light.getDirection());
-  shader->uniform(rend->mLightCutoffLoc, light.getCutoff() / 180.0f*(float)M_PI);
-  shader->uniform(rend->mLightAttenuationLoc, light.getAttenuation());
-  shader->uniform(rend->mLightColorLoc, light.getColor());
-  shader->unlockUniforms(Shader::FRAGMENT_SHADER, 1);
+void LightPrepassRenderer::render(Gfx::DrawContext& ctx, const Gfx::PassDesc& output){
+  using namespace Gfx;
+  if (!mScene || !mDevice)
+    return;
+  RenderDevice& device = ctx.getDevice();
+  int width = output.target ? output.target->getDesc().width : device.getWidth();
+  int height = output.target ? output.target->getDesc().height : device.getHeight();
+  if (width <= 0 || height <= 0 || !createTargets(device, width, height))
+    return;
+  Camera* cam = mScene->getActiveCam();
+  if (cam)
+    cam->activate(ctx);
+
+  //the G-buffer of the opaque surfaces
+  PassDesc pass;
+  pass.target = mDevice->gbuffer.get();
+  pass.clearColor = {0, 0, 0, 0};
+  if (!device.beginPass(pass))
+    return;
+  BlendMode blend = ctx.getBlend();
+  ctx.setBlend(BlendMode::Opaque);
+  ctx.setDepth(true, true);
+  ctx.setLitShader(mDevice->gbufferShader.get());
+  mScene->render(ctx, Mesh::DRAW_OPAQUE);
+  ctx.setLitShader(nullptr);
+  device.endPass();
+
+  //the lights
+  pass = PassDesc();
+  pass.target = mDevice->lightBuffer.get();
+  pass.clearColor = {0, 0, 0, 0};
+  pass.depthLoad = LoadAction::DontCare;
+  if (!device.beginPass(pass))
+    return;
+  device.setPipeline(mDevice->lightPipeline.get());
+  device.setTexture(0, mDevice->gbuffer->getColorTexture(GBUFFER_NORMAL), mDevice->sampler.get());
+  device.setTexture(1, mDevice->gbuffer->getDepthTexture(), mDevice->sampler.get());
+  PrepassLightUniforms light;
+  light.inverseProjection = ctx.getProjection().inverse();
+  light.clipDepth[0] = device.getClipSpace().depthZeroToOne ? 1.0f : 0.0f;
+  LightUniforms viewLight;
+  for (Light* l : mScene->getLights()){
+    DrawContext::setLightUniforms(viewLight, 0, *l, ctx.getView());
+    memcpy(light.position, viewLight.position[0], sizeof(light.position));
+    memcpy(light.direction, viewLight.direction[0], sizeof(light.direction));
+    memcpy(light.color, viewLight.color[0], sizeof(light.color));
+    memcpy(light.attenuation, viewLight.attenuation[0], sizeof(light.attenuation));
+    if (ctx.getUniformStream().bind(SLOT_PREPASS_LIGHT, light))
+      device.draw(3);
+  }
+  device.endPass();
+
+  //the lit surfaces into the output, then the transparent ones
+  if (!device.beginPass(output))
+    return;
+  device.setPipeline(mDevice->composePipeline.get());
+  device.setTexture(0, mDevice->lightBuffer->getColorTexture(0), mDevice->sampler.get());
+  device.setTexture(1, mDevice->gbuffer->getColorTexture(GBUFFER_DIFFUSE), mDevice->sampler.get());
+  device.setTexture(2, mDevice->gbuffer->getColorTexture(GBUFFER_SPECULAR), mDevice->sampler.get());
+  device.setTexture(3, mDevice->gbuffer->getDepthTexture(), mDevice->sampler.get());
+  device.draw(3);
+  ctx.setBlend(BlendMode::Alpha);
+  mTransRend.render(ctx, Mesh::DRAW_TRANSPARENT);
+  ctx.setBlend(blend);
+  device.endPass();
 }

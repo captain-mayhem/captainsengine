@@ -12,26 +12,32 @@
 #ifndef HQRENDERER_HH
 #define HQRENDERER_HH
 
+#include <memory>
+
 #include "system/engine.h"
 #include "math/vector.h"
 
 class Inventory;
 
 namespace CGE{
-  class GL2Shader;
+namespace Gfx{
+class Shader;
+}
 }
 
-//! provides an OpenGL drawing area
+//! draws the game through the engine's render device
 /*! Besides drawing the scene, it handles also key and mouse events
  */
 class HQRenderer{
 public:
   ~HQRenderer();
-  static void init(CGE::Renderer* rend){ rend_ = new HQRenderer(rend); atexit(release); }
+  static void init(){ rend_ = new HQRenderer(); atexit(release); }
   inline static HQRenderer* instance() {return rend_;}
   inline static void release() {SAFE_DELETE(rend_);}
   //! the callback for init the scene
   inline static void initialize() {rend_->initialize_();}
+  //! deletes the resources on the render device; before the device goes
+  static void releaseResources();
   //! the callback for rendering the scene
   inline static void paint() {rend_->paint_();}
   //! the callback for ascii characters
@@ -61,7 +67,7 @@ public:
   //! set the trade status
   inline void setTrade(bool on) {trade_ = on;}
 protected:
-  HQRenderer(CGE::Renderer* rend);
+  HQRenderer();
   void initialize_();
   //! render scene
   void paint_();
@@ -82,8 +88,6 @@ protected:
   
   //! renderer
   static HQRenderer* rend_;
-  //! the engine renderer
-  CGE::Renderer* render_;
   //! ask before quitting app
   bool ask_;
   //! the aspect
@@ -104,8 +108,8 @@ protected:
   Inventory* inventory_;
   //! if the trading is active
   bool trade_;
-  //! shader
-  CGE::GL2Shader* m3DShader;
+  //! the lit shader with fog for the 3D view
+  std::unique_ptr<CGE::Gfx::Shader> fogShader_;
 };
 
 #endif

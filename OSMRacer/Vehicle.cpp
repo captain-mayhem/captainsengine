@@ -3,12 +3,11 @@
 
 //#define _USE_MATH_DEFINES
 #include "math.h"
-#include "renderer/renderer.h"
-#include "renderer/forms.h"
+#include "renderer/drawcontext.h"
 #include "system/engine.h"
 #include <physics/Simulator.h>
 #include <physics/Hinge2Joint.h>
-#include <renderer/font.h>
+#include <renderer/screentext.h>
 
 using namespace CGE;
 using std::max;
@@ -107,20 +106,17 @@ void Vehicle::setPosition(const CGE::Vec3f& pos){
   mAutobody->setPosition(pos);
 }
 
-void Vehicle::render(const CGE::Camera& cam){
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  CGE::Forms* form = CGE::Engine::instance()->getForms();
-
+void Vehicle::render(CGE::Gfx::DrawContext& ctx, const CGE::Camera& cam){
   CGE::Material mat("vehicle");
   mat.setDiffuse(CGE::Color(1.0,1.0,0.0,1.0));
   mat.setAmbient(CGE::Color(0.7f,0.7f,0.0,1.0));
-  rend->setMaterial(mat);
-  mAutobody->render(cam);
+  ctx.setMaterial(mat);
+  mAutobody->render(ctx, cam);
   mat.setDiffuse(CGE::Color(0.0,0.0,1.0,1.0));
   mat.setAmbient(CGE::Color(0.0,0.0,0.3f,1.0));
-  rend->setMaterial(mat);
+  ctx.setMaterial(mat);
   for (int i = 0; i < 4; ++i){
-    mWheels[i]->render(cam);
+    mWheels[i]->render(ctx, cam);
   }
 }
 
@@ -130,7 +126,7 @@ void Vehicle::simulate(float acceleration, float steering){
   float velocity = mAutobody->getLinearVelocity().length()*3.6f;
   float factor = steering/(0.02f*velocity+1.0f);
   sprintf(tmp, "Velocity: %f", velocity);
-  CGE::Engine::instance()->getFont(0)->print(10,480,tmp,0,0.1f);
+  CGE::Engine::instance()->getScreenText(0)->print(10,480,tmp,0,0.1f);
   for (int i = 0; i < 2; ++i){
     mWheelHinges[i]->setLowStop(0.75f*factor);
     mWheelHinges[i]->setHighStop(0.75f*factor);
@@ -143,7 +139,7 @@ void Vehicle::simulate(float acceleration, float steering){
 
     //mWheelHinges[i]->addTorques(vel, 0);
     sprintf(tmp, "Steering: %f", factor);
-    CGE::Engine::instance()->getFont(0)->print(10,500+20*i,tmp,0,0.1f);
+    CGE::Engine::instance()->getScreenText(0)->print(10,500+20*i,tmp,0,0.1f);
   }
   for (int i = 0; i < 4; ++i){
     mWheelHinges[i]->setMaxForceAxis2(0.0);

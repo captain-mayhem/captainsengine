@@ -2,6 +2,8 @@
 #include "MapChunk.h"
 #include "GeoGen.h"
 #include <mesh/SimpleMesh.h>
+#include <renderer/drawcontext.h>
+#include <renderer/screentext.h>
 
 using namespace CGE;
 
@@ -36,24 +38,31 @@ void MapChunk::addStreetSegment(MapChunk::NodeRef from, MapChunk::NodeRef to, St
 }
 
 int drawCount;
+namespace{
+struct Traversal{
+  CGE::Gfx::DrawContext* ctx;
+  const CGE::Camera* cam;
+};
+}
 
-void MapChunk::render(const CGE::Camera* cam){
+void MapChunk::render(CGE::Gfx::DrawContext& ctx, const CGE::Camera* cam){
   //mTree.renderDebug();
   drawCount = 0;
   //mTree.render(cam);s
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   CGE::Material mat("street");
   mat.setDiffuse(CGE::Color(0.2f,0.2f,0.2f,1.0f));
   mat.setAmbient(CGE::Color(0.1f,0.1f,0.1f,1.0f));
-  rend->setMaterial(mat);
-  mStreets.traverse((void*)cam);
+  ctx.setMaterial(mat);
+  Traversal traversal = {&ctx, cam};
+  mStreets.traverse(&traversal);
   char tmp[32];
   sprintf(tmp,"Map nodes rendered: %i", drawCount);
-  CGE::Engine::instance()->getFont(0)->print(20,700,tmp,0);
+  CGE::Engine::instance()->getScreenText(0)->print(20,700,tmp,0);
 }
 
 CGE::OctreeStatic<SimpleMesh*>::TraversalState MapChunk::renderCB(const std::vector<SimpleMesh*>& values, const CGE::BBox& box, uint8 flags, void* data){
-  CGE::Camera* cam = (CGE::Camera*)data;
+  Traversal* traversal = (Traversal*)data;
+  const CGE::Camera* cam = traversal->cam;
   OctreeStatic<SimpleMesh*>::TraversalState state = OctreeStatic<SimpleMesh*>::RECURSE_TO_END;
 
   //check if we do not pass through
@@ -66,7 +75,7 @@ CGE::OctreeStatic<SimpleMesh*>::TraversalState MapChunk::renderCB(const std::vec
   }
 
   for (uint32 i = 0; i < values.size(); ++i){
-    values[i]->render();
+    values[i]->render(*traversal->ctx);
     ++drawCount;
   }
 
