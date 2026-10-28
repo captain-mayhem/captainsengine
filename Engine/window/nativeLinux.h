@@ -36,6 +36,7 @@ public:
   void setFullscreen(bool fullscreen) override;
   
   virtual void show(bool doit) override;
+  void setTitle(const std::string& title) override;
   //! is the event the window manager's request to close the window?
   bool isCloseRequest(const XEvent& event) const;
 

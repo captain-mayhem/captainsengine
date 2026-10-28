@@ -607,6 +607,26 @@ void applyEngineSettings(const std::string& assetDir, const std::string& appName
     UserDirs::setAppName(appName);
 }
 
+std::string getExecutableDir(){
+  std::string path;
+#if defined(WIN32)
+  char module[MAX_PATH];
+  DWORD len = GetModuleFileNameA(nullptr, module, MAX_PATH);
+  if (len > 0 && len < MAX_PATH)
+    path.assign(module, len);
+#elif defined(LINUX)
+  char exe[4096];
+  ssize_t len = readlink("/proc/self/exe", exe, sizeof(exe));
+  if (len > 0 && len < (ssize_t)sizeof(exe))
+    path.assign(exe, (size_t)len);
+#endif
+  size_t slash = path.find_last_of("\\/");
+  if (slash == std::string::npos)
+    return "";
+  path.erase(slash);
+  return path;
+}
+
 void setOverrideCursor(int cursor){
   if (cursor == overrideCursor)
     return;

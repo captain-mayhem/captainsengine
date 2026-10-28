@@ -28,6 +28,11 @@ CGE_API bool ImGui_ImplCGE_Platform_Init(CGE::AppWindow* window);
 CGE_API void ImGui_ImplCGE_Platform_Shutdown();
 //! before ImGui::NewFrame
 CGE_API void ImGui_ImplCGE_Platform_NewFrame();
+//! are the fonts scaled with the window's content scale (the default)?
+/*! The style's sizes always are. Applications that give their fonts sizes in
+    screen pixels, already scaled (e.g. from point sizes and the screen's
+    DPI), turn it off, so the scale isn't applied twice. */
+CGE_API void ImGui_ImplCGE_Platform_SetScaleFonts(bool scale);
 
 //! the mouse is at (x, y) window pixels
 CGE_API void ImGui_ImplCGE_Platform_AddMousePos(float x, float y);
