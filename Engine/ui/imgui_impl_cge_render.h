@@ -10,6 +10,7 @@
 namespace CGE{
 namespace Gfx{
 class RenderDevice;
+class Sampler;
 class Texture;
 }
 }
@@ -34,6 +35,12 @@ CGE_API void ImGui_ImplCGE_Render_NewFrame();
 //! the draw data's size (DisplaySize*FramebufferScale pixels)
 /*! Leaves the pass with the scissor rectangle on the whole target. */
 CGE_API void ImGui_ImplCGE_Render_RenderDrawData(ImDrawData* drawData);
+
+//! draws the following images of list with sampler (null: the default, linear
+//! filtering and clamped to the edges)
+/*! E.g. repeating for tiled images (UVs beyond 0..1) or nearest filtering for
+    pixel art. Until the next call for the list, which ends with the list. */
+CGE_API void ImGui_ImplCGE_SetSampler(ImDrawList* list, CGE::Gfx::Sampler* sampler);
 
 //! a device texture as an ImGui texture id, for ImGui::Image and the like
 inline ImTextureID ImGui_ImplCGE_TextureID(CGE::Gfx::Texture* texture){

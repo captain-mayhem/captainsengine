@@ -19,6 +19,8 @@ namespace PlatformInternal{
 void init(int argc, char** argv, void* androidApp);
 //! applies the asset folder and the application name from engine.ini, if set (services.cpp)
 void applyEngineSettings(const std::string& assetDir, const std::string& appName);
+//! the folder of the running executable, empty where there is none (Android, the web) (services.cpp)
+std::string getExecutableDir();
 //! sets the current cursor again (Windows: WM_SETCURSOR; X11: when the mouse is shown again) (services.cpp)
 void applyCursor();
 //! shows cursor (a Platform::Cursor) instead of the application's one, -1 shows the application's again (services.cpp)

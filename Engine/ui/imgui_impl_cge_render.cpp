@@ -22,6 +22,8 @@ struct BackendData{
   std::unique_ptr<Shader> shader;
   std::unique_ptr<Pipeline> pipeline;
   std::unique_ptr<Sampler> sampler;
+  //! the sampler a draw list chose (ImGui_ImplCGE_SetSampler), null for the default
+  Sampler* listSampler = nullptr;
   //! the projection (FrameUniforms)
   std::unique_ptr<Buffer> frame;
   //! all vertices and indices of a frame's draw data
@@ -120,8 +122,19 @@ void setupRenderState(BackendData& bd, int width, int height){
   viewport.width = (float)width;
   viewport.height = (float)height;
   device.setViewport(viewport);
+  bd.listSampler = nullptr;
 }
 
+void setListSampler(const ImDrawList*, const ImDrawCmd* cmd){
+  BackendData* bd = getData();
+  if (bd)
+    bd->listSampler = (Sampler*)cmd->UserCallbackData;
+}
+
+}
+
+void ImGui_ImplCGE_SetSampler(ImDrawList* list, CGE::Gfx::Sampler* sampler){
+  list->AddCallback(setListSampler, sampler);
 }
 
 bool ImGui_ImplCGE_Render_Init(RenderDevice& device){
@@ -245,6 +258,8 @@ void ImGui_ImplCGE_Render_RenderDrawData(ImDrawData* drawData){
   int vertexBase = 0;
   int indexBase = 0;
   for (const ImDrawList* list : drawData->CmdLists){
+    //a sampler chosen in one list doesn't go on into the next
+    bd->listSampler = nullptr;
     for (const ImDrawCmd& cmd : list->CmdBuffer){
       if (cmd.UserCallback){
         if (cmd.UserCallback == ImDrawCallback_ResetRenderState)
@@ -271,7 +286,7 @@ void ImGui_ImplCGE_Render_RenderDrawData(ImDrawData* drawData){
       scissor.width = (int)(x1 - x0);
       scissor.height = (int)(y1 - y0);
       device.setScissor(scissor);
-      device.setTexture(SLOT_TEXTURE, (Texture*)(uintptr_t)cmd.GetTexID(), bd->sampler.get());
+      device.setTexture(SLOT_TEXTURE, (Texture*)(uintptr_t)cmd.GetTexID(), bd->listSampler ? bd->listSampler : bd->sampler.get());
       device.setVertexBuffer(0, bd->vertices.get(), (vertexBase + cmd.VtxOffset)*sizeof(ImDrawVert));
       device.drawIndexed((int)cmd.ElemCount, 1, indexBase + (int)cmd.IdxOffset);
     }

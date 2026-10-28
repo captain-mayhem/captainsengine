@@ -3,6 +3,7 @@
 #include "script.h"
 #include "file.h"
 #include "../platform/assets.h"
+#include "../platform/platform_internal.h"
 
 using std::string;
 
@@ -42,7 +43,17 @@ void Script::initEnv(){
 
   //engine.ini is an asset (in the APK on Android)
   std::string ini;
-  if (!Assets::loadText("engine.ini", ini)){
+  bool loaded = Assets::loadText("engine.ini", ini);
+  //applications started from any folder (e.g. with a document) have it next
+  //to the executable, which then is the asset folder
+  std::string exeDir = PlatformInternal::getExecutableDir();
+  if (!loaded && Assets::getRoot().empty() && !exeDir.empty()
+      && Assets::loadText(exeDir + "/engine.ini", ini)){
+    loaded = true;
+    Assets::setRoot(exeDir);
+    TR_INFO("Using engine.ini and the assets in %s", exeDir.c_str());
+  }
+  if (!loaded){
     TR_WARN("Cannot load engine.ini");
   }
   else if (luaL_loadbuffer(L, ini.data(), ini.size(), "engine.ini") || lua_pcall(L,0,0,0)){

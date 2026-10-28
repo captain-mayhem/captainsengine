@@ -15,7 +15,8 @@ class MemReader;
 
 //! Read-only access to the application's assets, the same on every platform
 /*! A relative path names an asset: on desktop a file below the asset folder
-    (assetDir in engine.ini, by default the working directory), on Android
+    (assetDir in engine.ini, by default the working directory, or the
+    executable's folder if engine.ini is only there), on Android
     an asset in the APK (AAssetManager), and on the web a file in the virtual
     file system that --preload-file fills. Absolute paths (for example below
     UserDirs::getDataDir()) are always read as plain files.

@@ -139,13 +139,16 @@ elseif (OS STREQUAL "web")
 	target_compile_definitions(Engine PUBLIC UNIX)
 	# applications are WebAssembly with a WebGL 2 context, a growing heap,
 	# IndexedDB for the user folders (UserDirs) and the file system's runtime
-	# functions for data packages loaded by the page (cge_web_package)
+	# functions for data packages loaded by the page (cge_web_package).
+	# No EXPORTED_RUNTIME_METHODS: a later -s option replaces an earlier
+	# one, and these come after the application's own, so applications
+	# whose page calls into the module (e.g. Module.ccall) export what they
+	# need themselves.
 	target_link_options(Engine INTERFACE
 		-sMIN_WEBGL_VERSION=2
 		-sMAX_WEBGL_VERSION=2
 		-sALLOW_MEMORY_GROWTH=1
 		-sFORCE_FILESYSTEM=1
-		-sEXPORTED_RUNTIME_METHODS=ccall
 		-lidbfs.js
 	)
 	if (CGE_WEB_THREADS)
@@ -342,23 +345,26 @@ set(CGE_FONTS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/fonts CACHE INTERNAL "")
 # (in fonts/) for an application installed to <destination>: next to the
 # executable on Windows, in lib/ (found through RPATH) elsewhere
 function(cge_install_runtime target destination)
+	# the subfolders normalized (no "./fonts" for the destination ".")
+	cmake_path(SET fonts NORMALIZE "${destination}/fonts")
+	cmake_path(SET lib NORMALIZE "${destination}/lib")
 	if (WIN32)
 		install(TARGETS Engine RUNTIME DESTINATION ${destination} ${ARGN})
 		if (TARGET EngineGL)
 			install(TARGETS EngineGL LIBRARY DESTINATION ${destination} ${ARGN})
 		endif()
-		install(DIRECTORY ${CGE_FONTS_DIR}/ DESTINATION ${destination}/fonts ${ARGN})
+		install(DIRECTORY ${CGE_FONTS_DIR}/ DESTINATION ${fonts} ${ARGN})
 	elseif (EMSCRIPTEN)
 		# the engine is linked in; the page's other files go with its .html
 		set(base $<TARGET_FILE_DIR:${target}>/$<TARGET_FILE_BASE_NAME:${target}>)
 		install(FILES ${base}.js ${base}.wasm DESTINATION ${destination} ${ARGN})
 		install(FILES ${base}.data DESTINATION ${destination} OPTIONAL ${ARGN})
 	else()
-		install(TARGETS Engine LIBRARY DESTINATION ${destination}/lib ${ARGN})
+		install(TARGETS Engine LIBRARY DESTINATION ${lib} ${ARGN})
 		if (TARGET EngineGL)
-			install(TARGETS EngineGL LIBRARY DESTINATION ${destination}/lib ${ARGN})
+			install(TARGETS EngineGL LIBRARY DESTINATION ${lib} ${ARGN})
 		endif()
-		install(DIRECTORY ${CGE_FONTS_DIR}/ DESTINATION ${destination}/fonts ${ARGN})
+		install(DIRECTORY ${CGE_FONTS_DIR}/ DESTINATION ${fonts} ${ARGN})
 		set_target_properties(${target} PROPERTIES INSTALL_RPATH "$ORIGIN/lib")
 	endif()
 endfunction()

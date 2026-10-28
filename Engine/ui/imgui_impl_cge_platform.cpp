@@ -27,6 +27,8 @@ struct BackendData{
   std::chrono::steady_clock::time_point time;
   //! the content scale the style is scaled with
   float scale = 1;
+  //! are the fonts scaled with it, too (style.FontScaleDpi)
+  bool scaleFonts = true;
   //! the cursor shown instead of the application's, -1 for none
   int cursor = -1;
   //! the text copied last, for platforms without a clipboard service
@@ -110,7 +112,7 @@ void updateScale(BackendData& bd){
     return;
   ImGuiStyle& style = ImGui::GetStyle();
   style.ScaleAllSizes(scale/bd.scale);
-  style.FontScaleDpi = scale;
+  style.FontScaleDpi = bd.scaleFonts ? scale : 1;
   bd.scale = scale;
 }
 
@@ -145,6 +147,14 @@ bool ImGui_ImplCGE_Platform_Init(AppWindow* window){
     ImGui::GetMainViewport()->PlatformHandleRaw = window->getHandle();
   updateScale(*bd);
   return true;
+}
+
+void ImGui_ImplCGE_Platform_SetScaleFonts(bool scale){
+  BackendData* bd = getData();
+  if (!bd)
+    return;
+  bd->scaleFonts = scale;
+  ImGui::GetStyle().FontScaleDpi = scale ? bd->scale : 1;
 }
 
 void ImGui_ImplCGE_Platform_Shutdown(){

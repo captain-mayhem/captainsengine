@@ -422,5 +422,14 @@ void X11Window::show(bool doit){
   AppWindow::show(doit);
 }
 
+void X11Window::setTitle(const std::string& title){
+  if (!win_)
+    return;
+  //the window's and its icon's name, as at creation
+  XSetStandardProperties(disp_, win_, title.c_str(), title.c_str(),
+      None, nullptr, 0, nullptr);
+  XFlush(disp_);
+}
+
 
 #endif
