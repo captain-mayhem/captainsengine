@@ -212,7 +212,11 @@ bool spawnDetached(const char* program, const std::string& arg){
   if (child < 0)
     return false;
   if (child == 0){
-    //the grandchild is adopted by init, so nobody has to wait for it
+    //a new session, so a closed terminal doesn't take the program with it
+    setsid();
+    //the grandchild is adopted by init, so nobody has to wait for it; and
+    //only the child is waited for, because xdg-open may stay until the
+    //browser closes (seen under WSLg)
     if (fork() == 0){
       execlp(program, program, arg.c_str(), (char*)nullptr);
       _exit(127);
