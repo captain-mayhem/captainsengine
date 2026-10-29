@@ -41,12 +41,34 @@ public:
     //! the family that was found, which can be a substitute
     std::string family;
   };
+  //! the kind of letters a family has, for sorting families in a font picker
+  enum Style{
+    STYLE_UNKNOWN,
+    STYLE_SERIF,
+    STYLE_SANS_SERIF,
+    STYLE_MONOSPACE,
+    STYLE_SCRIPT,
+    STYLE_DECORATIVE,
+  };
+  //! an installed family and how it looks
+  struct Family{
+    std::string name;
+    //! from the font's own description (Windows: GDI's; elsewhere the PANOSE or class of the OS/2 table)
+    Style style = STYLE_UNKNOWN;
+    //! all characters are equally wide
+    bool fixedPitch = false;
+    //! the characters are symbols (e.g. Wingdings), not letters
+    bool symbol = false;
+  };
   //! the font for a family, weight (400 normal, 700 bold) and slant
   static bool find(const std::string& family, FontData& font, int weight = 400, bool italic = false);
   //! is a family of this name installed (without substitutes)
   static bool exists(const std::string& family);
   //! the installed families, sorted, each once
   static std::vector<std::string> getFamilies();
+  //! the installed families with their look, sorted, each once
+  /*! Slower than getFamilies() on Linux, where a font file of every family is opened. */
+  static std::vector<Family> getFamilyDetails();
 };
 
 }

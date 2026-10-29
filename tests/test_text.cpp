@@ -262,6 +262,43 @@ TEST(SystemFonts, KnowsTheInstalledFamilies){
   EXPECT_FALSE(SystemFonts::exists(""));
 }
 
+TEST(SystemFonts, DescribesTheInstalledFamilies){
+  std::vector<std::string> names = SystemFonts::getFamilies();
+  std::vector<SystemFonts::Family> families = SystemFonts::getFamilyDetails();
+  if (names.empty())
+    GTEST_SKIP() << "no system fonts";
+  ASSERT_EQ(families.size(), names.size());
+  for (size_t i = 0; i < names.size(); ++i)
+    EXPECT_EQ(families[i].name, names[i]);
+  auto family = [&](const std::string& name) -> const SystemFonts::Family*{
+    for (const SystemFonts::Family& f : families){
+      if (f.name == name)
+        return &f;
+    }
+    return nullptr;
+  };
+  //the monospace font is fixed pitch
+  SystemFonts::FontData mono;
+  ASSERT_TRUE(SystemFonts::find("monospace", mono));
+  const SystemFonts::Family* fixed = family(mono.family);
+  ASSERT_NE(fixed, nullptr) << mono.family;
+  EXPECT_TRUE(fixed->fixedPitch);
+  EXPECT_EQ(fixed->style, SystemFonts::STYLE_MONOSPACE);
+  EXPECT_FALSE(fixed->symbol);
+  SystemFonts::FontData sans;
+  ASSERT_TRUE(SystemFonts::find("sans-serif", sans));
+  ASSERT_NE(family(sans.family), nullptr) << sans.family;
+  EXPECT_FALSE(family(sans.family)->fixedPitch);
+  EXPECT_FALSE(family(sans.family)->symbol);
+#ifdef WIN32
+  EXPECT_EQ(family("Arial")->style, SystemFonts::STYLE_SANS_SERIF);
+  EXPECT_EQ(family("Times New Roman")->style, SystemFonts::STYLE_SERIF);
+  EXPECT_TRUE(family("Courier New")->fixedPitch);
+  EXPECT_TRUE(family("Wingdings")->symbol);
+  EXPECT_FALSE(family("Arial")->symbol);
+#endif
+}
+
 TEST(SystemFonts, FindsBoldAndItalicFaces){
   SystemFonts::FontData regular, bold;
   if (!SystemFonts::find("serif", regular) || !SystemFonts::find("serif", bold, 700, true))
