@@ -2,6 +2,7 @@ SET(PRE audio)
 
 SET(Engine_audio_SRCS
 	${PRE}/audio.cpp
+	${PRE}/audiodecoder.cpp
 	${PRE}/audioeffect.cpp
 	${PRE}/audioplayer.cpp
 	${PRE}/audiostream.cpp
@@ -10,6 +11,7 @@ SET(Engine_audio_SRCS
 
 SET(Engine_audio_HDRS
 	${PRE}/audio.h
+	${PRE}/audiodecoder.h
 	${PRE}/audioeffect.h
 	${PRE}/audioplayer.h
 	${PRE}/audiostream.h
