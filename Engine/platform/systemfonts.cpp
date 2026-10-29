@@ -16,6 +16,7 @@
 #include <windows.h>
 #endif
 #if defined(LINUX)
+#include <set>
 #include <fontconfig/fontconfig.h>
 #endif
 #if defined(ANDROID) || defined(__EMSCRIPTEN__)
@@ -40,6 +41,72 @@ std::vector<std::string> sorted(std::vector<std::string> names){
   names.erase(std::unique(names.begin(), names.end()), names.end());
   return names;
 }
+
+//! sorted without regard to case, each once; a family is a symbol font only if all its entries are
+std::vector<SystemFonts::Family> sorted(std::vector<SystemFonts::Family> families){
+  std::stable_sort(families.begin(), families.end(), [](const SystemFonts::Family& a, const SystemFonts::Family& b){
+    return lower(a.name) < lower(b.name);
+  });
+  std::vector<SystemFonts::Family> ret;
+  for (const SystemFonts::Family& family : families){
+    if (!ret.empty() && ret.back().name == family.name){
+      ret.back().symbol = ret.back().symbol && family.symbol;
+      if (ret.back().style == SystemFonts::STYLE_UNKNOWN)
+        ret.back().style = family.style;
+    }
+    else
+      ret.push_back(family);
+  }
+  return ret;
+}
+
+#ifndef WIN32
+
+//! a face's style from its OS/2 table: the PANOSE classification, else the IBM font class
+/*! guit3 found that most of Ubuntu's fonts leave the class at 0 but fill in PANOSE. */
+SystemFonts::Style styleOf(FT_Face face){
+  if (FT_IS_FIXED_WIDTH(face))
+    return SystemFonts::STYLE_MONOSPACE;
+  TT_OS2* os2 = (TT_OS2*)FT_Get_Sfnt_Table(face, FT_SFNT_OS2);
+  if (!os2)
+    return SystemFonts::STYLE_UNKNOWN;
+  int familyType = os2->panose[0];
+  int serifStyle = os2->panose[1];
+  if (familyType == 3)
+    return SystemFonts::STYLE_SCRIPT;
+  if (familyType == 4)
+    return SystemFonts::STYLE_DECORATIVE;
+  if (familyType == 2 && serifStyle >= 2 && serifStyle <= 10)
+    return SystemFonts::STYLE_SERIF;
+  if (familyType == 2 && serifStyle >= 11 && serifStyle <= 15)
+    return SystemFonts::STYLE_SANS_SERIF;
+  switch ((os2->sFamilyClass >> 8) & 0xff){
+    case 1: case 2: case 3: case 4: case 5: case 7:
+      return SystemFonts::STYLE_SERIF;
+    case 8:
+      return SystemFonts::STYLE_SANS_SERIF;
+    case 9:
+      return SystemFonts::STYLE_DECORATIVE;
+    case 10:
+      return SystemFonts::STYLE_SCRIPT;
+  }
+  return SystemFonts::STYLE_UNKNOWN;
+}
+
+//! a symbol font has Microsoft's symbol character map and no Unicode one
+bool isSymbol(FT_Face face){
+  bool unicode = false;
+  bool symbol = false;
+  for (int i = 0; i < face->num_charmaps; ++i){
+    if (face->charmaps[i]->encoding == FT_ENCODING_UNICODE)
+      unicode = true;
+    else if (face->charmaps[i]->encoding == FT_ENCODING_MS_SYMBOL)
+      symbol = true;
+  }
+  return symbol && !unicode;
+}
+
+#endif
 
 }
 
@@ -71,9 +138,30 @@ int CALLBACK collectFamily(const LOGFONTW* font, const TEXTMETRICW*, DWORD, LPAR
   return 1;
 }
 
-//! the families GDI enumerates for a name, or all of them for an empty one
-std::vector<std::string> enumerate(const std::string& name){
-  std::vector<std::string> families;
+//! GDI reports a family once per character set
+int CALLBACK collectFamilyDetails(const LOGFONTW* font, const TEXTMETRICW* metrics, DWORD, LPARAM param){
+  if (font->lfFaceName[0] == L'@')
+    return 1;
+  SystemFonts::Family family;
+  family.name = toUtf8(font->lfFaceName);
+  switch (font->lfPitchAndFamily & 0xf0){
+    case FF_ROMAN: family.style = SystemFonts::STYLE_SERIF; break;
+    case FF_SWISS: family.style = SystemFonts::STYLE_SANS_SERIF; break;
+    case FF_MODERN: family.style = SystemFonts::STYLE_MONOSPACE; break;
+    case FF_SCRIPT: family.style = SystemFonts::STYLE_SCRIPT; break;
+    case FF_DECORATIVE: family.style = SystemFonts::STYLE_DECORATIVE; break;
+  }
+  //the bit is set for proportional fonts
+  family.fixedPitch = (metrics->tmPitchAndFamily & TMPF_FIXED_PITCH) == 0;
+  family.symbol = font->lfCharSet == SYMBOL_CHARSET;
+  ((std::vector<SystemFonts::Family>*)param)->push_back(family);
+  return 1;
+}
+
+//! what GDI enumerates for a name, or for all families with an empty one
+template<typename T>
+std::vector<T> enumerate(const std::string& name, FONTENUMPROCW collect){
+  std::vector<T> families;
   LOGFONTW font = {};
   font.lfCharSet = DEFAULT_CHARSET;
   std::wstring wide = toWide(name);
@@ -81,9 +169,14 @@ std::vector<std::string> enumerate(const std::string& name){
     return families;
   wcscpy_s(font.lfFaceName, wide.c_str());
   HDC dc = CreateCompatibleDC(nullptr);
-  EnumFontFamiliesExW(dc, &font, collectFamily, (LPARAM)&families, 0);
+  EnumFontFamiliesExW(dc, &font, collect, (LPARAM)&families, 0);
   DeleteDC(dc);
   return families;
+}
+
+//! the families GDI enumerates for a name, or all of them for an empty one
+std::vector<std::string> enumerate(const std::string& name){
+  return enumerate<std::string>(name, collectFamily);
 }
 
 //! the face of a font collection with this family and the closest style; 0 if none has the family
@@ -181,6 +274,10 @@ std::vector<std::string> SystemFonts::getFamilies(){
   return sorted(enumerate(""));
 }
 
+std::vector<SystemFonts::Family> SystemFonts::getFamilyDetails(){
+  return sorted(enumerate<Family>("", collectFamilyDetails));
+}
+
 #elif defined(LINUX)
 
 namespace{
@@ -250,6 +347,52 @@ std::vector<std::string> SystemFonts::getFamilies(){
   return sorted(families);
 }
 
+std::vector<SystemFonts::Family> SystemFonts::getFamilyDetails(){
+  std::vector<Family> families;
+  FcPattern* pattern = FcPatternCreate();
+  FcObjectSet* objects = FcObjectSetBuild(FC_FAMILY, FC_FILE, FC_INDEX, FC_SPACING, (char*)0);
+  FcFontSet* set = FcFontList(nullptr, pattern, objects);
+  FT_Library ft = nullptr;
+  if (set && FT_Init_FreeType(&ft) != 0)
+    ft = nullptr;
+  //fontconfig lists every style of a family: one font file per family is opened
+  std::set<std::string> seen;
+  for (int i = 0; set && i < set->nfont; ++i){
+    FcChar8* name = nullptr;
+    if (FcPatternGetString(set->fonts[i], FC_FAMILY, 0, &name) != FcResultMatch || !name)
+      continue;
+    if (!seen.insert((const char*)name).second)
+      continue;
+    Family family;
+    family.name = (const char*)name;
+    int spacing = FC_PROPORTIONAL;
+    FcPatternGetInteger(set->fonts[i], FC_SPACING, 0, &spacing);
+    family.fixedPitch = spacing == FC_MONO || spacing == FC_CHARCELL;
+    FcChar8* file = nullptr;
+    int index = 0;
+    FT_Face face;
+    if (ft && FcPatternGetString(set->fonts[i], FC_FILE, 0, &file) == FcResultMatch && file){
+      FcPatternGetInteger(set->fonts[i], FC_INDEX, 0, &index);
+      if (FT_New_Face(ft, (const char*)file, index, &face) == 0){
+        family.style = styleOf(face);
+        family.symbol = isSymbol(face);
+        FT_Done_Face(face);
+      }
+    }
+    if (family.fixedPitch)
+      family.style = STYLE_MONOSPACE;
+    family.fixedPitch = family.style == STYLE_MONOSPACE;
+    families.push_back(family);
+  }
+  if (ft)
+    FT_Done_FreeType(ft);
+  if (set)
+    FcFontSetDestroy(set);
+  FcObjectSetDestroy(objects);
+  FcPatternDestroy(pattern);
+  return sorted(families);
+}
+
 #else
 
 namespace{
@@ -261,6 +404,8 @@ struct IndexedFace{
   std::string family;
   int weight;
   bool italic;
+  SystemFonts::Style style;
+  bool symbol;
 };
 
 //! the folders whose fonts count as the system's
@@ -285,15 +430,32 @@ const Alias aliases[] = {
   {"helvetica", {"Liberation Sans", "Roboto", "DejaVu Sans", "Noto Sans", nullptr}},
   {"verdana", {"DejaVu Sans", "Roboto", "Liberation Sans", "Noto Sans", nullptr}},
   {"tahoma", {"DejaVu Sans", "Roboto", "Liberation Sans", "Noto Sans", nullptr}},
+  {"segoe ui", {"DejaVu Sans", "Roboto", "Liberation Sans", "Noto Sans", nullptr}},
+  {"calibri", {"Liberation Sans", "Roboto", "DejaVu Sans", "Noto Sans", nullptr}},
+  {"trebuchet ms", {"Liberation Sans", "Roboto", "DejaVu Sans", "Noto Sans", nullptr}},
+  {"geneva", {"Liberation Sans", "Roboto", "DejaVu Sans", "Noto Sans", nullptr}},
   {"serif", {"Noto Serif", "Liberation Serif", "DejaVu Serif", "Gelasio", nullptr}},
   {"times new roman", {"Liberation Serif", "Noto Serif", "DejaVu Serif", nullptr}},
   {"times", {"Liberation Serif", "Noto Serif", "DejaVu Serif", nullptr}},
   {"georgia", {"Gelasio", "Liberation Serif", "Noto Serif", "DejaVu Serif", nullptr}},
+  {"cambria", {"Liberation Serif", "Noto Serif", "DejaVu Serif", nullptr}},
+  {"garamond", {"Liberation Serif", "Noto Serif", "DejaVu Serif", nullptr}},
+  {"book antiqua", {"Liberation Serif", "Noto Serif", "DejaVu Serif", nullptr}},
+  {"palatino", {"Liberation Serif", "Noto Serif", "DejaVu Serif", nullptr}},
+  {"palatino linotype", {"Liberation Serif", "Noto Serif", "DejaVu Serif", nullptr}},
+  {"constantia", {"Liberation Serif", "Noto Serif", "DejaVu Serif", nullptr}},
   {"monospace", {"Droid Sans Mono", "DejaVu Sans Mono", "Liberation Mono", "Cutive Mono", nullptr}},
   {"courier new", {"Liberation Mono", "Cutive Mono", "Droid Sans Mono", "DejaVu Sans Mono", nullptr}},
   {"courier", {"Liberation Mono", "Cutive Mono", "Droid Sans Mono", "DejaVu Sans Mono", nullptr}},
   {"consolas", {"Liberation Mono", "Droid Sans Mono", "DejaVu Sans Mono", nullptr}},
+  {"lucida console", {"Liberation Mono", "Droid Sans Mono", "DejaVu Sans Mono", nullptr}},
+  {"monaco", {"Liberation Mono", "Droid Sans Mono", "DejaVu Sans Mono", nullptr}},
+  {"fixedsys", {"Liberation Mono", "Droid Sans Mono", "DejaVu Sans Mono", nullptr}},
+  {"terminal", {"Liberation Mono", "Droid Sans Mono", "DejaVu Sans Mono", nullptr}},
   {"comic sans ms", {"Comic Relief", "Coming Soon", nullptr}},
+  {"comic sans", {"Comic Relief", "Coming Soon", nullptr}},
+  {"cursive", {"Comic Relief", "Coming Soon", "Dancing Script", nullptr}},
+  {"brush script", {"Dancing Script", "Comic Relief", "Coming Soon", nullptr}},
 };
 
 std::mutex indexMutex;
@@ -325,6 +487,8 @@ void indexFile(FT_Library ft, const std::string& path, std::vector<IndexedFace>&
       else
         entry.weight = (face->style_flags & FT_STYLE_FLAG_BOLD) ? 700 : 400;
       entry.italic = (face->style_flags & FT_STYLE_FLAG_ITALIC) != 0;
+      entry.style = styleOf(face);
+      entry.symbol = isSymbol(face);
       faces.push_back(entry);
     }
     FT_Done_Face(face);
@@ -403,6 +567,19 @@ std::vector<std::string> SystemFonts::getFamilies(){
   std::vector<std::string> families;
   for (const IndexedFace& face : getIndex())
     families.push_back(face.family);
+  return sorted(families);
+}
+
+std::vector<SystemFonts::Family> SystemFonts::getFamilyDetails(){
+  std::vector<Family> families;
+  for (const IndexedFace& face : getIndex()){
+    Family family;
+    family.name = face.family;
+    family.style = face.style;
+    family.fixedPitch = face.style == STYLE_MONOSPACE;
+    family.symbol = face.symbol;
+    families.push_back(family);
+  }
   return sorted(families);
 }
 
