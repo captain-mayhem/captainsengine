@@ -115,7 +115,7 @@ public:
 
   //! a player for a file's bytes (WAV, MP3, FLAC or Ogg Vorbis), decoded while it plays; null if they can't be decoded
   std::unique_ptr<AudioPlayer> createPlayer(std::vector<uint8_t> file, AudioGroup group = AudioGroup::Sound);
-  //! a stream for PCM that the application decodes itself
+  //! a stream for PCM that the application decodes itself (e.g. with an AudioDecoder)
   std::unique_ptr<AudioStream> createStream(AudioGroup group = AudioGroup::Sound);
   //! an effect bus that players and streams can be sent through
   std::unique_ptr<AudioEffect> createEffect(AudioGroup group = AudioGroup::Sound);

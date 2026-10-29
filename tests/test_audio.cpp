@@ -14,12 +14,14 @@
 #include <vorbis/vorbisenc.h>
 
 #include <audio/audio.h>
+#include <audio/audiodecoder.h>
 #include <audio/audioeffect.h>
 #include <audio/audioplayer.h>
 #include <audio/audiostream.h>
 #include <platform/assets.h>
 
 using CGE::Audio;
+using CGE::AudioDecoder;
 using CGE::AudioEffect;
 using CGE::AudioGroup;
 using CGE::AudioPlayer;
@@ -272,6 +274,57 @@ TEST_F(AudioTest, DecodesOggVorbis){
   EXPECT_NEAR(player->getPosition(), 0.5, 0.02);
 }
 
+TEST(AudioDecoder, DecodesWavMp3AndOgg){
+  //without an Audio
+  std::vector<float> samples = sine(22050, 1, 0.5, 440, 0.5f);
+  auto decoder = AudioDecoder::open(wav(22050, 1, samples));
+  ASSERT_NE(decoder, nullptr);
+  EXPECT_EQ(decoder->getSampleRate(), 22050);
+  EXPECT_EQ(decoder->getChannels(), 1);
+  EXPECT_EQ(decoder->getLength(), samples.size());
+  std::vector<float> out(samples.size()+100);
+  ASSERT_EQ(decoder->read(out.data(), out.size()), samples.size());
+  float worst = 0;
+  for (size_t i = 0; i < samples.size(); ++i)
+    worst = (std::max)(worst, std::fabs(out[i]-samples[i]));
+  //16 bits
+  EXPECT_LT(worst, 2.0f/32768);
+  EXPECT_EQ(decoder->read(out.data(), 10), 0u);
+  //back to the middle
+  ASSERT_TRUE(decoder->seek(samples.size()/2));
+  ASSERT_EQ(decoder->read(out.data(), 1), 1u);
+  EXPECT_NEAR(out[0], samples[samples.size()/2], 2.0f/32768);
+
+  //Ogg Vorbis in stereo, read in blocks
+  decoder = AudioDecoder::open(ogg(RATE, 2, sine(RATE, 2, 1.0, 1000, 0.5f)));
+  ASSERT_NE(decoder, nullptr);
+  EXPECT_EQ(decoder->getSampleRate(), RATE);
+  EXPECT_EQ(decoder->getChannels(), 2);
+  EXPECT_EQ(decoder->getLength(), (unsigned long long)RATE);
+  std::vector<float> all;
+  std::vector<float> block(1000*2);
+  for (size_t got; (got = decoder->read(block.data(), 1000)) > 0;)
+    all.insert(all.end(), block.begin(), block.begin()+got*2);
+  EXPECT_EQ(all.size()/2, (size_t)RATE);
+  //lossy, but close to the sine's 0.5/sqrt(2)
+  EXPECT_NEAR(rms(all, 0.1, 0.9), 0.3536f, 0.02f);
+
+  //an MP3 (from the Adventure's demo game): its length, read through before decoding, is what decodes
+  std::vector<uint8_t> file;
+  ASSERT_TRUE(CGE::Assets::load("audio/beat.mp3", file));
+  decoder = AudioDecoder::open(file);
+  ASSERT_NE(decoder, nullptr);
+  EXPECT_EQ(decoder->getSampleRate(), 44100);
+  unsigned long long length = decoder->getLength();
+  EXPECT_NEAR((double)length/44100, 0.99, 0.03);
+  std::vector<float> mp3(((size_t)length+1000)*decoder->getChannels());
+  EXPECT_EQ(decoder->read(mp3.data(), (size_t)length+1000), length);
+  EXPECT_GT(*(std::max_element)(mp3.begin(), mp3.end()), 0.1f);
+
+  EXPECT_EQ(AudioDecoder::open(std::vector<uint8_t>(1000, 0x55)), nullptr);
+  EXPECT_EQ(AudioDecoder::open(std::vector<uint8_t>()), nullptr);
+}
+
 TEST_F(AudioTest, PlaySoundAtVolumeAndPitch){
   SoundId id = audio.loadSound("audio/sine.wav");
   ASSERT_NE(id, 0u);
@@ -508,6 +561,52 @@ TEST_F(AudioTest, StreamWriteAndDrainFromAThread){
   for (size_t i = 0; i < out.size(); i += 2)
     energy += out[i]*out[i];
   EXPECT_NEAR(energy/(0.1*RATE), 0.125, 0.01);
+}
+
+TEST_F(AudioTest, StreamsOpenAndCloseOnManyThreads){
+  //as guit3 does: each sound's decoder thread opens its stream, plays it out and closes it, while others do the same
+  const int threads = 4;
+  std::vector<std::unique_ptr<AudioStream>> streams;
+  for (int t = 0; t < threads; ++t)
+    streams.push_back(audio.createStream());
+  std::atomic<bool> mixing{true};
+  //the device's thread
+  std::thread mixer([&]{
+    std::vector<float> out(480*2);
+    while (mixing){
+      audio.render(out.data(), 480);
+      std::this_thread::sleep_for(std::chrono::microseconds(500));
+    }
+  });
+  std::atomic<int> sounds{0};
+  std::vector<std::thread> decoders;
+  for (int t = 0; t < threads; ++t){
+    decoders.emplace_back([&, t]{
+      std::vector<float> beep = sine(RATE, 2, 0.005, 1000, 0.1f);
+      for (int i = 0; i < 50; ++i){
+        AudioStream& stream = *streams[t];
+        if (!stream.open(RATE, 32, 2))
+          continue;
+        stream.write(beep.data(), beep.size()*sizeof(float));
+        if ((i+t)%3 == 0)
+          stream.halt();
+        else
+          stream.drain();
+        stream.close();
+        ++sounds;
+      }
+    });
+  }
+  for (std::thread& decoder : decoders)
+    decoder.join();
+  mixing = false;
+  mixer.join();
+  EXPECT_EQ(sounds, threads*50);
+  //the mixer still plays
+  ASSERT_TRUE(streams[0]->open(RATE, 32, 2));
+  std::vector<float> wave = sine(RATE, 2, 0.5, 1000, 0.5f);
+  EXPECT_EQ(streams[0]->tryWrite(wave.data(), wave.size()*sizeof(float)), wave.size()*sizeof(float));
+  EXPECT_NEAR(rms(render(0.4), 0.05, 0.4), 0.3536f, 0.01f);
 }
 
 TEST_F(AudioTest, EffectWithoutEffectIsDry){
