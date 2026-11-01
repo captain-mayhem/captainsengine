@@ -110,7 +110,8 @@ std::vector<uint8_t> wav(int rate, int channels, const std::vector<float>& sampl
 }
 
 //! an Ogg Vorbis file, encoded with libvorbis
-std::vector<uint8_t> ogg(int rate, int channels, const std::vector<float>& samples){
+/*! The parts of a chained file (files one after the other) need serials of their own. */
+std::vector<uint8_t> ogg(int rate, int channels, const std::vector<float>& samples, int serial = 1){
   std::vector<uint8_t> file;
   vorbis_info info;
   vorbis_info_init(&info);
@@ -122,7 +123,7 @@ std::vector<uint8_t> ogg(int rate, int channels, const std::vector<float>& sampl
   vorbis_block block;
   vorbis_block_init(&dsp, &block);
   ogg_stream_state stream;
-  ogg_stream_init(&stream, 1);
+  ogg_stream_init(&stream, serial);
   ogg_page page;
   auto pages = [&](bool flush){
     while (flush ? ogg_stream_flush(&stream, &page) : ogg_stream_pageout(&stream, &page)){
@@ -323,6 +324,32 @@ TEST(AudioDecoder, DecodesWavMp3AndOgg){
 
   EXPECT_EQ(AudioDecoder::open(std::vector<uint8_t>(1000, 0x55)), nullptr);
   EXPECT_EQ(AudioDecoder::open(std::vector<uint8_t>()), nullptr);
+}
+
+TEST(AudioDecoder, ResamplesAChainedOggPartAtAnotherRate){
+  //a chained Ogg: five seconds at 44.1 kHz, then five seconds at 22.05 kHz, both 440 Hz
+  //(with a short first part, two seconds or less, vorbisfile itself skips it and starts with the second)
+  std::vector<uint8_t> file = ogg(44100, 1, sine(44100, 1, 5.0, 440, 0.5f));
+  std::vector<uint8_t> second = ogg(22050, 1, sine(22050, 1, 5.0, 440, 0.5f), 2);
+  file.insert(file.end(), second.begin(), second.end());
+  auto decoder = AudioDecoder::open(file);
+  ASSERT_NE(decoder, nullptr);
+  //the first part's rate for the whole file, and its length at that rate
+  EXPECT_EQ(decoder->getSampleRate(), 44100);
+  EXPECT_NEAR((double)decoder->getLength(), 10.0*44100, 2);
+  std::vector<float> all;
+  std::vector<float> block(1000);
+  for (size_t got; (got = decoder->read(block.data(), 1000)) > 0;)
+    all.insert(all.end(), block.begin(), block.begin()+got);
+  //the second part comes out at 44.1 kHz too: ten seconds in all
+  EXPECT_NEAR((double)all.size()/44100, 10.0, 0.01);
+  //and at 440 Hz (it played an octave up before): the rising zero crossings of the seconds 5.5 to 6.5
+  int crossings = 0;
+  for (size_t i = (size_t)(5.5*44100); i < (size_t)(6.5*44100) && i < all.size(); ++i){
+    if (all[i-1] < 0 && all[i] >= 0)
+      ++crossings;
+  }
+  EXPECT_NEAR(crossings, 440, 3);
 }
 
 TEST_F(AudioTest, PlaySoundAtVolumeAndPitch){
