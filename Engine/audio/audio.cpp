@@ -162,8 +162,33 @@ void Audio::pause(){
 }
 
 void Audio::resume(){
-  if (impl_->open && impl_->device)
-    ma_engine_start(&impl_->engine);
+  TR_USE(CGE_Audio);
+  if (!impl_->open || !impl_->device)
+    return;
+  ma_result result = ma_engine_start(&impl_->engine);
+#ifdef __ANDROID__
+  //AAudio may have taken the stream back while the application was in the
+  //background (AAUDIO_ERROR_DISCONNECTED when it's started again) without
+  //telling miniaudio, which reroutes a stream only on AAudio's error
+  //callback. Do that reroute here: it opens a new stream for the device
+  //(which stays stopped, as it is), then it is started again.
+  ma_device* device = ma_engine_get_device(&impl_->engine);
+  for (int retry = 1; result != MA_SUCCESS && retry <= 3; ++retry){
+    TR_WARN("The audio output can't be started again (%s); reopening it (%d)",
+      ma_result_description(result), retry);
+    if (device && device->pContext->backend == ma_backend_aaudio){
+      ma_job job = ma_job_init(MA_JOB_TYPE_DEVICE_AAUDIO_REROUTE);
+      job.data.device.aaudio.reroute.pDevice = device;
+      job.data.device.aaudio.reroute.deviceType = ma_device_type_playback;
+      ma_job_process(&job);
+    }
+    if (retry > 1)
+      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    result = ma_engine_start(&impl_->engine);
+  }
+#endif
+  if (result != MA_SUCCESS)
+    TR_WARN("No audio: the output can't be started again (%s)", ma_result_description(result));
 }
 
 void Audio::update(){
