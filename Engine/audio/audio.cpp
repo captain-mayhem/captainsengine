@@ -5,7 +5,9 @@
 #include "audiostream.h"
 
 #include <algorithm>
+#include <chrono>
 #include <cstring>
+#include <thread>
 
 #include <io/Tracing.h>
 #include <platform/assets.h>
@@ -78,6 +80,18 @@ bool Audio::init(const Desc& desc){
   if (!desc.device && config.sampleRate == 0)
     config.sampleRate = DEFAULT_SAMPLE_RATE;
   ma_result result = ma_engine_init(&config, &a.engine);
+#ifdef __ANDROID__
+  //AAudio can take a stream back while it starts (AAUDIO_ERROR_DISCONNECTED,
+  //"stream was probably stolen", e.g. on Samsung phones when the output is
+  //rerouted as the app comes up); a moment later it starts. A failed
+  //ma_engine_init cleans up, so it can be called again
+  for (int retry = 1; result != MA_SUCCESS && desc.device && retry <= 3; ++retry){
+    TR_WARN("The audio output can't be opened (%s); trying again (%d)",
+      ma_result_description(result), retry);
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    result = ma_engine_init(&config, &a.engine);
+  }
+#endif
   if (result != MA_SUCCESS){
     TR_WARN("No audio: the output can't be opened (%s)", ma_result_description(result));
     if (a.logInit)

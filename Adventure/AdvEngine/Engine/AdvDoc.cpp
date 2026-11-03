@@ -1228,6 +1228,14 @@ FontData AdvDocument::getFont(int num){
   else{
     firstzrdr = new CGE::ZipReader(mPath + "/fonts.dat");
     firstrdr = firstzrdr->openEntry("font." + number.str());
+    //a game may use a font its fonts.dat hasn't got (setfont() then keeps the
+    //font it has)
+    if (!firstrdr.isWorking()){
+      TR_USE(ADV_DATA);
+      TR_WARN("Font %d not found in fonts.dat", num);
+      delete firstzrdr;
+      return FontData();
+    }
     zrdr = new CGE::ZipReader(firstrdr.getData(), firstrdr.getSize());
     in = zrdr->openEntry("fontdata." + number.str());
   }
