@@ -108,7 +108,6 @@ public:
   bool isKeyPressed(int key);
   void quit();
   void reset();
-  void renderUnloadingRoom();
   ParticleEngine* getParticleEngine() {return mParticleEngine;}
   void remove(Object2D* obj);
   void enterText(const String& variable, int maxcharacters, ExecutionContext* suspensionReason);

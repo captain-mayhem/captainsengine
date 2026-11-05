@@ -1,297 +1,83 @@
 #include "Screenchange.h"
 #include "Engine.h"
 #include "Graphics.h"
-#include <math/matrixstack.h>
 #include <renderer/renderdevice.h>
-#include <system/allocation.h>
-
-TR_CHANNEL(ADV_Screenchange);
+#include <system/engine.h>
 
 using namespace adv;
+using namespace CGE::Gfx;
 
-#ifndef M_PI
-#define M_PI       3.14159265358979323846
-#endif
+TransitionKind ScreenChangeAnimation::getKind(ScreenChange change, int* duration){
+  *duration = 2000;
+  switch (change){
+    case SC_DIRECT:
+      *duration = 0;
+      return TransitionKind::Cut;
+    case SC_FADEOUT:
+      return TransitionKind::FadeOut;
+    case SC_RECTANGLE:
+      return TransitionKind::Rectangle;
+    case SC_CIRCLE:
+      return TransitionKind::Circle;
+    case SC_SHUTTERS:
+      return TransitionKind::Shutters;
+    case SC_CLOCK:
+      return TransitionKind::Clock;
+    case SC_BLEND:
+      *duration = 1000;
+      return TransitionKind::Blend;
+    case SC_BLEND_SLOW:
+      return TransitionKind::Blend;
+  }
+  *duration = 0;
+  return TransitionKind::Cut;
+}
 
-ScreenChangeBase::~ScreenChangeBase(){
+ScreenChangeAnimation::ScreenChangeAnimation(ScreenChange change, int depth) :
+BaseBlitObject(depth, Engine::instance()->getResolution()), mStarted(false), mUnload(false){
+  int duration = 0;
+  TransitionKind kind = getKind(change, &duration);
+  mTransition = ScreenTransition(kind, duration/1000.0);
+}
+
+ScreenChangeAnimation::~ScreenChangeAnimation(){
   Engine::instance()->getCursor()->showLoading(false);
 }
 
-void ScreenChangeBase::screenChangeSwitch(){
-  if (mUnload)
-    Engine::instance()->forceNotToRenderUnloadingRoom();
-}
-
-Screenshot::Screenshot(int depth) : RenderableBlitObject(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, depth){
-  realize();
-}
-
-void Screenshot::take(){
-  Graphics* gfx = Engine::instance()->getGraphics();
-  bind();
-  gfx->clear();
-  gfx->model().push();
-  Engine::instance()->flipTexture();
-  Engine::instance()->renderUnloadingRoom();
-  gfx->model().pop();
-  unbind();
-}
-
-CircleScreenChange::CircleScreenChange(int width, int height, int depth, int duration, int segments) : ScreenChangeBase(width, height, depth), mDuration(duration/2), mCurrentTime(0), mClosing(true), mShot(depth-1), mSegments(segments){
-  generateCircle(1.0f);
-}
-
-CircleScreenChange::~CircleScreenChange(){
-}
-
-bool CircleScreenChange::update(unsigned interval){
-  float scale;
-  if (mClosing)
-    scale = (mDuration-mCurrentTime)/(float)mDuration*Engine::instance()->getResolution().x;
+bool ScreenChangeAnimation::update(unsigned interval){
+  if (!mStarted){
+    mStarted = true;
+    //before this frame's clear the screen shows the last frame, with the old room
+    Graphics* gfx = Engine::instance()->getGraphics();
+    RenderDevice& device = gfx->getDevice();
+    mRenderer = std::make_unique<ScreenTransitionRenderer>(device);
+    gfx->copyScreen(mRenderer->getPictureTarget(device.getWidth(), device.getHeight()));
+    if (mUnload)
+      Engine::instance()->forceNotToRenderUnloadingRoom();
+  }
   else
-    scale = mCurrentTime/(float)mDuration*Engine::instance()->getResolution().x;
-  
-  if (mClosing && mCurrentTime == 0){
-    mShot.take();
-    screenChangeSwitch();
-  }
-
-  bind();
-  Graphics* gfx = Engine::instance()->getGraphics();
-  gfx->clear();
-  gfx->setTexture(nullptr);
-  gfx->setBlend(Graphics::BLEND_MULTIPLY);
-  gfx->setColor(0, 0, 0, 0);
-  gfx->model().push();
-  gfx->model().translate(mSize.x/2.0f, mSize.y/2.0f, 0.0f);
-  gfx->model().scale(scale, scale*Engine::instance()->getResolution().y/Engine::instance()->getResolution().x, 1.0f);
-  gfx->draw(mVerts.get(), CGE::Gfx::PrimitiveType::TriangleStrip, mSegments*2+1);
-  gfx->model().pop();
-  gfx->setBlend(Graphics::BLEND_ALPHA);
-  unbind();
-  
-  if (mCurrentTime >= mDuration && !mClosing){
+    mTransition.advance(interval/1000.0);
+  //the rooms changed already
+  if (mTransition.isChangeDue())
+    mTransition.changed();
+  if (mTransition.isDone())
     return false;
-  }
-  if (mCurrentTime >= mDuration && mClosing){
-    mCurrentTime = 0;
-    mClosing = false;
-  }
-  mCurrentTime += interval;
-  if (mClosing)
-    mShot.render(Vec2i(0,0), Vec2f(1.0f,1.0f), Vec2i(0,0));
-  render(Vec2i(0,0), Vec2f(1.0f,1.0f), Vec2i(0,0));
+  Engine::instance()->insertToBlit(this);
   return true;
 }
 
-void CircleScreenChange::generateCircle(float radius){
-  mVerts = createCircle(radius, (float)M_PI/4.0f, mSegments);
-}
-
-BlendScreenChange::BlendScreenChange(int width, int height, int depth, int duration) : ScreenChangeBase(width, height, depth), mDuration(duration), mCurrentTime(0), mShot(depth-1){
-}
-
-bool BlendScreenChange::update(unsigned interval){
-  if (mCurrentTime == 0){
-    mShot.take();
-    screenChangeSwitch();
-  }
-
-  int alpha = (int)((mDuration-mCurrentTime)/(float)mDuration*255);
-
-  bind();
-  Graphics* gfx = Engine::instance()->getGraphics();
-  gfx->clear();
-
-  //render previous room
-  gfx->model().push();
-  Engine::instance()->flipTexture();
-  mShot.blit();
-  gfx->model().pop();
-
-  //multiply alpha
-  gfx->model().push();
-  gfx->model().scale((float)mSize.x,(float)mSize.y,1.0f);
-  gfx->setBlend(Graphics::BLEND_MULTIPLY);
-  gfx->setColor(1.0f, 1.0f, 1.0f, alpha / 255.0f);
-  gfx->setTexture(nullptr);
-  gfx->drawQuad();
-  gfx->model().pop();
-  gfx->setBlend(Graphics::BLEND_ALPHA);
-  unbind();
-
-  if (mCurrentTime >= mDuration){
-    return false;
-  }
-  mCurrentTime += interval;
-  render(Vec2i(0,0), Vec2f(1.0f,1.0f), Vec2i(0,0));
-  return true;
-}
-
-FadeoutScreenChange::FadeoutScreenChange(int width, int height, int depth, int duration) : ScreenChangeBase(width, height, depth), mDuration(duration/2), mCurrentTime(0), mShot(depth-1), mClosing(true){
-}
-
-bool FadeoutScreenChange::update(unsigned interval){
-  if (mCurrentTime == 0 && mClosing){
-    mShot.take();
-    screenChangeSwitch();
-  }
-
-  int alpha = (int)((mDuration-mCurrentTime)/(float)mDuration*255);
-  if (alpha > 255)
-    alpha = 255;
-  if (alpha < 0)
-    alpha = 0;
-
-  bind();
-  Graphics* gfx = Engine::instance()->getGraphics();
-  gfx->clear();
-
-  //render previous room
-  if (mClosing){
-    gfx->model().push();
-    Engine::instance()->flipTexture();
-    mShot.blit();
-    gfx->model().pop();
-  }
-
-  //multiply alpha
-  gfx->model().push();
-  gfx->model().scale((float)mSize.x,(float)mSize.y,1.0f);
-  gfx->setBlend(Graphics::BLEND_MULTIPLY);
-  if (mClosing)
-    gfx->setColor(alpha / 255.0f, alpha / 255.0f, alpha / 255.0f, 1.0f);
-  else
-    gfx->setColor(1.0f, 1.0f, 1.0f, alpha / 255.0f);
-  gfx->setTexture(nullptr);
-  gfx->drawQuad();
-  gfx->model().pop();
-  gfx->setBlend(Graphics::BLEND_ALPHA);
-  unbind();
-  if (mCurrentTime >= mDuration && !mClosing){
-    return false;
-  }
-  if (mCurrentTime >= mDuration && mClosing){
-    mCurrentTime = 0;
-    mClosing = false;
-  }
-  mCurrentTime += interval;
-  render(Vec2i(0,0), Vec2f(1.0f,1.0f), Vec2i(0,0));
-  return true;
-}
-
-ShuttersScreenChange::ShuttersScreenChange(int width, int height, int depth, int duration) : ScreenChangeBase(width, height, depth), mDuration(duration/2), mCurrentTime(0), mShot(depth-1), mClosing(true){
-}
-
-bool ShuttersScreenChange::update(unsigned interval){
-  if (mCurrentTime == 0 && mClosing){
-    mShot.take();
-    screenChangeSwitch();
-  }
-
-  float scale;
-  if (mClosing)
-    scale = (mDuration-mCurrentTime)/(float)mDuration;//*Engine::instance()->getResolution().y;
-  else
-    scale = mCurrentTime/(float)mDuration;//*Engine::instance()->getResolution().y;
-
-  bind();
-  Graphics* gfx = Engine::instance()->getGraphics();
-  gfx->clear();
-  gfx->setTexture(nullptr);
-  gfx->setBlend(Graphics::BLEND_MULTIPLY);
-  gfx->setColor(0, 0, 0, 0);
-  static const int numshutters = 10;
-  for (int i = 0; i < numshutters; ++i){
-    float posscale = 1+(i/(numshutters-1.0f));
-    gfx->model().push();
-    Engine::instance()->flipTexture();
-    gfx->model().translate(0.0f, (i+1)*mSize.y/(float)numshutters, 0.0f);
-    gfx->model().scale((float)Engine::instance()->getResolution().x, mSize.y/(float)numshutters*-scale*posscale, 1.0f);
-    gfx->drawQuad();
-    gfx->model().pop();
-  }
-  gfx->setBlend(Graphics::BLEND_ALPHA);
-  unbind();
-  
-  if (mCurrentTime >= mDuration && !mClosing){
-    return false;
-  }
-  if (mCurrentTime >= mDuration && mClosing){
-    mCurrentTime = 0;
-    mClosing = false;
-  }
-  mCurrentTime += interval;
-  if (mClosing)
-    mShot.render(Vec2i(0,0), Vec2f(1.0f,1.0f), Vec2i(0,0));
-  render(Vec2i(0,0), Vec2f(1.0f,1.0f), Vec2i(0,0));
-  return true;
-}
-
-ClockScreenChange::ClockScreenChange(int width, int height, int depth, int duration, int segments) : ScreenChangeBase(width, height, depth), mDuration(duration/2), mCurrentTime(0), mClosing(true), mShot(depth-1), mSegments(segments){
-  generateCircle(1.0f);
-}
-
-ClockScreenChange::~ClockScreenChange(){
-}
-
-bool ClockScreenChange::update(unsigned interval){
-  float scale;
-  if (mClosing)
-    scale = (mDuration-mCurrentTime)/(float)mDuration*(2*mSegments+1);
-  else
-    scale = mCurrentTime/(float)mDuration*(2*mSegments+1);
-  if (scale > 2 * mSegments + 1)
-    scale = (float)(2 * mSegments + 1);
-  if (scale < 0)
-    scale = 0;
-  
-  if (mClosing && mCurrentTime == 0){
-    mShot.take();
-    screenChangeSwitch();
-  }
-
-  bind();
-  Graphics* gfx = Engine::instance()->getGraphics();
-  gfx->clear();
-  gfx->setTexture(nullptr);
-  gfx->setBlend(Graphics::BLEND_MULTIPLY);
-  gfx->setColor(0, 0, 0, 0);
-  gfx->model().push();
-  Engine::instance()->flipTexture();
-  gfx->model().translate(mSize.x/2.0f, mSize.y/2.0f, 0.0f);
-  gfx->model().scale(Engine::instance()->getResolution().x*1.0f, Engine::instance()->getResolution().x*1.0f, 1.0f);
-  gfx->draw(mVerts.get(), CGE::Gfx::PrimitiveType::TriangleStrip, (int)scale);
-  gfx->model().pop();
-  gfx->setBlend(Graphics::BLEND_ALPHA);
-  unbind();
-  
-  if (mCurrentTime >= mDuration && !mClosing){
-    return false;
-  }
-  if (mCurrentTime >= mDuration && mClosing){
-    mCurrentTime = 0;
-    mClosing = false;
-  }
-  mCurrentTime += interval;
-  if (mClosing)
-    mShot.render(Vec2i(0,0), Vec2f(1.0f,1.0f), Vec2i(0,0));
-  render(Vec2i(0,0), Vec2f(1.0f,1.0f), Vec2i(0,0));
-  return true;
-}
-
-void ClockScreenChange::generateCircle(float radius){
-  mVerts = createCircle(radius, -(float)M_PI/2.0f, mSegments);
-}
-
-std::unique_ptr<CGE::Gfx::Buffer> adv::createCircle(float radius, float angle, int segments){
-  //a triangle strip alternating between the rim and the centre
-  std::vector<Graphics::Vertex> verts((segments * 2) + 1);
-  verts[0] = {radius*cosf(angle), radius*sinf(angle), 0.0f, 0.0f, 0.0f};
-  for (int i = 1; i <= segments; ++i){
-    angle += (float)(M_PI*2. / segments);
-    verts[2*i - 1] = {radius*cosf(angle), radius*sinf(angle), 0.0f, 0.0f, 0.0f};
-    verts[2 * i] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
-  }
-  return Engine::instance()->getGraphics()->createVertices((int)verts.size(), verts.data(), CGE::Gfx::Usage::Immutable);
+void ScreenChangeAnimation::blit(){
+  if (!mRenderer)
+    return;
+  //over the whole visible area, as the screen's copy
+  CGE::VirtualScreen& screen = CGE::Engine::instance()->getVirtualScreen();
+  CGE::Vec2f min = screen.getVisibleMin();
+  CGE::Vec2f max = screen.getVisibleMax();
+  ScreenArea area;
+  area.x = min.x;
+  area.y = min.y;
+  area.width = max.x - min.x;
+  area.height = max.y - min.y;
+  TransitionPicture picture = mRenderer->getPicture();
+  mRenderer->draw(mTransition, Engine::instance()->getGraphics()->getSpriteBatch(), area, picture.texture ? &picture : nullptr);
 }

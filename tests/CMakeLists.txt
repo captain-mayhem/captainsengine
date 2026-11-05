@@ -15,6 +15,7 @@ add_executable(cge_tests
 	test_input.cpp
 	test_json.cpp
 	test_renderdevice.cpp
+	test_screentransition.cpp
 	test_services.cpp
 	test_settings.cpp
 	test_sprites.cpp

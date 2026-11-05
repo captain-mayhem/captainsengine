@@ -156,6 +156,54 @@ void Graphics::endFrame(){
   mInPass = false;
 }
 
+void Graphics::copyScreen(RenderTarget* target){
+  TR_USE(ADV_Graphics);
+  if (!mScreen || !target || mTargets.empty()){
+    TR_ERROR("copyScreen outside of a frame");
+    return;
+  }
+  flushSprites();
+  if (mInPass)
+    mDevice.endPass();
+  mInPass = false;
+  PassDesc pass;
+  pass.target = target;
+  pass.colorLoad = LoadAction::DontCare;
+  pass.depthLoad = LoadAction::DontCare;
+  if (mDevice.beginPass(pass)){
+    mInPass = true;
+    const RenderTargetDesc& desc = target->getDesc();
+    CGE::Gfx::BlendMode blend = mContext.getBlend();
+    CGE::Color color = mContext.getColor();
+    Texture* texture = mTexture;
+    mContext.setProjection(mDevice.ortho(0.0f, (float)desc.width, 0.0f, (float)desc.height, -1.0f, 1.0f));
+    mContext.model().push();
+    mContext.model().loadIdentity();
+    mContext.model().scale((float)desc.width, (float)desc.height, 1.0f);
+    //the screen as it is, pixel by pixel
+    mContext.setBlend(BlendMode::Opaque);
+    mContext.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+    setTexture(mScreen->getColorTexture(0));
+    mTextureSampler = mNearest.get();
+    drawQuad();
+    //the blending also blended the screen's alpha; adding 1 makes it 1
+    setTexture(nullptr);
+    mContext.setTexture(nullptr);
+    mContext.setBlend(BlendMode::Additive);
+    mContext.setColor(0.0f, 0.0f, 0.0f, 1.0f);
+    drawQuad();
+    mContext.model().pop();
+    mContext.setColor(color);
+    mContext.setBlend(blend);
+    mTexture = texture;
+    mDevice.endPass();
+    mInPass = false;
+  }
+  else
+    TR_ERROR("Cannot begin a pass into the screen's copy");
+  beginPass(LoadAction::Load);
+}
+
 void Graphics::pushTarget(RenderTarget* target, const Vec2i& size){
   flushSprites();
   if (mInPass)
@@ -319,6 +367,10 @@ Sampler* Graphics::getSampler(){
 
 Buffer* Graphics::getQuadBuffer(){
   return mQuad.get();
+}
+
+SpriteBatch& Graphics::getSpriteBatch(){
+  return *mBatch;
 }
 
 bool Graphics::prepareDraw(PrimitiveType primitive){
