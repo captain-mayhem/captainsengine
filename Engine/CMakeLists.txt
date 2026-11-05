@@ -144,7 +144,12 @@ elseif (OS STREQUAL "web")
 	# one, and these come after the application's own, so applications
 	# whose page calls into the module (e.g. Module.ccall) export what they
 	# need themselves.
+	# The stack is 1 MB like a native thread's instead of emscripten's 64 KB:
+	# the audio callback (miniaudio's mixing, decoding MP3 and Ogg streams)
+	# runs on it and needs more than 64 KB; a WebAssembly stack overflow isn't
+	# caught in release builds and overwrites memory below the stack.
 	target_link_options(Engine INTERFACE
+		-sSTACK_SIZE=1MB
 		-sMIN_WEBGL_VERSION=2
 		-sMAX_WEBGL_VERSION=2
 		-sALLOW_MEMORY_GROWTH=1

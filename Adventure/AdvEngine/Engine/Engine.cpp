@@ -1598,48 +1598,6 @@ void Engine::reset(){
   mResetRequested = true;
 }
 
-void Engine::renderUnloadingRoom(){
-  if (mForceNotToRenderUnloadingRoom){
-    return;
-  }
-  
-  RenderableBlitObject mainroom(mData->getProjectSettings()->resolution.x, mData->getProjectSettings()->resolution.y, 0);
-  mainroom.realize();
-  mainroom.setBlendMode(BlitObject::BLEND_PREMULT_ALPHA);
-  mainroom.bind();
-  mGraphics->clear();
-
-  beginRendering();
-  //a workaround to make screen shots correct that are taken too late
-  bool oldMainLoaded = mMainRoomLoaded;
-  mMainRoomLoaded = true;
-  bool inserted = false;
-  if (mRoomsToUnload.size() == 0 && mUnloadedRoom){
-    mRooms.push_back(mUnloadedRoom);
-    inserted = true;
-    mUnloadedRoom->render();
-  }
-  else{
-    if (!mRoomsToUnload.empty()){
-      inserted = true;
-      mRooms.push_back(mRoomsToUnload.back());
-    }
-    for (std::list<RoomObject*>::iterator iter = mRoomsToUnload.begin(); iter != mRoomsToUnload.end(); ++iter){
-      (*iter)->render();
-    }
-  }
-  mMainRoomLoaded = oldMainLoaded;
-  if (inserted)
-    mRooms.pop_back();
-  endRendering();
-  
-  mainroom.unbind();
-  BlitObject* result = mPostProc->process(&mainroom, 0);
-  beginRendering();
-  result->render(Vec2i(), Vec2f(1.0f,1.0f), Vec2i());
-  endRendering(); 
-}
-
 void Engine::remove(Object2D* obj){
   if (mCurrentObject == obj)
     mCurrentObject = nullptr;
@@ -1669,50 +1627,13 @@ void Engine::removeScript(ExecutionContext* ctx){
 }
 
 void Engine::triggerScreenchange(ExecutionContext* loadreason, ScreenChange change, bool unload){
-  if (loadreason == nullptr || !loadreason->isSkipping()){
-    ScreenChangeBase* scb = nullptr;
-    switch(change){
-      case SC_DIRECT:
-        break;
-      case SC_FADEOUT:{
-        scb = new FadeoutScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000);
-                      }
-                      break;
-      case SC_RECTANGLE:{
-        scb = new CircleScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000, 4);
-                        }
-                        break;
-      case SC_CIRCLE:{
-        scb = new CircleScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000, 64);
-                     }
-                     break;
-      case SC_SHUTTERS:{
-        scb = new ShuttersScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000);
-                       }
-                       break;
-      case SC_CLOCK:{
-        scb = new ClockScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000, 64);
-                    }
-                    break;
-      case SC_BLEND:{
-        scb = new BlendScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 1000);
-                    }
-                    break;
-      case SC_BLEND_SLOW:{
-        scb = new BlendScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000);
-                         }
-                         break;
-    }
-    if (scb != nullptr){
-      scb->setUnload(unload);
-      Engine::instance()->getAnimator()->add(scb);
-    }
-    else
-      mCursor->showLoading(false);
+  if ((loadreason == nullptr || !loadreason->isSkipping()) && change != SC_DIRECT){
+    ScreenChangeAnimation* animation = new ScreenChangeAnimation(change, DEPTH_SCREENCHANGE);
+    animation->setUnload(unload);
+    mAnimator->add(animation);
   }
-  else{
+  else
     mCursor->showLoading(false);
-  }
 }
 
 void Engine::resetCursor(bool resetInstMouse, bool resetDragging){

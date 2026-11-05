@@ -1,92 +1,38 @@
 #ifndef SCREENCHANGE_H
 #define SCREENCHANGE_H
 
+#include <memory>
+
+#include <renderer/screentransition.h>
+
 #include "BlitObjects.h"
 
 namespace adv{
 
-//! a disk of segments as a triangle strip (2*segments+1 vertices), starting at angle
-std::unique_ptr<CGE::Gfx::Buffer> createCircle(float radius, float angle, int segments);
-
-class ScreenChangeBase : public RenderableBlitObject, public DynamicAnimation{
+//! a screen change (Ids.h) on the engine's screen transitions
+/*! An animation of the Animator that draws itself over the game at its
+    depth. Its first update copies the screen, which still shows the last
+    frame with the old room, as the picture the closing half is drawn over;
+    the rooms have already changed below it. */
+class ScreenChangeAnimation : public BaseBlitObject, public DynamicAnimation{
 public:
-  ScreenChangeBase(int width, int height, int depth) : RenderableBlitObject(width, height, depth), mUnload(false) {realize();}
-  virtual ~ScreenChangeBase();
+  //! change mustn't be SC_DIRECT
+  ScreenChangeAnimation(ScreenChange change, int depth);
+  virtual ~ScreenChangeAnimation();
   virtual Object2D* getTarget() {return NULL;}
   virtual Type getType() {return SCREEN;}
   virtual void finish() {}
+  virtual bool update(unsigned interval);
+  virtual void blit();
+  //! the room was unloaded without another being loaded (unloadroom)
   void setUnload(bool unload) {mUnload = unload;}
-  void screenChangeSwitch();
+  //! the transition and its milliseconds of a screen change
+  static CGE::Gfx::TransitionKind getKind(ScreenChange change, int* duration);
 protected:
+  CGE::Gfx::ScreenTransition mTransition;
+  std::unique_ptr<CGE::Gfx::ScreenTransitionRenderer> mRenderer;
+  bool mStarted;
   bool mUnload;
-};
-
-class Screenshot : public RenderableBlitObject{
-public:
-  Screenshot(int depth);
-  void take();
-};
-
-class CircleScreenChange : public ScreenChangeBase{
-public:
-  CircleScreenChange(int width, int height, int depth, int duration, int segments);
-  virtual ~CircleScreenChange();
-  virtual bool update(unsigned interval);
-protected:
-  void generateCircle(float radius);
-  int mDuration;
-  int mCurrentTime;
-  std::unique_ptr<CGE::Gfx::Buffer> mVerts;
-  bool mClosing;
-  Screenshot mShot;
-  int mSegments;
-};
-
-class BlendScreenChange : public ScreenChangeBase{
-public:
-  BlendScreenChange(int width, int height, int depth, int duration);
-  virtual bool update(unsigned interval);
-protected:
-  int mDuration;
-  int mCurrentTime;
-  Screenshot mShot;
-};
-
-class FadeoutScreenChange : public ScreenChangeBase{
-public:
-  FadeoutScreenChange(int width, int height, int depth, int duration);
-  virtual bool update(unsigned interval);
-protected:
-  int mDuration;
-  int mCurrentTime;
-  Screenshot mShot;
-  bool mClosing;
-};
-
-class ShuttersScreenChange : public ScreenChangeBase{
-public:
-  ShuttersScreenChange(int width, int height, int depth, int duration);
-  virtual bool update(unsigned interval);
-protected:
-  int mDuration;
-  int mCurrentTime;
-  Screenshot mShot;
-  bool mClosing;
-};
-
-class ClockScreenChange : public ScreenChangeBase{
-public:
-  ClockScreenChange(int width, int height, int depth, int duration, int segments);
-  virtual ~ClockScreenChange();
-  virtual bool update(unsigned interval);
-protected:
-  void generateCircle(float radius);
-  int mDuration;
-  int mCurrentTime;
-  std::unique_ptr<CGE::Gfx::Buffer> mVerts;
-  bool mClosing;
-  Screenshot mShot;
-  int mSegments;
 };
 
 }

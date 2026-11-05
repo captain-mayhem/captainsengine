@@ -95,6 +95,12 @@ public:
   void setClearDepth(float depth);
   //! clears the current target's colour and depth
   void clear();
+  //! copies what the screen shows into a render target of the window's
+  //! size, with an alpha of 1, the way endFrame copies it into the window
+  /*! Before the frame's clear the screen still shows the last frame (a
+      screen change's picture of the old room). Continues the pass that was
+      being drawn afterwards. */
+  void copyScreen(CGE::Gfx::RenderTarget* target);
 
   // --- drawing state ---
 
@@ -112,6 +118,9 @@ public:
   CGE::Gfx::Sampler* getSampler();
   //! the unit quad of getQuad as a vertex buffer
   CGE::Gfx::Buffer* getQuadBuffer();
+  //! the batch of drawSprite, for drawing that needs no model matrix (in the
+  //! current target's projection); the order with drawSprite stays
+  CGE::Gfx::SpriteBatch& getSpriteBatch();
 
   // --- drawing ---
 
