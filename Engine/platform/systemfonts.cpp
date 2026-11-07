@@ -35,6 +35,36 @@ std::string lower(std::string text){
   return text;
 }
 
+//! is this the name of a font file (.ttf, .otf, .ttc)
+bool isFontFile(const std::string& file){
+  std::string ext = lower(file.size() > 4 ? file.substr(file.size()-4) : "");
+  return ext == ".ttf" || ext == ".otf" || ext == ".ttc";
+}
+
+//! the font files directly in a folder, as paths
+std::vector<std::string> fontFilesIn(const std::string& folder){
+  std::vector<std::string> paths;
+  for (const std::string& file : Assets::listFiles(folder)){
+    if (isFontFile(file))
+      paths.push_back(folder + "/" + file);
+  }
+  return paths;
+}
+
+//! the folders addFolder() was given, so a second call does nothing
+std::vector<std::string> addedFolders;
+
+//! remembers a folder for addFolder(); false if it was added before
+bool firstAddition(const std::string& folder){
+  std::string key = lower(folder);
+  while (!key.empty() && (key.back() == '/' || key.back() == '\\'))
+    key.pop_back();
+  if (std::find(addedFolders.begin(), addedFolders.end(), key) != addedFolders.end())
+    return false;
+  addedFolders.push_back(key);
+  return true;
+}
+
 //! sorted without regard to case, each once
 std::vector<std::string> sorted(std::vector<std::string> names){
   std::sort(names.begin(), names.end(), [](const std::string& a, const std::string& b){return lower(a) < lower(b);});
@@ -278,6 +308,18 @@ std::vector<SystemFonts::Family> SystemFonts::getFamilyDetails(){
   return sorted(enumerate<Family>("", collectFamilyDetails));
 }
 
+int SystemFonts::addFolder(const std::string& folder){
+  if (!firstAddition(folder))
+    return 0;
+  //GDI private fonts: CreateFontIndirect() and EnumFontFamiliesEx() find them, other processes don't
+  int added = 0;
+  for (const std::string& path : fontFilesIn(folder)){
+    if (AddFontResourceExW(toWide(path).c_str(), FR_PRIVATE, nullptr) > 0)
+      ++added;
+  }
+  return added;
+}
+
 #elif defined(LINUX)
 
 namespace{
@@ -393,6 +435,18 @@ std::vector<SystemFonts::Family> SystemFonts::getFamilyDetails(){
   return sorted(families);
 }
 
+int SystemFonts::addFolder(const std::string& folder){
+  if (!firstAddition(folder))
+    return 0;
+  //fontconfig's application fonts: matched and listed like the installed ones
+  int added = 0;
+  for (const std::string& path : fontFilesIn(folder)){
+    if (FcConfigAppFontAddFile(nullptr, (const FcChar8*)path.c_str()))
+      ++added;
+  }
+  return added;
+}
+
 #else
 
 namespace{
@@ -503,11 +557,8 @@ const std::vector<IndexedFace>& getIndex(){
     FT_Library ft;
     if (FT_Init_FreeType(&ft) == 0){
       for (const char* folder : fontFolders){
-        for (const std::string& file : Assets::listFiles(folder)){
-          std::string ext = lower(file.size() > 4 ? file.substr(file.size()-4) : "");
-          if (ext == ".ttf" || ext == ".otf" || ext == ".ttc")
-            indexFile(ft, std::string(folder) + "/" + file, fontIndex);
-        }
+        for (const std::string& path : fontFilesIn(folder))
+          indexFile(ft, path, fontIndex);
       }
       FT_Done_FreeType(ft);
     }
@@ -581,6 +632,26 @@ std::vector<SystemFonts::Family> SystemFonts::getFamilyDetails(){
     families.push_back(family);
   }
   return sorted(families);
+}
+
+int SystemFonts::addFolder(const std::string& folder){
+  //the system's folders first, so the index is complete
+  getIndex();
+  std::lock_guard<std::mutex> lock(indexMutex);
+  if (!firstAddition(folder))
+    return 0;
+  FT_Library ft;
+  if (FT_Init_FreeType(&ft) != 0)
+    return 0;
+  int added = 0;
+  for (const std::string& path : fontFilesIn(folder)){
+    size_t before = fontIndex.size();
+    indexFile(ft, path, fontIndex);
+    if (fontIndex.size() > before)
+      ++added;
+  }
+  FT_Done_FreeType(ft);
+  return added;
 }
 
 #endif

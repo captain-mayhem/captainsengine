@@ -69,6 +69,16 @@ public:
   //! the installed families with their look, sorted, each once
   /*! Slower than getFamilies() on Linux, where a font file of every family is opened. */
   static std::vector<Family> getFamilyDetails();
+  //! makes the fonts in a folder available to this process as if they were installed
+  /*! For fonts an application or a document brings along: the .ttf, .otf
+      and .ttc files directly in 'folder' (an absolute path, or an asset
+      folder) count as the system's from now on, for find(), exists() and
+      the family lists, until the process ends. Nothing is installed for
+      other processes: Windows adds them as GDI private fonts, Linux as
+      fontconfig application fonts, Android and the web to their index.
+      Adding a folder again does nothing. Returns the number of font files
+      added. */
+  static int addFolder(const std::string& folder);
 };
 
 }

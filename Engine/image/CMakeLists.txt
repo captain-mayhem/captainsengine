@@ -3,6 +3,7 @@ SET(PRE image)
 SET(Engine_image_SRCS
 	${PRE}/image.cpp
 	${PRE}/loader.cpp
+	${PRE}/tiff.cpp
 )
 
 SET(Engine_image_HDRS

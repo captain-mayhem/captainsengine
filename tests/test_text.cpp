@@ -332,6 +332,22 @@ TEST(SystemFonts, FindsTheFaceInACollection){
 }
 #endif
 
+TEST(SystemFonts, AddsTheFontsOfAFolder){
+  //the engine's Liberation Mono, unless the system has it already
+  if (SystemFonts::exists("Liberation Mono"))
+    GTEST_SKIP() << "Liberation Mono is installed";
+  EXPECT_GE(SystemFonts::addFolder(CGE_TEST_FONTS_DIR), 1);
+  EXPECT_TRUE(SystemFonts::exists("Liberation Mono"));
+  SystemFonts::FontData data;
+  ASSERT_TRUE(SystemFonts::find("Liberation Mono", data));
+  EXPECT_EQ(data.family, "Liberation Mono");
+  std::vector<std::string> families = SystemFonts::getFamilies();
+  EXPECT_NE(std::find(families.begin(), families.end(), "Liberation Mono"), families.end());
+  //a second time adds nothing
+  EXPECT_EQ(SystemFonts::addFolder(CGE_TEST_FONTS_DIR), 0);
+  EXPECT_EQ(SystemFonts::addFolder(std::string(CGE_TEST_FONTS_DIR) + "/"), 0);
+}
+
 #if defined(CGE_TEST_WINDOW)
 
 namespace{
