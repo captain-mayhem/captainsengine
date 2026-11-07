@@ -17,6 +17,7 @@ public:
     GIF,
     BMP,
     PNG,
+    TIFF,
   };
   static Image* load(void* memory, unsigned size, Type t);
   //! loads an image asset (see Assets)
@@ -28,6 +29,8 @@ protected:
   static Image* loadJPG(void* memory, unsigned size);
   static Image* loadGIF(void* memory, unsigned size);
   static Image* loadPNG(void* memory, unsigned size);
+  //! the first image of a TIFF file (tiff.cpp says which kinds)
+  static Image* loadTIFF(void* memory, unsigned size);
 };
 
 }

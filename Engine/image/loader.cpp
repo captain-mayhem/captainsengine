@@ -49,6 +49,8 @@ Image* ImageLoader::load(void* memory, unsigned size, Type t){
       return loadBMP(memory, size);
     case PNG:
       return loadPNG(memory, size);
+    case TIFF:
+      return loadTIFF(memory, size);
     case UNKNOWN:
       return nullptr;
   }
@@ -68,6 +70,8 @@ ImageLoader::Type ImageLoader::determineType(const std::string& filename){
     return BMP;
   else if (ext == "png")
     return PNG;
+  else if (ext == "tif" || ext == "tiff")
+    return TIFF;
   TR_WARN("Unknown image type %s", filename.c_str());
   return UNKNOWN;
 }
