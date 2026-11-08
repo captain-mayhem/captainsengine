@@ -871,9 +871,9 @@ void RoomObject::setOpacity(unsigned char opacity){
   }
 }
 
-bool RoomObject::hitsBarriers(const ParticleEngine::Particle& particle){
+bool RoomObject::hitsBarriers(const Vec2f& position, const Vec2i& size){
   for (unsigned i = 0; i < mBarriers.size(); ++i){
-    if (mBarriers[i].isHit(particle, mScrollOffset))
+    if (mBarriers[i].isHit(position, size, mScrollOffset))
       return true;
   }
   return false;

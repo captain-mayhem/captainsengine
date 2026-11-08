@@ -8,6 +8,7 @@ SET(Engine_renderer_SRCS
 	${PRE}/light.cpp
 	${PRE}/material.cpp
 	${PRE}/nulldevice.cpp
+	${PRE}/particles.cpp
 	${PRE}/renderdevice.cpp
 	${PRE}/scene.cpp
 	${PRE}/scenenode.cpp
@@ -29,6 +30,7 @@ SET(RENDERER_HDRS_CORE
 	${PRE}/light.h
 	${PRE}/material.h
 	${PRE}/nulldevice.h
+	${PRE}/particles.h
 	${PRE}/renderbackend.h
 	${PRE}/renderdevice.h
 	${PRE}/scene.h

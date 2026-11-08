@@ -11,24 +11,35 @@
 using namespace std;
 using namespace adv;
 
-ParticleEngine::ParticleEngine(AdvDocument* data) : mData(data), mParticleObject(NULL), mDir(0,1), 
-mMaxParticles(200), mRotAngle(0), mSpeedVariation(0), mEnabled(false), mEmissionInterval(20), 
+namespace{
+
+//! the script's speeds and rotations are per 40 ms
+const float STEPS_PER_SECOND = 25.0f;
+
+}
+
+ParticleEngine::ParticleEngine(AdvDocument* data) : mData(data), mParticleObject(NULL), mDir(0,1),
+mMaxParticles(200), mRotAngle(0), mSpeedVariation(0), mEnabled(false), mSystem(1 << 20), mEmissionInterval(20),
 mTimeCount(0), mParticleDepth(DEPTH_PARTICLES_FRONT){
+  //each particle's object goes with it
+  mSystem.onRemove = [](CGE::Gfx::Particle& particle){
+    delete objectOf(particle);
+  };
+  //the main room's barriers stop them
+  mSystem.kill = [](const CGE::Gfx::Particle& particle){
+    RoomObject* room = Engine::instance()->getRoom("");
+    return room && Engine::instance()->areFXShapesEnabled() && room->hitsBarriers(particle.position, objectOf(particle)->getSize());
+  };
 }
 
 ParticleEngine::~ParticleEngine(){
-  for (std::list<Particle>::iterator iter = mParticles.begin(); iter != mParticles.end(); ++iter){
-    delete iter->object;
-  }
+  mSystem.clear();
   delete mParticleObject;
 }
 
 void ParticleEngine::setParticleObject(const std::string& name, float initialRotation){
   Object* obj = mData->getObject(name);
-  for (std::list<Particle>::iterator iter = mParticles.begin(); iter != mParticles.end(); ++iter){
-    delete iter->object;
-  }
-  mParticles.clear();
+  mSystem.clear();
   delete mParticleObject;
   mParticleObject = new Object2D(1, Vec2i(100,100), obj->size, obj->name);
   for (unsigned j = 0; j < obj->states.size(); ++j){
@@ -51,66 +62,51 @@ void ParticleEngine::activate(bool doit, bool immediately){
       }
     }
     else{
-      for (std::list<Particle>::iterator iter = mParticles.begin(); iter != mParticles.end(); ++iter){
-        delete iter->object;
-      }
-      mParticles.clear();
+      mSystem.clear();
     }
   }
 }
 
 void ParticleEngine::update(unsigned time, bool render){
+  //the particles stay where they are in the room while it scrolls; the new
+  //ones come in where the screen is now
+  RoomObject* room = Engine::instance()->getRoom("");
+  if (room){
+    Vec2i scroll = room->getScrollOffset();
+    mSystem.move(Vec2f(scroll-mScroll));
+    mScroll = scroll;
+  }
   mTimeCount += time;
   while (mTimeCount > mEmissionInterval){
     addParticle();
     mTimeCount -= mEmissionInterval;
   }
-  for (std::list<Particle>::iterator iter = mParticles.begin(); iter != mParticles.end(); ++iter){
-    RoomObject* room = Engine::instance()->getRoom("");
-    iter->object->getAnimation()->update(time);
-    iter->position += iter->speed*(float)time*0.025f;
-    iter->object->setPosition(Vec2i((int)iter->position.x, (int)iter->position.y));
-    if (room){
-      iter->position += room->getScrollOffset()-iter->scrolloffset;
-      iter->scrolloffset = room->getScrollOffset();
-    }
-    iter->object->setRotation(iter->object->getRotation()+mRotAngle*time*0.025f);
-    //out of image
-    int xoffset = max(iter->object->getSize().x, iter->object->getSize().y);
-    int yoffset = xoffset;
-    int sizediff = xoffset - min(iter->object->getSize().x, iter->object->getSize().y);
-    if ((iter->object->getPosition().x < -xoffset && iter->speed.x < 0) || 
-      (iter->object->getPosition().x > Engine::instance()->getSettings()->resolution.x+sizediff && iter->speed.x > 0)||
-      (iter->object->getPosition().y < -yoffset && iter->speed.y < 0) ||
-      (iter->object->getPosition().y > Engine::instance()->getSettings()->resolution.y+sizediff && iter->speed.y > 0)){
-        delete iter->object;
-        iter = mParticles.erase(iter);
-        if (iter != mParticles.begin())
-          --iter;
-        if (iter == mParticles.end())
-          break;
-    }
-    //barriers
-    if (Engine::instance()->areFXShapesEnabled() && room && room->hitsBarriers(*iter)){
-      delete iter->object;
-      iter = mParticles.erase(iter);
-      if (iter != mParticles.begin())
-        --iter;
-      if (iter == mParticles.end())
-        break;
-    }
+  //they are gone once they are off the screen and move away from it
+  if (mParticleObject){
+    Vec2i size = mParticleObject->getSize();
+    int offset = max(size.x, size.y);
+    int sizediff = offset - min(size.x, size.y);
+    const Vec2i& resolution = Engine::instance()->getSettings()->resolution;
+    mSystem.setBounds(Vec2f((float)-offset, (float)-offset), Vec2f((float)(resolution.x+sizediff), (float)(resolution.y+sizediff)));
+  }
+  mSystem.update(time/1000.0f);
+  for (CGE::Gfx::Particle& particle : mSystem.getParticles()){
+    Object2D* object = objectOf(particle);
+    object->getAnimation()->update(time);
+    object->setPosition(Vec2i((int)particle.position.x, (int)particle.position.y));
+    object->setRotation(particle.rotation);
     if (render)
-      iter->object->render();
+      object->render();
   }
 }
 
 void ParticleEngine::addParticle(){
-  if (!mEnabled || mParticles.size() > mMaxParticles)
+  if (!mEnabled || !mParticleObject || mSystem.getCount() > (int)mMaxParticles)
     return;
   //calculate start position
   int range = Engine::instance()->getSettings()->resolution.x+Engine::instance()->getSettings()->resolution.y;
   int random = rand() % range;
-  Particle p;
+  CGE::Gfx::Particle p;
   bool xdisallowed = abs(mDir.y) < 0.001f;
   bool ydisallowed = abs(mDir.x) < 0.001f;
   int xoffset = max(mParticleObject->getSize().x, mParticleObject->getSize().y);
@@ -128,20 +124,21 @@ void ParticleEngine::addParticle(){
     p.position.y = mDir.y < 0 ? (float)Engine::instance()->getSettings()->resolution.y : (float)(-yoffset);
   }
   //set object
-  p.object = mParticleObject->clone();
-  int numStates = p.object->getNumDefinedStates();
+  Object2D* object = mParticleObject->clone();
+  int numStates = object->getNumDefinedStates();
   int state = rand()%numStates;
-  p.object->setState(state+1);
+  object->setState(state+1);
   //calculate particle speed
   float speedvar = rand()/(float)RAND_MAX;
   speedvar *= 2.0f*mSpeedVariation;
   speedvar += 1.0f-mSpeedVariation;
-  p.speed = mDir*speedvar;
-  p.scrolloffset = Vec2i();
-  RoomObject* room = Engine::instance()->getRoom("");
-  if (room)
-    p.scrolloffset = room->getScrollOffset();
-  mParticles.push_back(p);
+  p.velocity = mDir*(speedvar*STEPS_PER_SECOND);
+  //the object's rotation (radians), turning
+  p.rotation = object->getRotation();
+  p.spin = mRotAngle*STEPS_PER_SECOND;
+  p.user = (uintptr_t)object;
+  if (!mSystem.add(p))
+    delete object;
 }
 
 std::ostream& ParticleEngine::save(std::ostream& out){
@@ -177,11 +174,11 @@ void ParticleEngine::setDepth(int depth){
     mParticleObject->setDepth(depth);
 }
 
-bool ParticleEngine::Barrier::isHit(const Particle& particle, const Vec2f& offset){
-  return intersectsLine(points[0], points[1], particle.position-offset, particle.object->getSize())
-    || intersectsLine(points[1], points[2], particle.position-offset, particle.object->getSize())
-    || intersectsLine(points[2], points[3], particle.position-offset, particle.object->getSize())
-    || intersectsLine(points[3], points[0], particle.position-offset, particle.object->getSize());
+bool ParticleEngine::Barrier::isHit(const Vec2f& position, const Vec2i& size, const Vec2f& offset){
+  return intersectsLine(points[0], points[1], position-offset, size)
+    || intersectsLine(points[1], points[2], position-offset, size)
+    || intersectsLine(points[2], points[3], position-offset, size)
+    || intersectsLine(points[3], points[0], position-offset, size);
 }
 
 bool ParticleEngine::Barrier::intersectsLine(Vec2f lineStart, Vec2f lineEnd, Vec2f rectPos, Vec2i size){
