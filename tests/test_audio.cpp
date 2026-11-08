@@ -558,12 +558,18 @@ TEST_F(AudioTest, StreamWriteAndDrainFromAThread){
     stream->drain();
     done = true;
   });
+  //the test is the mixer: it renders until the thread is done, however late
+  //that thread runs (a busy machine), as write and drain wait for the playback.
+  //If it never finishes, halting lets it return, so the test fails, not hangs
   std::vector<float> out;
-  for (int i = 0; i < 400 && !done; ++i){
+  const auto deadline = std::chrono::steady_clock::now()+std::chrono::seconds(20);
+  while (!done && std::chrono::steady_clock::now() < deadline){
     std::vector<float> part = render(0.01);
     out.insert(out.end(), part.begin(), part.end());
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
+  if (!done)
+    stream->halt();
   decoder.join();
   ASSERT_TRUE(done);
   //all of it played, at the sine's level
@@ -574,13 +580,26 @@ TEST_F(AudioTest, StreamWriteAndDrainFromAThread){
   ASSERT_TRUE(stream->open(RATE, 32, 2));
   std::vector<float> beep = sine(RATE, 2, 0.1, 1000, 0.5f);
   EXPECT_EQ(stream->tryWrite(beep.data(), beep.size()*sizeof(float)), beep.size()*sizeof(float));
-  std::thread drainer([&]{stream->drain();});
+  //the beep plays once the drainer marks the stream as draining, whenever that thread starts
+  std::atomic<bool> drained{false};
+  std::thread drainer([&]{
+    stream->drain();
+    drained = true;
+  });
   out.clear();
-  for (int i = 0; i < 100 && stream->getQueuedBytes() > 0; ++i){
-    std::vector<float> part = render(0.01);
-    out.insert(out.end(), part.begin(), part.end());
+  const auto drainDeadline = std::chrono::steady_clock::now()+std::chrono::seconds(20);
+  while (!drained && std::chrono::steady_clock::now() < drainDeadline){
+    //only the samples while it plays: the energy below is of the beep
+    if (stream->getQueuedBytes() > 0){
+      std::vector<float> part = render(0.01);
+      out.insert(out.end(), part.begin(), part.end());
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
+  if (!drained)
+    stream->halt();
   drainer.join();
+  ASSERT_TRUE(drained);
   std::vector<float> end = render(0.05);
   out.insert(out.end(), end.begin(), end.end());
   //all of it played: the energy of 0.1 s of the sine
