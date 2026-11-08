@@ -42,5 +42,7 @@ cge_embed_shaders(cge_tests ${CMAKE_CURRENT_SOURCE_DIR}/data/embedded test/ regi
 cge_copy_runtime(cge_tests)
 
 include(GoogleTest)
-# PRE_TEST: the tests are listed when ctest runs, after CGE.dll was copied
-gtest_discover_tests(cge_tests DISCOVERY_MODE PRE_TEST)
+# PRE_TEST: the tests are listed when ctest runs, after CGE.dll was copied.
+# TIMEOUT: a test that hangs fails after two minutes, with its name, instead of
+# holding the CI job until GitHub's six hours run out (each takes seconds)
+gtest_discover_tests(cge_tests DISCOVERY_MODE PRE_TEST PROPERTIES TIMEOUT 120)
