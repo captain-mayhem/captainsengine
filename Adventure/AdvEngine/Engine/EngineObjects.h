@@ -201,7 +201,8 @@ public:
   void addMirror(MirrorObject* mirror) {mMirrors.push_back(mirror);}
   void addBarrier(const Vec2i box[4]) {mBarriers.push_back(box);}
   const std::vector<Object2D*>& getObjects() {return mObjects;}
-  bool hitsBarriers(const ParticleEngine::Particle& particle);
+  //! whether the box of the size at the position touches one of the barriers
+  bool hitsBarriers(const Vec2f& position, const Vec2i& size);
   void modifyWalkmap(const Vec2i& pos, bool walkable);
   void setDepth(int depth);
   virtual void setFadeout(int time) {mFadeout = time;}

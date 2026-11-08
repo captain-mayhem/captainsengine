@@ -14,6 +14,7 @@ add_executable(cge_tests
 	test_imgui.cpp
 	test_input.cpp
 	test_json.cpp
+	test_particles.cpp
 	test_renderdevice.cpp
 	test_screentransition.cpp
 	test_services.cpp
