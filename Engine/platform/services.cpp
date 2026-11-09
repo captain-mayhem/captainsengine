@@ -1,5 +1,6 @@
 #include "services.h"
 
+#include <algorithm>
 #include <chrono>
 #include <cstdlib>
 
@@ -24,6 +25,7 @@
 #include <unistd.h>
 #endif
 #ifdef ANDROID
+#include <android/configuration.h>
 #include <android_native_app_glue.h>
 #include <jni.h>
 #endif
@@ -80,6 +82,15 @@ EM_JS(char*, cge_clipboard_get, (), {
 
 EM_JS(int, cge_clipboard_has_text, (), {
   return Module["cgeClipboard"] ? 1 : 0;
+});
+
+//! the browser's languages, separated by commas
+EM_JS(char*, cge_languages, (), {
+  if (typeof navigator === "undefined")
+    return 0;
+  var list = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language];
+  var s = list.filter(function(l){ return !!l; }).join(",");
+  return s ? stringToNewUTF8(s) : 0;
 });
 
 //! sets the CSS cursor of the canvas
@@ -537,6 +548,92 @@ bool Platform::openFile(const std::string& path){
 #else
   return false;
 #endif
+}
+
+namespace{
+
+//! a language as a BCP 47 tag: POSIX's "de_DE.UTF-8@euro" becomes "de-DE";
+//! empty for C and POSIX
+std::string languageTag(std::string name){
+  name = name.substr(0, name.find_first_of(".@"));
+  if (name == "C" || name == "POSIX")
+    return std::string();
+  for (char& c : name){
+    if (c == '_')
+      c = '-';
+  }
+  return name;
+}
+
+//! the tags of a list separated by the character, empty ones left out
+void addLanguages(std::vector<std::string>& languages, const std::string& list, char separator){
+  size_t start = 0;
+  while (start <= list.size()){
+    size_t end = list.find(separator, start);
+    if (end == std::string::npos)
+      end = list.size();
+    std::string tag = languageTag(list.substr(start, end - start));
+    if (!tag.empty() && std::find(languages.begin(), languages.end(), tag) == languages.end())
+      languages.push_back(tag);
+    start = end + 1;
+  }
+}
+
+}
+
+std::vector<std::string> Platform::getLanguages(){
+  std::vector<std::string> languages;
+#if defined(WIN32)
+  ULONG count = 0;
+  ULONG size = 0;
+  if (GetUserPreferredUILanguages(MUI_LANGUAGE_NAME, &count, nullptr, &size) && size > 0){
+    //names separated by zeros, ending with two
+    std::vector<wchar_t> names(size);
+    if (GetUserPreferredUILanguages(MUI_LANGUAGE_NAME, &count, names.data(), &size)){
+      for (const wchar_t* name = names.data(); *name; name += wcslen(name) + 1)
+        addLanguages(languages, toUtf8(name), ',');
+    }
+  }
+#elif defined(LINUX)
+  //as gettext: the locale of messages, and LANGUAGE's list before it unless that is C
+  std::string locale;
+  for (const char* var : {"LC_ALL", "LC_MESSAGES", "LANG"}){
+    const char* value = getenv(var);
+    if (value && *value){
+      locale = value;
+      break;
+    }
+  }
+  if (!languageTag(locale).empty()){
+    const char* list = getenv("LANGUAGE");
+    if (list)
+      addLanguages(languages, list, ':');
+    addLanguages(languages, locale, ':');
+  }
+#elif defined(ANDROID)
+  if (activity && activity->assetManager){
+    AConfiguration* config = AConfiguration_new();
+    AConfiguration_fromAssetManager(config, activity->assetManager);
+    char language[2] = {};
+    char country[2] = {};
+    AConfiguration_getLanguage(config, language);
+    AConfiguration_getCountry(config, country);
+    AConfiguration_delete(config);
+    if (language[0]){
+      std::string tag(language, language[1] ? 2 : 1);
+      if (country[0])
+        tag += "-" + std::string(country, country[1] ? 2 : 1);
+      languages.push_back(tag);
+    }
+  }
+#elif defined(__EMSCRIPTEN__)
+  char* list = cge_languages();
+  if (list){
+    addLanguages(languages, list, ',');
+    free(list);
+  }
+#endif
+  return languages;
 }
 
 namespace CGE{
