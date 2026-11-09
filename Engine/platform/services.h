@@ -5,6 +5,7 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
 namespace CGE{
 
@@ -19,6 +20,7 @@ namespace CGE{
     | text input   | -       | -           | yes (2) | yes     |
     | open URL     | yes     | xdg-open    | intent  | new tab |
     | open file    | yes     | xdg-open    | -       | -       |
+    | languages    | yes     | yes (4)     | yes (5) | yes     |
 
     (1) The CLIPBOARD selection. The window owns the copied text, so it is
     gone when the application quits, unless a clipboard manager took it.
@@ -26,6 +28,9 @@ namespace CGE{
     NativeActivity has none of them. Cursors are for a mouse.
     (3) The web reads the last text copied or pasted in the page (Ctrl+V
     brings the system clipboard's text with it), not the clipboard itself.
+    (4) From the environment: LANGUAGE (a list), then LC_ALL, LC_MESSAGES
+    or LANG; nothing for the C and POSIX locales.
+    (5) Only the first of the system's languages (AConfiguration).
 
     Where a service is missing, the functions do nothing and return false or
     an empty result. Text (clipboard, URLs) is UTF-8; file paths use the
@@ -80,6 +85,12 @@ public:
   static bool openUrl(const std::string& url);
   //! opens a file with the application the system associates with it
   static bool openFile(const std::string& path);
+
+  //! the user's languages, the preferred one first, as BCP 47 tags
+  /*! A language and maybe a region, e.g. "de-DE", "en-US" or "fr"
+      (Windows' and the browser's list, Linux's environment, Android's first
+      language). Empty where the system says nothing (or only C). */
+  static std::vector<std::string> getLanguages();
 };
 
 }
