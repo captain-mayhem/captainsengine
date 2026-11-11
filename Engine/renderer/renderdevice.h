@@ -171,6 +171,20 @@ public:
   void endFrame();
   //! the number of frames begun so far; changes when a new frame begins
   uint64_t getFrameCount() const {return frameCount_;}
+  //! what a frame asked the device to do
+  struct FrameStats{
+    //! draw and drawIndexed calls that drew something
+    int draws = 0;
+    //! the instances of those calls together
+    int instances = 0;
+    //! the vertices or indices of one instance of each call, together
+    int vertices = 0;
+    int passes = 0;
+  };
+  //! the frame being drawn so far (since beginFrame)
+  const FrameStats& getFrameStats() const {return frameStats_;}
+  //! the last frame that ended (for overlays drawn before the frame ends)
+  const FrameStats& getLastFrameStats() const {return lastFrameStats_;}
   //! starts a pass into the window (desc.target == nullptr) or a render target
   /*! Sets the viewport and the scissor rectangle to the whole target. */
   bool beginPass(const PassDesc& desc);
@@ -243,10 +257,14 @@ private:
   };
   //! reports an error unless the device is in the state expected
   bool checkState(State expected, const char* call) const;
+  //! a draw call into the frame's statistics
+  void count(int vertexCount, int instanceCount);
   State state_;
   Pipeline* pipeline_;
   bool indexBufferSet_;
   uint64_t frameCount_;
+  FrameStats frameStats_;
+  FrameStats lastFrameStats_;
   bool windowReleased_;
   Viewport viewport_;
 };
