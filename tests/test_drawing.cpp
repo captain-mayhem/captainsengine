@@ -152,6 +152,40 @@ TEST_F(NullDeviceTest, DrawContextNeedsAPass){
   device_->endFrame();
 }
 
+TEST_F(NullDeviceTest, CountsTheFramesDrawCalls){
+  DrawContext ctx(*device_);
+  ASSERT_TRUE(device_->beginFrame());
+  ASSERT_TRUE(device_->beginPass(PassDesc()));
+  ASSERT_TRUE(ctx.prepare(BuiltinShader::Color, Forms::getVertexLayout(), PrimitiveType::TriangleStrip));
+  device_->draw(4);
+  device_->draw(6, 3);
+  //nothing to draw isn't a draw call
+  device_->draw(0);
+  device_->endPass();
+  ASSERT_TRUE(device_->beginPass(PassDesc()));
+  ASSERT_TRUE(ctx.prepare(BuiltinShader::Color, Forms::getVertexLayout(), PrimitiveType::TriangleStrip));
+  device_->draw(3);
+  RenderDevice::FrameStats stats = device_->getFrameStats();
+  EXPECT_EQ(stats.draws, 3);
+  EXPECT_EQ(stats.instances, 5);
+  EXPECT_EQ(stats.vertices, 13);
+  EXPECT_EQ(stats.passes, 2);
+  //the last frame is the one before until this one ends
+  EXPECT_EQ(device_->getLastFrameStats().draws, 0);
+  device_->endPass();
+  device_->endFrame();
+  EXPECT_EQ(device_->getLastFrameStats().draws, 3);
+  EXPECT_EQ(device_->getLastFrameStats().passes, 2);
+
+  //a new frame starts at 0 and keeps the last one
+  ASSERT_TRUE(device_->beginFrame());
+  EXPECT_EQ(device_->getFrameStats().draws, 0);
+  EXPECT_EQ(device_->getFrameStats().passes, 0);
+  EXPECT_EQ(device_->getLastFrameStats().vertices, 13);
+  device_->endFrame();
+  EXPECT_EQ(device_->getLastFrameStats().draws, 0);
+}
+
 #if defined(CGE_TEST_WINDOW)
 
 namespace{

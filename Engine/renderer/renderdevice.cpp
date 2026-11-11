@@ -214,6 +214,7 @@ bool RenderDevice::beginFrame(){
     return false;
   state_ = State::InFrame;
   ++frameCount_;
+  frameStats_ = FrameStats();
   return true;
 }
 
@@ -226,6 +227,7 @@ void RenderDevice::endFrame(){
   if (!checkState(State::InFrame, "endFrame"))
     return;
   doEndFrame();
+  lastFrameStats_ = frameStats_;
   state_ = State::Idle;
 }
 
@@ -244,6 +246,7 @@ bool RenderDevice::beginPass(const PassDesc& desc){
   viewport_.width = (float)width;
   viewport_.height = (float)height;
   doBeginPass(desc, width, height);
+  ++frameStats_.passes;
   state_ = State::InPass;
   return true;
 }
@@ -329,6 +332,12 @@ void RenderDevice::setScissor(const Rect& rect){
   doSetScissor(rect);
 }
 
+void RenderDevice::count(int vertexCount, int instanceCount){
+  ++frameStats_.draws;
+  frameStats_.instances += instanceCount;
+  frameStats_.vertices += vertexCount;
+}
+
 void RenderDevice::draw(int vertexCount, int instanceCount, int firstVertex){
   TR_USE(CGE_RenderDevice);
   if (!checkState(State::InPass, "draw"))
@@ -340,6 +349,7 @@ void RenderDevice::draw(int vertexCount, int instanceCount, int firstVertex){
   if (vertexCount <= 0 || instanceCount <= 0)
     return;
   doDraw(vertexCount, instanceCount, firstVertex);
+  count(vertexCount, instanceCount);
 }
 
 void RenderDevice::drawIndexed(int indexCount, int instanceCount, int firstIndex){
@@ -353,6 +363,7 @@ void RenderDevice::drawIndexed(int indexCount, int instanceCount, int firstIndex
   if (indexCount <= 0 || instanceCount <= 0)
     return;
   doDrawIndexed(indexCount, instanceCount, firstIndex);
+  count(indexCount, instanceCount);
 }
 
 bool RenderDevice::readPixels(RenderTarget* target, int attachment, const Rect& rect, void* data){
