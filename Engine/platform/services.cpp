@@ -2,10 +2,12 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cstdio>
 #include <cstdlib>
 
 #include "../io/Tracing.h"
 #include "../system/engine.h"
+#include "../system/file.h"
 #include "../input/mouse.h"
 #include "../window/nativeWindows.h"
 #include "../window/nativeLinux.h"
@@ -18,6 +20,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <shellapi.h>
+#include <commdlg.h>
 #endif
 #if defined(LINUX)
 #include <X11/cursorfont.h>
@@ -94,6 +97,126 @@ EM_JS(char*, cge_languages, (), {
 });
 
 //! sets the CSS cursor of the canvas
+// Importing and exporting files (guit3's websaves, made general). An import
+// opens a hidden <input type="file">; the chosen file is written into the
+// folder (a free name as Platform::importedName gives, or replacing one of
+// the same name through a temporary file), committed to IndexedDB, and then
+// its outcome is left in Module.cgeTransfer for Platform::pollTransfer:
+// status 1 running, 2 done (name: the file's name in the folder), 3
+// cancelled, 4 failed (Platform::TransferStatus). An export is a download of
+// a Blob under the file's name. A browser opens the picker only shortly
+// after a click, a tap or a key (transient user activation); without it the
+// import doesn't start.
+EM_JS_DEPS(cge_transfer, "$UTF8ToString,$FS");
+
+EM_JS(int, cge_transfer_import, (const char* folder_c, const char* accept_c, int replace), {
+  var dir = UTF8ToString(folder_c);
+  if (navigator.userActivation && !navigator.userActivation.isActive)
+    return 0;
+  if (Module.cgeTransfer && Module.cgeTransfer.status === 1)
+    return 0;
+  var state = { status: 1, name: "" };
+  Module.cgeTransfer = state;
+
+  var input = document.createElement('input');
+  input.type = 'file';
+  input.accept = UTF8ToString(accept_c);
+  input.style.display = 'none';
+  document.body.appendChild(input);
+  var finish = function(status, name) {
+    if (state.status === 1) {
+      state.status = status;
+      state.name = name || "";
+    }
+    if (input.parentNode)
+      input.parentNode.removeChild(input);
+  };
+  input.addEventListener('cancel', function() { finish(3); });
+  input.addEventListener('change', function() {
+    var file = input.files && input.files[0];
+    if (!file) {
+      finish(3);
+      return;
+    }
+    file.arrayBuffer().then(function(buf) {
+      // no backslash literals: EM_JS stringifies this code
+      var name = "";
+      for (var i = 0; i < file.name.length; ++i) {
+        var c = file.name.charCodeAt(i);
+        name += (c === 47 || c === 92 || c < 32 || c === 127) ? '_' : file.name.charAt(i);
+      }
+      if (name === "" || name === '.' || name === '..')
+        name = 'upload';
+      FS.mkdirTree(dir);
+      if (replace) {
+        var tmp = dir + '/.import.tmp';
+        FS.writeFile(tmp, new Uint8Array(buf));
+        FS.rename(tmp, dir + '/' + name);
+      } else {
+        var dot = name.lastIndexOf('.');
+        var stem = dot > 0 ? name.substring(0, dot) : name;
+        var ext = dot > 0 ? name.substring(dot) : "";
+        for (var n = 2; FS.analyzePath(dir + '/' + name).exists; ++n)
+          name = stem + ' (' + n + ')' + ext;
+        FS.writeFile(dir + '/' + name, new Uint8Array(buf));
+      }
+      FS.syncfs(false, function(err) {
+        if (err)
+          console.error('cge: committing the import to IndexedDB failed', err);
+        finish(2, name);
+      });
+    }).catch(function(err) {
+      console.error('cge: importing a file failed', err);
+      finish(4);
+    });
+  });
+  input.click();
+  return 1;
+});
+
+// the transfer's status, and for a done one its name (UTF-8) in buf; an
+// ended transfer is told once
+EM_JS(int, cge_transfer_poll, (char* buf, int buflen), {
+  var state = Module.cgeTransfer;
+  if (!state)
+    return 0;
+  if (state.status === 2 && buflen > 0) {
+    var bytes = new TextEncoder().encode(state.name);
+    var n = Math.min(bytes.length, buflen - 1);
+    HEAPU8.set(bytes.subarray(0, n), buf);
+    HEAPU8[buf + n] = 0;
+  }
+  var status = state.status;
+  if (status !== 1)
+    Module.cgeTransfer = null;
+  return status;
+});
+
+EM_JS(int, cge_transfer_download, (const char* path_c), {
+  var path = UTF8ToString(path_c);
+  if (Module.cgeTransfer && Module.cgeTransfer.status === 1)
+    return 0;
+  try {
+    var data = FS.readFile(path);
+    var blob = new Blob([data], { type: 'application/octet-stream' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = path.substring(path.lastIndexOf('/') + 1);
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function() { URL.revokeObjectURL(url); }, 10000);
+    Module.cgeTransfer = { status: 2, name: a.download };
+    return 1;
+  } catch (err) {
+    console.error('cge: exporting ' + path + ' failed', err);
+    Module.cgeTransfer = { status: 4, name: "" };
+    return 1;
+  }
+});
+
 EM_JS(void, cge_set_canvas_cursor, (const char* canvas, const char* cursor), {
   var element = document.querySelector(UTF8ToString(canvas));
   if (element)
@@ -547,6 +670,219 @@ bool Platform::openFile(const std::string& path){
   return spawnDetached("xdg-open", path);
 #else
   return false;
+#endif
+}
+
+// --- importing and exporting files ---
+
+namespace{
+
+#ifdef WIN32
+//! the transfer's outcome (the dialogs are modal, so it is known at once)
+Platform::TransferStatus transferStatus = Platform::TRANSFER_NONE;
+std::string transferName;
+
+//! the dialogs' filter for the accepted extensions (".zip,.txt"), and all
+//! files: "Files (*.zip;*.txt)\0*.zip;*.txt\0All files (*.*)\0*.*\0\0"
+std::string dialogFilter(const std::string& accept){
+  std::string patterns;
+  size_t start = 0;
+  while (start < accept.size()){
+    size_t end = accept.find(',', start);
+    if (end == std::string::npos)
+      end = accept.size();
+    std::string ext = accept.substr(start, end - start);
+    ext.erase(0, ext.find_first_not_of(" ."));
+    ext.erase(ext.find_last_not_of(' ') + 1);
+    if (!ext.empty())
+      patterns += (patterns.empty() ? "*." : ";*.") + ext;
+    start = end + 1;
+  }
+  std::string filter;
+  if (!patterns.empty())
+    filter += "Files (" + patterns + ")" + '\0' + patterns + '\0';
+  filter += std::string("All files (*.*)") + '\0' + "*.*" + '\0' + '\0';
+  return filter;
+}
+
+//! the window that the dialogs belong to
+HWND dialogOwner(){
+  return GetActiveWindow();
+}
+#endif
+
+#ifdef ANDROID
+//! calls a boolean method of the activity with byte array arguments (UTF-8
+//! strings) and a boolean; false without the method
+bool callActivityBool(const char* name, const char* signature, const std::vector<std::string>& texts, bool flag,
+                      bool withFlag){
+  JavaEnv javaEnv;
+  JNIEnv* env = javaEnv.get();
+  jmethodID method = env ? activityMethod(env, name, signature) : nullptr;
+  if (!method)
+    return false;
+  std::vector<jvalue> args;
+  for (const std::string& text : texts){
+    jbyteArray utf8 = env->NewByteArray((jsize)text.size());
+    env->SetByteArrayRegion(utf8, 0, (jsize)text.size(), (const jbyte*)text.data());
+    jvalue arg;
+    arg.l = utf8;
+    args.push_back(arg);
+  }
+  if (withFlag){
+    jvalue arg;
+    arg.z = flag ? JNI_TRUE : JNI_FALSE;
+    args.push_back(arg);
+  }
+  const bool result = env->CallBooleanMethodA(activity->clazz, method, args.data()) == JNI_TRUE;
+  for (size_t i = 0; i < texts.size(); ++i)
+    env->DeleteLocalRef(args[i].l);
+  if (env->ExceptionCheck()){
+    env->ExceptionClear();
+    return false;
+  }
+  return result;
+}
+#endif
+
+}
+
+bool Platform::canTransferFiles(){
+#if defined(WIN32) || defined(__EMSCRIPTEN__)
+  return true;
+#elif defined(ANDROID)
+  JavaEnv javaEnv;
+  return javaEnv.get() && activityMethod(javaEnv.get(), "importFile", "([B[BZ)Z") != nullptr;
+#else
+  return false;
+#endif
+}
+
+std::string Platform::importedName(const std::string& folder, const std::string& name, bool replace){
+  std::string clean;
+  for (char ch : name){
+    const unsigned char c = (unsigned char)ch;
+    clean += (c == '/' || c == '\\' || c < 0x20 || c == 0x7f) ? '_' : ch;
+  }
+  if (clean.empty() || clean == "." || clean == "..")
+    clean = "upload";
+  if (replace)
+    return clean;
+  const size_t dot = clean.rfind('.');
+  const std::string stem = dot != std::string::npos && dot > 0 ? clean.substr(0, dot) : clean;
+  const std::string ext = dot != std::string::npos && dot > 0 ? clean.substr(dot) : "";
+  std::string result = clean;
+  for (int n = 2; Filesystem::exists(folder + "/" + result); ++n)
+    result = stem + " (" + std::to_string(n) + ")" + ext;
+  return result;
+}
+
+bool Platform::importFile(const std::string& folder, const std::string& accept, bool replace){
+#if defined(WIN32)
+  if (transferStatus == TRANSFER_RUNNING)
+    return false;
+  const std::string filter = dialogFilter(accept);
+  char chosen[MAX_PATH] = "";
+  OPENFILENAMEA ofn = {};
+  ofn.lStructSize = sizeof(ofn);
+  ofn.hwndOwner = dialogOwner();
+  ofn.lpstrFilter = filter.c_str();
+  ofn.lpstrFile = chosen;
+  ofn.nMaxFile = MAX_PATH;
+  ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
+  if (!GetOpenFileNameA(&ofn)){
+    transferStatus = CommDlgExtendedError() == 0 ? TRANSFER_CANCELLED : TRANSFER_FAILED;
+    return true;
+  }
+  Filesystem::createDirs(folder);
+  const std::string name = importedName(folder, Filesystem::getFileComponent(chosen), replace);
+  const bool copied = CopyFileA(chosen, (folder + "/" + name).c_str(), FALSE) != 0;
+  transferStatus = copied ? TRANSFER_DONE : TRANSFER_FAILED;
+  transferName = copied ? name : "";
+  return true;
+#elif defined(ANDROID)
+  return callActivityBool("importFile", "([B[BZ)Z", {folder, accept}, replace, true);
+#elif defined(__EMSCRIPTEN__)
+  return cge_transfer_import(folder.c_str(), accept.c_str(), replace ? 1 : 0) != 0;
+#else
+  return false;
+#endif
+}
+
+bool Platform::exportFile(const std::string& path){
+#if defined(WIN32)
+  if (transferStatus == TRANSFER_RUNNING || !Filesystem::exists(path))
+    return false;
+  const std::string name = Filesystem::getFileComponent(path);
+  const std::string ext = Filesystem::getExtension(path);
+  const std::string filter = dialogFilter(ext.empty() ? "" : "." + ext);
+  char chosen[MAX_PATH] = "";
+  std::snprintf(chosen, sizeof(chosen), "%s", name.c_str());
+  OPENFILENAMEA ofn = {};
+  ofn.lStructSize = sizeof(ofn);
+  ofn.hwndOwner = dialogOwner();
+  ofn.lpstrFilter = filter.c_str();
+  ofn.lpstrFile = chosen;
+  ofn.nMaxFile = MAX_PATH;
+  ofn.lpstrDefExt = ext.empty() ? nullptr : ext.c_str();
+  ofn.Flags = OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
+  if (!GetSaveFileNameA(&ofn)){
+    transferStatus = CommDlgExtendedError() == 0 ? TRANSFER_CANCELLED : TRANSFER_FAILED;
+    return true;
+  }
+  const bool copied = CopyFileA(path.c_str(), chosen, FALSE) != 0;
+  transferStatus = copied ? TRANSFER_DONE : TRANSFER_FAILED;
+  transferName = copied ? Filesystem::getFileComponent(chosen) : "";
+  return true;
+#elif defined(ANDROID)
+  return callActivityBool("exportFile", "([B)Z", {path}, false, false);
+#elif defined(__EMSCRIPTEN__)
+  return cge_transfer_download(path.c_str()) != 0;
+#else
+  return false;
+#endif
+}
+
+Platform::TransferStatus Platform::pollTransfer(std::string* name){
+#if defined(WIN32)
+  const TransferStatus status = transferStatus;
+  if (name)
+    *name = status == TRANSFER_DONE ? transferName : "";
+  if (status != TRANSFER_RUNNING)
+    transferStatus = TRANSFER_NONE;
+  return status;
+#elif defined(ANDROID)
+  // the status in the first byte, then the name (UTF-8)
+  JavaEnv javaEnv;
+  JNIEnv* env = javaEnv.get();
+  jmethodID method = env ? activityMethod(env, "pollTransfer", "()[B") : nullptr;
+  if (!method)
+    return TRANSFER_NONE;
+  jbyteArray result = (jbyteArray)env->CallObjectMethod(activity->clazz, method);
+  if (env->ExceptionCheck() || !result){
+    env->ExceptionClear();
+    return TRANSFER_NONE;
+  }
+  const jsize length = env->GetArrayLength(result);
+  std::string bytes(length, '\0');
+  if (length > 0)
+    env->GetByteArrayRegion(result, 0, length, (jbyte*)&bytes[0]);
+  env->DeleteLocalRef(result);
+  if (bytes.empty())
+    return TRANSFER_NONE;
+  if (name)
+    *name = bytes.substr(1);
+  return (TransferStatus)bytes[0];
+#elif defined(__EMSCRIPTEN__)
+  char buffer[512] = "";
+  const int status = cge_transfer_poll(buffer, sizeof(buffer));
+  if (name)
+    *name = status == TRANSFER_DONE ? buffer : "";
+  return (TransferStatus)status;
+#else
+  if (name)
+    name->clear();
+  return TRANSFER_NONE;
 #endif
 }
 
