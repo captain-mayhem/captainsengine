@@ -1,5 +1,7 @@
 #include <chrono>
 #include <cstdlib>
+#include <filesystem>
+#include <fstream>
 #include <string>
 #include <thread>
 
@@ -88,3 +90,43 @@ TEST(Platform, LanguagesFromTheEnvironment){
   EXPECT_TRUE(Platform::getLanguages().empty());
 }
 #endif
+
+TEST(Platform, ImportedNames){
+  const std::filesystem::path dir = std::filesystem::temp_directory_path() / "cge_test_imported_names";
+  std::filesystem::remove_all(dir);
+  std::filesystem::create_directories(dir);
+  const std::string folder = dir.string();
+  // a file's own name, made safe
+  EXPECT_EQ(Platform::importedName(folder, "woods.zip", false), "woods.zip");
+  EXPECT_EQ(Platform::importedName(folder, "a/b\\c\td.zip", false), "a_b_c_d.zip");
+  EXPECT_EQ(Platform::importedName(folder, "", false), "upload");
+  EXPECT_EQ(Platform::importedName(folder, "..", false), "upload");
+  // a taken name: another one, or the same one to replace it
+  std::ofstream(dir / "woods.zip") << "x";
+  std::ofstream(dir / "woods (2).zip") << "x";
+  std::ofstream(dir / "notes") << "x";
+  std::ofstream(dir / ".hidden") << "x";
+  EXPECT_EQ(Platform::importedName(folder, "woods.zip", false), "woods (3).zip");
+  EXPECT_EQ(Platform::importedName(folder, "woods.zip", true), "woods.zip");
+  EXPECT_EQ(Platform::importedName(folder, "notes", false), "notes (2)");
+  EXPECT_EQ(Platform::importedName(folder, ".hidden", false), ".hidden (2)");
+  std::filesystem::remove_all(dir);
+}
+
+TEST(Platform, NoTransferUntilOneStarts){
+  std::string name = "x";
+  EXPECT_EQ(Platform::pollTransfer(&name), Platform::TRANSFER_NONE);
+  EXPECT_EQ(name, "");
+#if defined(LINUX)
+  // nothing to choose with on Linux
+  EXPECT_FALSE(Platform::canTransferFiles());
+  EXPECT_FALSE(Platform::importFile("/tmp", ".zip", false));
+  EXPECT_FALSE(Platform::exportFile("/tmp/x.zip"));
+  EXPECT_EQ(Platform::pollTransfer(), Platform::TRANSFER_NONE);
+#elif defined(WIN32)
+  EXPECT_TRUE(Platform::canTransferFiles());
+  // a file that isn't there isn't exported (and no dialog opens)
+  EXPECT_FALSE(Platform::exportFile("C:/no/such/file.zip"));
+  EXPECT_EQ(Platform::pollTransfer(), Platform::TRANSFER_NONE);
+#endif
+}
