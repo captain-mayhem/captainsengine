@@ -102,13 +102,15 @@ public:
 
       Both run asynchronously: they return at once, and pollTransfer()
       tells the outcome later (on Windows it is known when they return).
-      One transfer runs at a time. The imported file gets the chosen file's
-      name (importedName), and is committed (UserDirs::commit) before it is
-      Done. A browser opens its file picker only shortly after a click, a
-      tap or a key (its user activation): call importFile from that input's
-      handler, or in the frame after it. On Android the application is
-      paused while the system's picker is shown, like for any other
-      activity in front of it. */
+      One transfer runs at a time (on the web, a file picker still open
+      gives way to a new one: a browser may not tell that it was
+      closed). The imported file gets the chosen file's name
+      (importedName), and is committed (UserDirs::commit) before it is
+      Done. A browser opens its file picker only shortly after a click,
+      a tap or a key (its user activation): call importFile from that
+      input's handler, or in the frame after it. On Android the
+      application is paused while the system's picker is shown, like for
+      any other activity in front of it. */
   enum TransferStatus{
     TRANSFER_NONE,       //!< no transfer was started
     TRANSFER_RUNNING,    //!< the user is choosing, or the file is copied

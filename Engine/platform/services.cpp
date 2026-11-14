@@ -106,16 +106,17 @@ EM_JS(char*, cge_languages, (), {
 // cancelled, 4 failed (Platform::TransferStatus). An export is a download of
 // a Blob under the file's name. A browser opens the picker only shortly
 // after a click, a tap or a key (transient user activation); without it the
-// import doesn't start.
+// import doesn't start. A picker still open gives way to a new transfer: a
+// browser without the input's cancel event never tells that it was closed.
 EM_JS_DEPS(cge_transfer, "$UTF8ToString,$FS");
 
 EM_JS(int, cge_transfer_import, (const char* folder_c, const char* accept_c, int replace), {
   var dir = UTF8ToString(folder_c);
   if (navigator.userActivation && !navigator.userActivation.isActive)
     return 0;
-  if (Module.cgeTransfer && Module.cgeTransfer.status === 1)
+  if (Module.cgeTransfer && Module.cgeTransfer.status === 1 && !Module.cgeTransfer.choosing)
     return 0;
-  var state = { status: 1, name: "" };
+  var state = { status: 1, name: "", choosing: true };
   Module.cgeTransfer = state;
 
   var input = document.createElement('input');
@@ -124,7 +125,7 @@ EM_JS(int, cge_transfer_import, (const char* folder_c, const char* accept_c, int
   input.style.display = 'none';
   document.body.appendChild(input);
   var finish = function(status, name) {
-    if (state.status === 1) {
+    if (state.status === 1 && Module.cgeTransfer === state) {
       state.status = status;
       state.name = name || "";
     }
@@ -134,10 +135,11 @@ EM_JS(int, cge_transfer_import, (const char* folder_c, const char* accept_c, int
   input.addEventListener('cancel', function() { finish(3); });
   input.addEventListener('change', function() {
     var file = input.files && input.files[0];
-    if (!file) {
+    if (!file || Module.cgeTransfer !== state) {
       finish(3);
       return;
     }
+    state.choosing = false;
     file.arrayBuffer().then(function(buf) {
       // no backslash literals: EM_JS stringifies this code
       var name = "";
@@ -194,7 +196,7 @@ EM_JS(int, cge_transfer_poll, (char* buf, int buflen), {
 
 EM_JS(int, cge_transfer_download, (const char* path_c), {
   var path = UTF8ToString(path_c);
-  if (Module.cgeTransfer && Module.cgeTransfer.status === 1)
+  if (Module.cgeTransfer && Module.cgeTransfer.status === 1 && !Module.cgeTransfer.choosing)
     return 0;
   try {
     var data = FS.readFile(path);
