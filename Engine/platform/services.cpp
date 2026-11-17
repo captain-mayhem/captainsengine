@@ -2,8 +2,11 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cctype>
 #include <cstdio>
 #include <cstdlib>
+#include <mutex>
+#include <thread>
 
 #include "../io/Tracing.h"
 #include "../system/engine.h"
@@ -21,6 +24,7 @@
 #include <windows.h>
 #include <shellapi.h>
 #include <commdlg.h>
+#include <wininet.h>
 #endif
 #if defined(LINUX)
 #include <X11/cursorfont.h>
@@ -110,6 +114,41 @@ EM_JS(char*, cge_languages, (), {
 // browser without the input's cancel event never tells that it was closed.
 EM_JS_DEPS(cge_transfer, "$UTF8ToString,$FS");
 
+// Module.cgeStoreFile(dir, name, buf, replace, fallback): writes an imported
+// or downloaded file into dir under the cleaned name (fallback if nothing is
+// left of it), as Platform::importedName names it, and returns that name.
+// Without replace a taken name gets " (2)" etc.; with it the file is written
+// under a temporary name first and renamed, so a file still open keeps its
+// old node.
+EM_JS(void, cge_transfer_install, (), {
+  if (Module.cgeStoreFile)
+    return;
+  Module.cgeStoreFile = function(dir, rawName, buf, replace, fallback) {
+    // no backslash literals: EM_JS stringifies this code
+    var name = "";
+    for (var i = 0; i < rawName.length; ++i) {
+      var c = rawName.charCodeAt(i);
+      name += (c === 47 || c === 92 || c < 32 || c === 127) ? '_' : rawName.charAt(i);
+    }
+    if (name === "" || name === '.' || name === '..')
+      name = fallback;
+    FS.mkdirTree(dir);
+    if (replace) {
+      var tmp = dir + '/.transfer.tmp';
+      FS.writeFile(tmp, new Uint8Array(buf));
+      FS.rename(tmp, dir + '/' + name);
+    } else {
+      var dot = name.lastIndexOf('.');
+      var stem = dot > 0 ? name.substring(0, dot) : name;
+      var ext = dot > 0 ? name.substring(dot) : "";
+      for (var n = 2; FS.analyzePath(dir + '/' + name).exists; ++n)
+        name = stem + ' (' + n + ')' + ext;
+      FS.writeFile(dir + '/' + name, new Uint8Array(buf));
+    }
+    return name;
+  };
+});
+
 EM_JS(int, cge_transfer_import, (const char* folder_c, const char* accept_c, int replace), {
   var dir = UTF8ToString(folder_c);
   if (navigator.userActivation && !navigator.userActivation.isActive)
@@ -141,27 +180,7 @@ EM_JS(int, cge_transfer_import, (const char* folder_c, const char* accept_c, int
     }
     state.choosing = false;
     file.arrayBuffer().then(function(buf) {
-      // no backslash literals: EM_JS stringifies this code
-      var name = "";
-      for (var i = 0; i < file.name.length; ++i) {
-        var c = file.name.charCodeAt(i);
-        name += (c === 47 || c === 92 || c < 32 || c === 127) ? '_' : file.name.charAt(i);
-      }
-      if (name === "" || name === '.' || name === '..')
-        name = 'upload';
-      FS.mkdirTree(dir);
-      if (replace) {
-        var tmp = dir + '/.import.tmp';
-        FS.writeFile(tmp, new Uint8Array(buf));
-        FS.rename(tmp, dir + '/' + name);
-      } else {
-        var dot = name.lastIndexOf('.');
-        var stem = dot > 0 ? name.substring(0, dot) : name;
-        var ext = dot > 0 ? name.substring(dot) : "";
-        for (var n = 2; FS.analyzePath(dir + '/' + name).exists; ++n)
-          name = stem + ' (' + n + ')' + ext;
-        FS.writeFile(dir + '/' + name, new Uint8Array(buf));
-      }
+      var name = Module.cgeStoreFile(dir, file.name, buf, replace, 'upload');
       FS.syncfs(false, function(err) {
         if (err)
           console.error('cge: committing the import to IndexedDB failed', err);
@@ -217,6 +236,48 @@ EM_JS(int, cge_transfer_download, (const char* path_c), {
     Module.cgeTransfer = { status: 4, name: "" };
     return 1;
   }
+});
+
+// a download with fetch(), stored like an import; the name is the last path
+// segment of the URL the response came from (after redirections)
+EM_JS(int, cge_transfer_fetch, (const char* url_c, const char* folder_c, int replace), {
+  var url = UTF8ToString(url_c);
+  var dir = UTF8ToString(folder_c);
+  if (Module.cgeTransfer && Module.cgeTransfer.status === 1 && !Module.cgeTransfer.choosing)
+    return 0;
+  var state = { status: 1, name: "", choosing: false };
+  Module.cgeTransfer = state;
+  var finish = function(status, name) {
+    if (state.status === 1 && Module.cgeTransfer === state) {
+      state.status = status;
+      state.name = name || "";
+    }
+  };
+  fetch(url).then(function(response) {
+    if (!response.ok)
+      throw new Error('HTTP status ' + response.status);
+    var path = new URL(response.url || url).pathname;
+    var segment = path.substring(path.lastIndexOf('/') + 1);
+    try {
+      segment = decodeURIComponent(segment);
+    } catch (e) {
+      // keep it as it is
+    }
+    return response.arrayBuffer().then(function(buf) {
+      if (Module.cgeTransfer !== state)
+        return;
+      var name = Module.cgeStoreFile(dir, segment, buf, replace, 'download');
+      FS.syncfs(false, function(err) {
+        if (err)
+          console.error('cge: committing the download to IndexedDB failed', err);
+        finish(2, name);
+      });
+    });
+  }).catch(function(err) {
+    console.error('cge: downloading ' + url + ' failed', err);
+    finish(4);
+  });
+  return 1;
 });
 
 EM_JS(void, cge_set_canvas_cursor, (const char* canvas, const char* cursor), {
@@ -679,10 +740,142 @@ bool Platform::openFile(const std::string& path){
 
 namespace{
 
-#ifdef WIN32
-//! the transfer's outcome (the dialogs are modal, so it is known at once)
+#if defined(WIN32) || defined(LINUX)
+//! the transfer's state: the dialogs are modal, so theirs is known at once;
+//! a download runs on a thread of its own, which sets it when it ends
+std::mutex transferMutex;
 Platform::TransferStatus transferStatus = Platform::TRANSFER_NONE;
 std::string transferName;
+
+//! marks a transfer as running; false if one already runs
+bool beginTransfer(){
+  std::lock_guard<std::mutex> lock(transferMutex);
+  if (transferStatus == Platform::TRANSFER_RUNNING)
+    return false;
+  transferStatus = Platform::TRANSFER_RUNNING;
+  transferName.clear();
+  return true;
+}
+
+void finishTransfer(Platform::TransferStatus status, const std::string& name = std::string()){
+  std::lock_guard<std::mutex> lock(transferMutex);
+  transferStatus = status;
+  transferName = status == Platform::TRANSFER_DONE ? name : std::string();
+}
+
+//! the last path segment of a URL, percent-decoded, without its query and
+//! fragment; empty if the URL has no path
+std::string urlFileName(const std::string& url){
+  std::string path = url.substr(0, url.find_first_of("?#"));
+  const size_t scheme = path.find("://");
+  const size_t start = scheme == std::string::npos ? 0 : scheme + 3;
+  const size_t firstSlash = path.find('/', start);
+  if (firstSlash == std::string::npos)
+    return std::string();
+  const std::string segment = path.substr(path.rfind('/') + 1);
+  std::string name;
+  for (size_t i = 0; i < segment.size(); ++i){
+    if (segment[i] == '%' && i + 2 < segment.size() && isxdigit((unsigned char)segment[i + 1]) &&
+        isxdigit((unsigned char)segment[i + 2])){
+      name += (char)strtol(segment.substr(i + 1, 2).c_str(), nullptr, 16);
+      i += 2;
+    }
+    else
+      name += segment[i];
+  }
+  return name;
+}
+
+//! moves a downloaded temporary file to its name in folder; the name
+//! (from importedName) or empty if that failed
+std::string storeDownload(const std::string& temporary, const std::string& folder, const std::string& rawName,
+                          bool replace){
+  const std::string name = Platform::importedName(folder, rawName.empty() ? "download" : rawName, replace);
+  const std::string path = folder + "/" + name;
+#ifdef WIN32
+  const bool moved = MoveFileExA(temporary.c_str(), path.c_str(), MOVEFILE_REPLACE_EXISTING) != 0;
+#else
+  const bool moved = std::rename(temporary.c_str(), path.c_str()) == 0;
+#endif
+  if (!moved){
+    std::remove(temporary.c_str());
+    return std::string();
+  }
+  return name;
+}
+#endif
+
+#ifdef WIN32
+//! a UTF-8 text in the ANSI code page (the engine's narrow file names)
+std::string toAnsi(const std::string& utf8){
+  const std::wstring wide = toWide(utf8);
+  if (wide.empty())
+    return std::string();
+  const int size = WideCharToMultiByte(CP_ACP, 0, wide.c_str(), (int)wide.size(), nullptr, 0, nullptr, nullptr);
+  std::string ansi(size > 0 ? size : 0, '\0');
+  if (size > 0)
+    WideCharToMultiByte(CP_ACP, 0, wide.c_str(), (int)wide.size(), &ansi[0], size, nullptr, nullptr);
+  return ansi;
+}
+
+//! downloads url into folder with WinINet, which follows redirections and
+//! uses the system's proxy and certificates
+void downloadThread(std::string url, std::string folder, bool replace){
+  TR_USE(CGE_Platform);
+  HINTERNET net = InternetOpenW(L"CGE", INTERNET_OPEN_TYPE_PRECONFIG, nullptr, nullptr, 0);
+  HINTERNET request = net ? InternetOpenUrlW(net, toWide(url).c_str(), nullptr, 0,
+                                             INTERNET_FLAG_RELOAD | INTERNET_FLAG_NO_CACHE_WRITE | INTERNET_FLAG_NO_UI,
+                                             0)
+                          : nullptr;
+  DWORD code = 0;
+  DWORD size = sizeof(code);
+  bool ok = request && HttpQueryInfoW(request, HTTP_QUERY_STATUS_CODE | HTTP_QUERY_FLAG_NUMBER, &code, &size, nullptr) &&
+            code >= 200 && code < 300;
+  if (request && !ok)
+    TR_WARN("downloading %s: HTTP status %u", url.c_str(), (unsigned)code);
+  else if (!request)
+    TR_WARN("downloading %s: can't connect (%u)", url.c_str(), (unsigned)GetLastError());
+
+  //the URL after redirections names the file
+  std::string finalUrl = url;
+  if (ok){
+    DWORD length = 0;
+    InternetQueryOptionW(request, INTERNET_OPTION_URL, nullptr, &length);
+    if (length > 0){
+      std::wstring buffer(length / sizeof(wchar_t) + 1, L'\0');
+      if (InternetQueryOptionW(request, INTERNET_OPTION_URL, &buffer[0], &length))
+        finalUrl = toUtf8(buffer.c_str());
+    }
+  }
+
+  const std::string temporary = folder + "/.download.tmp";
+  if (ok){
+    Filesystem::createDirs(folder);
+    FILE* out = std::fopen(temporary.c_str(), "wb");
+    ok = out != nullptr;
+    char buffer[65536];
+    DWORD read = 0;
+    while (ok){
+      if (!InternetReadFile(request, buffer, sizeof(buffer), &read))
+        ok = false;
+      else if (read == 0)
+        break;
+      else if (std::fwrite(buffer, 1, read, out) != read)
+        ok = false;
+    }
+    if (out && std::fclose(out) != 0)
+      ok = false;
+    if (!ok)
+      std::remove(temporary.c_str());
+  }
+  if (request)
+    InternetCloseHandle(request);
+  if (net)
+    InternetCloseHandle(net);
+
+  const std::string name = ok ? storeDownload(temporary, folder, toAnsi(urlFileName(finalUrl)), replace) : "";
+  finishTransfer(name.empty() ? Platform::TRANSFER_FAILED : Platform::TRANSFER_DONE, name);
+}
 
 //! the dialogs' filter for the accepted extensions (".zip,.txt"), and all
 //! files: "Files (*.zip;*.txt)\0*.zip;*.txt\0All files (*.*)\0*.*\0\0"
@@ -710,6 +903,67 @@ std::string dialogFilter(const std::string& accept){
 //! the window that the dialogs belong to
 HWND dialogOwner(){
   return GetActiveWindow();
+}
+#endif
+
+#ifdef LINUX
+//! runs a program and waits for it; its standard output in output; the
+//! exit status, 127 if it couldn't be run
+int runProgram(const std::vector<std::string>& args, std::string& output){
+  std::vector<char*> argv;
+  for (const std::string& arg : args)
+    argv.push_back(const_cast<char*>(arg.c_str()));
+  argv.push_back(nullptr);
+  int pipeFds[2];
+  if (pipe(pipeFds) != 0)
+    return 127;
+  const pid_t pid = fork();
+  if (pid < 0){
+    close(pipeFds[0]);
+    close(pipeFds[1]);
+    return 127;
+  }
+  if (pid == 0){
+    dup2(pipeFds[1], STDOUT_FILENO);
+    close(pipeFds[0]);
+    close(pipeFds[1]);
+    execvp(argv[0], argv.data());
+    _exit(127);
+  }
+  close(pipeFds[1]);
+  char buffer[1024];
+  ssize_t n;
+  while ((n = read(pipeFds[0], buffer, sizeof(buffer))) > 0)
+    output.append(buffer, (size_t)n);
+  close(pipeFds[0]);
+  int status = 0;
+  if (waitpid(pid, &status, 0) < 0 || !WIFEXITED(status))
+    return 127;
+  return WEXITSTATUS(status);
+}
+
+//! downloads url into folder with the curl program (or wget), which follow
+//! redirections; curl tells the URL it ended at
+void downloadThread(std::string url, std::string folder, bool replace){
+  TR_USE(CGE_Platform);
+  Filesystem::createDirs(folder);
+  const std::string temporary = folder + "/.download.tmp";
+  std::string finalUrl;
+  int status = runProgram({"curl", "-fsSL", "--proto", "=http,https", "-o", temporary, "-w", "%{url_effective}", url},
+                          finalUrl);
+  if (status == 127){
+    finalUrl.clear();
+    status = runProgram({"wget", "-q", "-O", temporary, url}, finalUrl);
+    finalUrl.clear();
+  }
+  if (status != 0){
+    TR_WARN("downloading %s failed (exit status %d)", url.c_str(), status);
+    std::remove(temporary.c_str());
+    finishTransfer(Platform::TRANSFER_FAILED);
+    return;
+  }
+  const std::string name = storeDownload(temporary, folder, urlFileName(finalUrl.empty() ? url : finalUrl), replace);
+  finishTransfer(name.empty() ? Platform::TRANSFER_FAILED : Platform::TRANSFER_DONE, name);
 }
 #endif
 
@@ -781,7 +1035,7 @@ std::string Platform::importedName(const std::string& folder, const std::string&
 
 bool Platform::importFile(const std::string& folder, const std::string& accept, bool replace){
 #if defined(WIN32)
-  if (transferStatus == TRANSFER_RUNNING)
+  if (!beginTransfer())
     return false;
   const std::string filter = dialogFilter(accept);
   char chosen[MAX_PATH] = "";
@@ -793,14 +1047,13 @@ bool Platform::importFile(const std::string& folder, const std::string& accept, 
   ofn.nMaxFile = MAX_PATH;
   ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
   if (!GetOpenFileNameA(&ofn)){
-    transferStatus = CommDlgExtendedError() == 0 ? TRANSFER_CANCELLED : TRANSFER_FAILED;
+    finishTransfer(CommDlgExtendedError() == 0 ? TRANSFER_CANCELLED : TRANSFER_FAILED);
     return true;
   }
   Filesystem::createDirs(folder);
   const std::string name = importedName(folder, Filesystem::getFileComponent(chosen), replace);
   const bool copied = CopyFileA(chosen, (folder + "/" + name).c_str(), FALSE) != 0;
-  transferStatus = copied ? TRANSFER_DONE : TRANSFER_FAILED;
-  transferName = copied ? name : "";
+  finishTransfer(copied ? TRANSFER_DONE : TRANSFER_FAILED, name);
   return true;
 #elif defined(ANDROID)
   return callActivityBool("importFile", "([B[BZ)Z", {folder, accept}, replace, true);
@@ -813,7 +1066,7 @@ bool Platform::importFile(const std::string& folder, const std::string& accept, 
 
 bool Platform::exportFile(const std::string& path){
 #if defined(WIN32)
-  if (transferStatus == TRANSFER_RUNNING || !Filesystem::exists(path))
+  if (!Filesystem::exists(path) || !beginTransfer())
     return false;
   const std::string name = Filesystem::getFileComponent(path);
   const std::string ext = Filesystem::getExtension(path);
@@ -829,12 +1082,11 @@ bool Platform::exportFile(const std::string& path){
   ofn.lpstrDefExt = ext.empty() ? nullptr : ext.c_str();
   ofn.Flags = OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
   if (!GetSaveFileNameA(&ofn)){
-    transferStatus = CommDlgExtendedError() == 0 ? TRANSFER_CANCELLED : TRANSFER_FAILED;
+    finishTransfer(CommDlgExtendedError() == 0 ? TRANSFER_CANCELLED : TRANSFER_FAILED);
     return true;
   }
   const bool copied = CopyFileA(path.c_str(), chosen, FALSE) != 0;
-  transferStatus = copied ? TRANSFER_DONE : TRANSFER_FAILED;
-  transferName = copied ? Filesystem::getFileComponent(chosen) : "";
+  finishTransfer(copied ? TRANSFER_DONE : TRANSFER_FAILED, Filesystem::getFileComponent(chosen));
   return true;
 #elif defined(ANDROID)
   return callActivityBool("exportFile", "([B)Z", {path}, false, false);
@@ -845,8 +1097,41 @@ bool Platform::exportFile(const std::string& path){
 #endif
 }
 
+bool Platform::canDownloadFiles(){
+#if defined(WIN32) || defined(LINUX) || defined(__EMSCRIPTEN__)
+  return true;
+#elif defined(ANDROID)
+  JavaEnv javaEnv;
+  return javaEnv.get() && activityMethod(javaEnv.get(), "downloadFile", "([B[BZ)Z") != nullptr;
+#else
+  return false;
+#endif
+}
+
+bool Platform::downloadFile(const std::string& url, const std::string& folder, bool replace){
+  std::string scheme = url.substr(0, url.find("://"));
+  std::transform(scheme.begin(), scheme.end(), scheme.begin(), [](unsigned char c){return (char)tolower(c);});
+  if ((scheme != "http" && scheme != "https") || url.find("://") == std::string::npos)
+    return false;
+#if defined(WIN32) || defined(LINUX)
+  if (!beginTransfer())
+    return false;
+  std::thread(downloadThread, url, folder, replace).detach();
+  return true;
+#elif defined(ANDROID)
+  return callActivityBool("downloadFile", "([B[BZ)Z", {url, folder}, replace, true);
+#elif defined(__EMSCRIPTEN__)
+  return cge_transfer_fetch(url.c_str(), folder.c_str(), replace ? 1 : 0) != 0;
+#else
+  (void)folder;
+  (void)replace;
+  return false;
+#endif
+}
+
 Platform::TransferStatus Platform::pollTransfer(std::string* name){
-#if defined(WIN32)
+#if defined(WIN32) || defined(LINUX)
+  std::lock_guard<std::mutex> lock(transferMutex);
   const TransferStatus status = transferStatus;
   if (name)
     *name = status == TRANSFER_DONE ? transferName : "";
@@ -1000,6 +1285,7 @@ void init(int argc, char** argv, void* androidApp){
   }
 #elif defined(__EMSCRIPTEN__)
   cge_clipboard_install();
+  cge_transfer_install();
 #else
   if (argc > 0 && argv[0]){
     std::string name = argv[0];

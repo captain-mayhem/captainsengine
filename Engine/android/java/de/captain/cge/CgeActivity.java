@@ -28,6 +28,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +56,8 @@ import java.util.List;
  *   the system's document picker (ACTION_OPEN_DOCUMENT and
  *   ACTION_CREATE_DOCUMENT), which needs no permissions. The file is copied
  *   on a thread of its own; the engine polls the outcome (pollTransfer).
+ *   Downloads (Platform::downloadFile) are transfers too, with
+ *   HttpURLConnection on a thread; they need the INTERNET permission.
  * The engine also reads and writes the clipboard through it, and takes the
  * application's arguments from the starting intent: the String array extra
  * EXTRA_ARGUMENTS becomes argv[1] and on (IApplication::init), e.g. the game
@@ -289,6 +293,66 @@ public class CgeActivity extends NativeActivity {
       }
     });
     return true;
+  }
+
+  /** downloads url into folder on a thread of its own (Platform::downloadFile);
+   * needs the INTERNET permission */
+  public boolean downloadFile(byte[] url, byte[] folder, boolean replace) {
+    if (!startTransfer())
+      return false;
+    String address = new String(url, StandardCharsets.UTF_8);
+    File dir = new File(new String(folder, StandardCharsets.UTF_8));
+    new Thread(() -> downloadTo(address, dir, replace)).start();
+    return true;
+  }
+
+  private void downloadTo(String address, File folder, boolean replace) {
+    folder.mkdirs();
+    File temporary = new File(folder, ".download.tmp");
+    HttpURLConnection connection = null;
+    try {
+      // HttpURLConnection doesn't follow a redirection to another protocol
+      // (http to https), so they are followed here
+      URL url = new URL(address);
+      for (int redirects = 0; ; ++redirects) {
+        String protocol = url.getProtocol();
+        if (!protocol.equals("http") && !protocol.equals("https"))
+          throw new IOException("not http(s): " + url);
+        connection = (HttpURLConnection) url.openConnection();
+        connection.setInstanceFollowRedirects(false);
+        connection.setConnectTimeout(30000);
+        connection.setReadTimeout(60000);
+        int code = connection.getResponseCode();
+        if (code >= 300 && code < 400 && code != 304 && redirects < 10) {
+          String location = connection.getHeaderField("Location");
+          if (location == null)
+            throw new IOException("redirection without a location");
+          url = new URL(url, location);
+          connection.disconnect();
+          connection = null;
+          continue;
+        }
+        if (code < 200 || code >= 300)
+          throw new IOException("HTTP status " + code);
+        break;
+      }
+      try (InputStream in = connection.getInputStream();
+           OutputStream out = new FileOutputStream(temporary)) {
+        copy(in, out);
+      }
+      String segment = Uri.parse(url.toString()).getLastPathSegment();
+      String name = importedName(folder, segment != null && !segment.isEmpty() ? segment : "download", replace);
+      if (!temporary.renameTo(new File(folder, name)))
+        throw new IOException("can't rename the download");
+      finishTransfer(TRANSFER_DONE, name);
+    } catch (IOException | RuntimeException e) {
+      android.util.Log.w("CGE", "downloading " + address + " failed: " + e);
+      temporary.delete();
+      finishTransfer(TRANSFER_FAILED, null);
+    } finally {
+      if (connection != null)
+        connection.disconnect();
+    }
   }
 
   @Override

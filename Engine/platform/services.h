@@ -23,6 +23,7 @@ namespace CGE{
     | languages    | yes     | yes (4)     | yes (5) | yes     |
     | file import  | dialog  | -           | yes (6) | picker  |
     | file export  | dialog  | -           | yes (6) | download|
+    | URL download | WinINet | curl/wget(7)| yes (8) | fetch(9)|
 
     (1) The CLIPBOARD selection. The window owns the copied text, so it is
     gone when the application quits, unless a clipboard manager took it.
@@ -35,6 +36,11 @@ namespace CGE{
     (5) Only the first of the system's languages (AConfiguration).
     (6) The system's document picker (Storage Access Framework), through
     CgeActivity: the user's files, Downloads, and cloud drives.
+    (7) The curl program, or wget where there is none.
+    (8) HttpURLConnection, through CgeActivity; the application needs the
+    INTERNET permission.
+    (9) The browser's fetch(): the server must allow the page's origin
+    (CORS), and a page served over HTTPS can't fetch an http:// URL.
 
     Where a service is missing, the functions do nothing and return false or
     an empty result. Text (clipboard, URLs) is UTF-8; file paths use the
@@ -130,9 +136,23 @@ public:
   //! hands the file at path to the user, under its own name; false if it
   //! couldn't start
   static bool exportFile(const std::string& path);
+  //! whether downloadFile can work here
+  static bool canDownloadFiles();
+  //! downloads the file at url (http:// or https://) into folder (made if it
+  //! isn't there), as one more kind of transfer: it returns at once, and
+  //! pollTransfer tells the outcome. Redirections are followed; the file is
+  //! named after the last path segment of the URL it came from in the end
+  //! (importedName; "download" if there is none). With replace, a file of
+  //! the same name is replaced (only once the new one is complete);
+  //! otherwise the new one gets another name. Needs no user activation. A
+  //! server's error (an HTTP status other than 2xx) is TRANSFER_FAILED.
+  //! False if it couldn't start (not here, not an http(s) URL, or another
+  //! transfer runs).
+  static bool downloadFile(const std::string& url, const std::string& folder, bool replace);
   //! the last transfer's state; once it ended (DONE, CANCELLED, FAILED) it
-  //! is told once, after that it is TRANSFER_NONE. For a DONE import, name
-  //! gets the file's name in the folder (for an export, the file's name).
+  //! is told once, after that it is TRANSFER_NONE. For a DONE import or
+  //! download, name gets the file's name in the folder (for an export, the
+  //! file's name).
   static TransferStatus pollTransfer(std::string* name = nullptr);
   //! the name a file chosen as name gets in folder: '/', '\\' and control
   //! characters as '_' ("upload" if nothing is left); unless replace, a
