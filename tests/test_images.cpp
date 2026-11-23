@@ -17,22 +17,23 @@ struct Rgb{
   int r, g, b;
 };
 
-//! the picture in image.bmp, image.png and image.gif (tests/data/make_fixtures.py), rows top to bottom
+//! the picture in image.bmp, image.png, image.gif and image.jpg (tests/data/make_fixtures.py), rows top to bottom
 const Rgb picture[2][3] = {
   {{255, 0, 0}, {0, 255, 0}, {0, 0, 255}},
   {{255, 255, 255}, {0, 0, 0}, {128, 64, 32}},
 };
 
-void expectPicture(const Image& img){
+//! tolerance: how far a channel may be off (for lossy formats)
+void expectPicture(const Image& img, int tolerance = 0){
   ASSERT_EQ(img.getWidth(), 3u);
   ASSERT_EQ(img.getHeight(), 2u);
   ASSERT_EQ(img.getNumChannels(), 3u);
   for (int y = 0; y < 2; ++y){
     for (int x = 0; x < 3; ++x){
       const unsigned char* p = img.getData() + y*img.getRowSpan() + x*3;
-      EXPECT_EQ(p[0], picture[y][x].r) << "pixel " << x << "," << y;
-      EXPECT_EQ(p[1], picture[y][x].g) << "pixel " << x << "," << y;
-      EXPECT_EQ(p[2], picture[y][x].b) << "pixel " << x << "," << y;
+      EXPECT_NEAR(p[0], picture[y][x].r, tolerance) << "pixel " << x << "," << y;
+      EXPECT_NEAR(p[1], picture[y][x].g, tolerance) << "pixel " << x << "," << y;
+      EXPECT_NEAR(p[2], picture[y][x].b, tolerance) << "pixel " << x << "," << y;
     }
   }
 }
@@ -173,12 +174,10 @@ TEST(Images, PngWithAlpha){
 }
 
 TEST(Images, Jpeg){
-  //a 1x1 JPEG; lossy, so only the format is checked
+  //the picture at quality 100 without chroma subsampling: lossy only by rounding
   std::unique_ptr<Image> img(ImageLoader::load("image.jpg"));
   ASSERT_NE(img, nullptr);
-  EXPECT_EQ(img->getWidth(), 1u);
-  EXPECT_EQ(img->getHeight(), 1u);
-  EXPECT_EQ(img->getNumChannels(), 3u);
+  expectPicture(*img, 3);
 }
 
 TEST(Images, TypeFromExtension){

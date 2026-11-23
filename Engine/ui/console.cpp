@@ -62,7 +62,7 @@ Console::Console(){
   mode_ = 0;
   additional_ = nullptr;
   //a nice starting message
-  string start("HeroQuest v");
+  string start("CGE v");
   start += VERSTRING;
   lines_.push_back(start);
   lines_.push_back("Console started...");

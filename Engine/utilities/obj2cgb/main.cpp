@@ -51,9 +51,10 @@ int main(int argc, char** argv){
  
   //if (flip)
     //std::cerr << "Flipped\n";
+  //the output is the input's name with .cgb (Captain's Game Binary)
   string output(argv[2]);
-  output[output.size()-3] = 'h';
-  output[output.size()-2] = 'm';
+  output[output.size()-3] = 'c';
+  output[output.size()-2] = 'g';
   output[output.size()-1] = 'b';
   ofstream out(output.c_str(), ios::binary);
 

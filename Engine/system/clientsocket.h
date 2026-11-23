@@ -1,7 +1,6 @@
 //  ==================================================================
-// |                         Hero Quest                               |
+// |                      Captain's Game Engine                       |
 // |------------------------------------------------------------------|
-// |                 The revival of the board game                    |
 // |                                                                  |
 // | Marco Staginski                                                  |
 // | captain@captain-online.de                                        |

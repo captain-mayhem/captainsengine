@@ -38,7 +38,7 @@ class CGE_API Console{
 
     //! sets the special callback function
     /*! It is called once instead of the main callback for the next line.
-     *  HeroQuest uses it for dialogs with several inputs.
+     *  An application can use it for dialogs with several inputs.
      *  \param spec the function
      *  \param i an integer that gets passed to the special callback
      *  \param add a pointer that gets passed to the special callback

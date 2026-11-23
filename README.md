@@ -9,8 +9,7 @@ On top level is the code of the engine and its main projects. In this Readme, th
   * Editor: the mighty adventure editor written in C# (StoryDesigner)
 * editor: A very basic 3D scene editor for the core engine
 * OSMRacer: A car racing game based on OpenStreetMap data
-* extern: The libs from contrib unpacked and integrated into CMake buildsystem
-* contrib: 3rd-party libraries used by the engine or its projects. Things like libjpeg, lua, etc.
+* extern: The 3rd-party libraries used by the engine or its projects (libjpeg, Lua, etc.), as sources integrated into the CMake build
 
 ## How to build
 Requirements: CMake 3.21 or newer and a C++20 compiler (Visual Studio 2022/2026, GCC 13). The Adventure also needs a Java JDK (found through `JAVA_HOME` or `PATH`).

@@ -58,13 +58,13 @@ struct AtlasRegion{
 /*! Reads the JSON that the art pipeline's pack_atlas writes and that
     TexturePacker writes as "JSON (Hash)", "JSON (Array)" or "Phaser 3":
     \code
-    {"frames": {"jewel_red.png": {
+    {"frames": {"coin_gold.png": {
         "frame": {"x": 2, "y": 2, "w": 52, "h": 56},
         "rotated": false, "trimmed": true,
         "spriteSourceSize": {"x": 2, "y": 0, "w": 52, "h": 56},
         "sourceSize": {"w": 56, "h": 56},
         "pivot": {"x": 0.5, "y": 0.5}}},
-     "meta": {"image": "jewels.png", "size": {"w": 256, "h": 256}, "scale": "1"}}
+     "meta": {"image": "items.png", "size": {"w": 256, "h": 256}, "scale": "1"}}
     \endcode
     "frames" can also be an array of frames with a "filename" each. Several
     pages are a "textures" array of objects with "image", "scale" and

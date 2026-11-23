@@ -18,7 +18,7 @@ CXXFLAGS += -c -DUNIX
 LIBS = $(GL_LIBS) $(X11_LIBS) $(SYS_LIBS)
 
 # The name of the application and binary
-PROGRAM = obj2hmb
+PROGRAM = obj2cgb
 
 # Fetch all source files
 SOURCES = $(wildcard *.cpp)

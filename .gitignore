@@ -5,3 +5,4 @@ CMakeUserPresets.json
 /Adventure/Editor/**/bin/
 /Adventure/Editor/**/obj/
 /Adventure/Editor/**/.vs/
+CLAUDE.local.md

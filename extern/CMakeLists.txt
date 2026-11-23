@@ -8,13 +8,6 @@ function(cge_extern_defaults target)
   endif()
 endfunction()
 
-add_custom_target(unpack
-  tar -xzf "${CMAKE_CURRENT_SOURCE_DIR}/../contrib/libxml2-2.7.2.tar.gz"
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../contrib
-  COMMENT "unpacking archives"
-  VERBATIM
-)
-
 # zlib, libpng, libjpeg, FreeType, Dear ImGui, miniaudio, libogg and libvorbis
 # are the same copies as in guitads (see guitads' CMakeLists.txt), so both
 # projects use the same library versions.

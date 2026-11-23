@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="obj2hmb"
+	Name="obj2cgb"
 	ProjectGUID="{BE0E47BD-D76B-4F1D-B522-0DB00AFADD3B}"
 	Keyword="Win32Proj"
 	>
@@ -62,10 +62,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="OpenGL32.lib GLu32.lib"
-				OutputFile="$(OutDir)/obj2hmb.exe"
+				OutputFile="$(OutDir)/obj2cgb.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/obj2hmb.pdb"
+				ProgramDatabaseFile="$(OutDir)/obj2cgb.pdb"
 				SubSystem="1"
 				TargetMachine="1"
 			/>
@@ -139,7 +139,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="OpenGL32.lib GLu32.lib"
-				OutputFile="$(OutDir)/obj2hmb.exe"
+				OutputFile="$(OutDir)/obj2cgb.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="1"

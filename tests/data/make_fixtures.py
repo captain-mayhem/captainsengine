@@ -2,8 +2,9 @@
 
 The images all show the same 3x2 picture (rows top to bottom), so the tests
 can check that every decoder delivers the same pixels. A width of 3 makes the
-BMP rows need padding. image.jpg can't be written without an encoder; it's a
-copy of an old texture (script.jpg) of one of the engine's early projects.
+BMP rows need padding. image.jpg is written by the small baseline encoder
+here (quality 100: every quantization step 1; no chroma subsampling), so it
+decodes to the picture within a few levels.
 
 The TIFFs (tiff/) show the picture in the ways TIFF can store it: byte
 orders, compressions (none, PackBits, LZW, Deflate), the predictor, strips
@@ -124,6 +125,117 @@ def gif():
     out += bytes((min_code_size, len(data))) + bytes(data) + b"\0"
     out += b";"
     return out
+
+
+# the zigzag order of an 8x8 block's coefficients
+ZIGZAG = sorted(range(64), key=lambda i: (i // 8 + i % 8, (i // 8) if (i // 8 + i % 8) % 2 else (i % 8)))
+
+
+def huffman_codes(bits, values):
+    """The canonical codes of a JPEG Huffman table: {value: (code, length)}."""
+    codes = {}
+    code = 0
+    k = 0
+    for length in range(1, 17):
+        for _ in range(bits[length - 1]):
+            codes[values[k]] = (code, length)
+            code += 1
+            k += 1
+        code <<= 1
+    return codes
+
+
+def jpeg(pixels):
+    """A baseline JFIF: 3 components at 1x1 sampling, all quantization steps 1.
+
+    One DC and one AC table for all components, with the code lengths of the
+    standard luminance tables (JPEG Annex K.3); the AC table lists every
+    run/size symbol a block of this quality can need.
+    """
+    width, height = len(pixels[0]), len(pixels)
+    dc_bits = [0, 1, 5, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0]
+    dc_values = list(range(12))
+    ac_bits = [0, 2, 1, 3, 3, 2, 4, 3, 5, 5, 4, 4, 0, 0, 1, 125]
+    ac_values = [0x00, 0xF0] + [(run << 4) | size for size in range(1, 11) for run in range(16)]
+    dc_codes = huffman_codes(dc_bits, dc_values)
+    ac_codes = huffman_codes(ac_bits, ac_values)
+
+    out = bytearray()
+    acc = [0, 0]  # bit buffer, bit count
+
+    def put(code, length):
+        acc[0] = (acc[0] << length) | code
+        acc[1] += length
+        while acc[1] >= 8:
+            acc[1] -= 8
+            byte = (acc[0] >> acc[1]) & 0xFF
+            out.append(byte)
+            if byte == 0xFF:
+                out.append(0)  # byte stuffing
+        acc[0] &= (1 << acc[1]) - 1
+
+    def put_value(v):
+        size = abs(v).bit_length()
+        bits = v if v >= 0 else v + (1 << size) - 1
+        return size, bits
+
+    def ycc(r, g, b):
+        return (0.299 * r + 0.587 * g + 0.114 * b,
+                -0.168736 * r - 0.331264 * g + 0.5 * b + 128,
+                0.5 * r - 0.418688 * g - 0.081312 * b + 128)
+
+    cos = [[math.cos((2 * x + 1) * u * math.pi / 16) for x in range(8)] for u in range(8)]
+    previous_dc = [0, 0, 0]
+    for by in range(0, height, 8):
+        for bx in range(0, width, 8):
+            for c in range(3):
+                # the block, edge pixels repeated past the picture, shifted to -128..127
+                block = [[ycc(*pixels[min(by + y, height - 1)][min(bx + x, width - 1)])[c] - 128
+                          for x in range(8)] for y in range(8)]
+                coefficients = [0] * 64
+                for v in range(8):
+                    for u in range(8):
+                        total = sum(block[y][x] * cos[u][x] * cos[v][y] for y in range(8) for x in range(8))
+                        cu = 1 / math.sqrt(2) if u == 0 else 1
+                        cv = 1 / math.sqrt(2) if v == 0 else 1
+                        coefficients[v * 8 + u] = int(round(0.25 * cu * cv * total))
+                zz = [coefficients[i] for i in ZIGZAG]
+                size, bits = put_value(zz[0] - previous_dc[c])
+                previous_dc[c] = zz[0]
+                put(*dc_codes[size])
+                if size:
+                    put(bits, size)
+                run = 0
+                for v in zz[1:]:
+                    if v == 0:
+                        run += 1
+                        continue
+                    while run > 15:
+                        put(*ac_codes[0xF0])
+                        run -= 16
+                    size, bits = put_value(v)
+                    put(*ac_codes[(run << 4) | size])
+                    put(bits, size)
+                    run = 0
+                if run:
+                    put(*ac_codes[0x00])
+    if acc[1]:
+        put((1 << (8 - acc[1])) - 1, 8 - acc[1])  # pad with ones
+
+    def segment(marker, data):
+        return struct.pack(">BBH", 0xFF, marker, len(data) + 2) + data
+
+    def dht(kind_id, bits, values):
+        return bytes([kind_id]) + bytes(bits) + bytes(values)
+
+    return (b"\xFF\xD8"
+            + segment(0xE0, b"JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00")
+            + segment(0xDB, b"\x00" + bytes([1] * 64))
+            + segment(0xC0, struct.pack(">BHHB", 8, height, width, 3)
+                      + b"\x01\x11\x00\x02\x11\x00\x03\x11\x00")
+            + segment(0xC4, dht(0x00, dc_bits, dc_values) + dht(0x10, ac_bits, ac_values))
+            + segment(0xDA, b"\x03\x01\x00\x02\x00\x03\x00\x00\x3F\x00")
+            + bytes(out) + b"\xFF\xD9")
 
 
 def zip_archive():
@@ -446,6 +558,7 @@ def main():
     write("image.png", png(PIXELS, 2))
     write("rgba.png", png([[(255, 0, 0, 255), (0, 0, 255, 0)]], 6))
     write("image.gif", gif())
+    write("image.jpg", jpeg(PIXELS))
     tiffs()
     zip_archive()
     os.makedirs(os.path.join(HERE, "folder"), exist_ok=True)
