@@ -3,7 +3,7 @@
 The images all show the same 3x2 picture (rows top to bottom), so the tests
 can check that every decoder delivers the same pixels. A width of 3 makes the
 BMP rows need padding. image.jpg can't be written without an encoder; it's a
-copy of heroquest/HQClient/textures/other/script.jpg.
+copy of an old texture (script.jpg) of one of the engine's early projects.
 
 The TIFFs (tiff/) show the picture in the ways TIFF can store it: byte
 orders, compressions (none, PackBits, LZW, Deflate), the predictor, strips

@@ -7,16 +7,10 @@ On top level is the code of the engine and its main projects. In this Readme, th
 * **Adventure**: The adventure engine, based on the core engine.
   * AdvEngine/Engine: The adventure engine written in C++.
   * Editor: the mighty adventure editor written in C# (StoryDesigner)
-* **heroquest**: A 3D round-based multiplayer dungeon crawler game. This is where the engine started out before its main focus turned on adventure games.
-  * HQClient: The GUI-Client
-  * HQServer: The server runtime
-  * HQEditor: The Heroquest-specific level editor
 * editor: A very basic 3D scene editor for the core engine
-* Compiler: A java-like VM at a very early stage
 * OSMRacer: A car racing game based on OpenStreetMap data
 * extern: The libs from contrib unpacked and integrated into CMake buildsystem
 * contrib: 3rd-party libraries used by the engine or its projects. Things like libjpeg, lua, etc.
-* playground: Small code snippets, ideas or projects that were not continued. In short, all the stuff that is too useless to be put into the repository at top level but too interesting to be thrown away.
 
 ## How to build
 Requirements: CMake 3.21 or newer and a C++20 compiler (Visual Studio 2022/2026, GCC 13). The Adventure also needs a Java JDK (found through `JAVA_HOME` or `PATH`).
@@ -97,7 +91,7 @@ cge_install_runtime(mygame mygame)         # installs the engine library with th
 cge_web_application(mygame PRELOAD engine.ini@engine.ini assets@assets)
 ```
 
-The engine's own projects (Adventure, Heroquest, OSMRacer) are switched off when the engine isn't the top-level project. `cge_install_runtime` puts the engine library next to the executable on Windows, and into `lib/` (found through an `$ORIGIN/lib` RPATH) on Linux; on the web it installs the page's `.js`, `.wasm` and `.data` files. `cge_web_package(name <source>@<path>... [DESTINATION dir])` makes a data package for web pages.
+The engine's own projects (Adventure, OSMRacer, the editor) are switched off when the engine isn't the top-level project. `cge_install_runtime` puts the engine library next to the executable on Windows, and into `lib/` (found through an `$ORIGIN/lib` RPATH) on Linux; on the web it installs the page's `.js`, `.wasm` and `.data` files. `cge_web_package(name <source>@<path>... [DESTINATION dir])` makes a data package for web pages.
 
 Engine classes and functions that applications use must be marked `CGE_API` (from `<cge_export.h>`). On Linux the library is built with hidden visibility, so anything else isn't visible to applications.
 

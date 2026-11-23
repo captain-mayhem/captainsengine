@@ -43,7 +43,7 @@ android {
                 // the engine and the Adventure share STL objects; of the
                 // engine's projects only the Adventure runs on Android
                 arguments += listOf("-DANDROID_STL=c++_shared",
-                    "-DPROJECT_HEROQUEST=OFF", "-DPROJECT_OSMRACER=OFF")
+                    "-DPROJECT_OSMRACER=OFF")
                 targets += "Adventure"
             }
         }

@@ -1,9 +1,10 @@
 # Notes for Claude
 
-Captain's Game Engine (CGE), LGPL 2.1. The engine library is `Engine/`; the other folders are projects built on it (Adventure, heroquest/HQClient, editor, OSMRacer, playground) and its unit tests (`tests/`).
+Captain's Game Engine (CGE), LGPL 2.1. The engine library is `Engine/`; the other folders are projects built on it (Adventure, editor, OSMRacer) and its unit tests (`tests/`).
 
 ## The modernisation
 - The engine is being modernised on the branch **`modernize`**, driven by the game jewelhunter. The plan and the status of every step (what was done, what was checked and how, what wasn't, and "Worth knowing" notes) are in **`../jewelhunter/PLAN.md`** (GitHub `captain-mayhem/jewelhunter`), Phase 1. Read the step you're working on there, and record a finished step there, not here.
+- Engine work for the game Robotha (`../robotha`) is planned and recorded in **`../robotha/CGE.md`**: the cleanup, glTF, skinning and animation, the editor.
 - The rule from the plan: existing projects keep working by being ported, not by keeping old APIs. Every change is checked against all projects (the regression check below).
 - Other consumers that the plan takes code or lessons from: `../guitads` (guit3: fonts, the web) and `../tads-runner`.
 - Don't commit or push unless asked.
@@ -21,14 +22,14 @@ Release builds; the presets are in `CMakePresets.json`, the machine-specific one
 |---|---|
 | Windows, all projects | `cmake --build --preset windows-local` |
 | Tests, Windows | `ctest --preset windows-local` |
-| Install (Windows) | `cmake --install build/windows-local --config Release` (into `build/install/windows-local`; the Adventure demo, HQClient and the editor are run from there) |
+| Install (Windows) | `cmake --install build/windows-local --config Release` (into `build/install/windows-local`; the Adventure demo and the editor are run from there) |
 | Linux (WSL), all projects | `wsl -e bash -lc "cd /mnt/c/Projects/captainsengine && cmake --build build/default -j8"` |
 | Tests, Linux | `wsl -e bash -lc "cd /mnt/c/Projects/captainsengine && ctest --test-dir build/default"` |
 | Web | PowerShell: `. C:\Projects\emsdk\emsdk_env.ps1; cmake --build build/emscripten` (and `build/emscripten-threads`) |
-| Android | `cmake --build --preset android-local` (configured with `-DPROJECT_HEROQUEST=OFF -DPROJECT_OSMRACER=OFF`; those are desktop programs) |
+| Android | `cmake --build --preset android-local` (configured with `-DPROJECT_OSMRACER=OFF`, a desktop program; the editor is off on Android and the web by default) |
 | Adventure APKs | PowerShell, in `Adventure/android`: `$env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"; .\gradlew.bat assembleDebug` (flavors `player` and `game`, see the README) |
 
-**Regression check** (expected for every step): the Windows build of all projects with no errors and no warnings; the Linux build with only the known warnings (`tmpnam` in the vendored Lua, and `getcwd` in HQServer, which only appears when it's recompiled); the unit tests passing on Windows and Linux (185 on Windows and 184 on Linux as of Phase 1c step 9); no new warnings on the web and Android; and the projects a change touches started and tried (jewelhunter, the Adventure demo, HQClient, the editor).
+**Regression check** (expected for every step): the Windows build of all projects with no errors and no warnings; the Linux build with only the known warning (`tmpnam` in the vendored Lua); the unit tests passing on Windows and Linux (185 on Windows and 184 on Linux as of Phase 1c step 9); no new warnings on the web and Android; and the projects a change touches started and tried (jewelhunter, robotha, the Adventure demo, the editor).
 
 Built as part of jewelhunter (`CGE_DIR`), the engine's own projects and tests are switched off.
 

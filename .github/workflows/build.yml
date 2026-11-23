@@ -21,17 +21,17 @@ jobs:
           - os: ubuntu-latest
             preset: android
             build_dir: build/android
-            options: -DPROJECT_HEROQUEST=OFF -DPROJECT_OSMRACER=OFF
+            options: -DPROJECT_OSMRACER=OFF
           # the engine and the Adventure as web pages, in both
           # web configurations; the other projects are desktop programs
           - os: ubuntu-latest
             preset: emscripten
             build_dir: build/emscripten
-            options: -DPROJECT_HEROQUEST=OFF -DPROJECT_OSMRACER=OFF
+            options: -DPROJECT_OSMRACER=OFF
           - os: ubuntu-latest
             preset: emscripten-threads
             build_dir: build/emscripten-threads
-            options: -DPROJECT_HEROQUEST=OFF -DPROJECT_OSMRACER=OFF
+            options: -DPROJECT_OSMRACER=OFF
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
