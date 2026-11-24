@@ -1,0 +1,75 @@
+{
+ "asset": {
+  "version": "2.0",
+  "generator": "make_fixtures.py"
+ },
+ "bufferViews": [
+  {
+   "buffer": 0,
+   "byteOffset": 0,
+   "byteLength": 48,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 48,
+   "byteLength": 6,
+   "target": 34963
+  }
+ ],
+ "accessors": [
+  {
+   "bufferView": 0,
+   "componentType": 5126,
+   "count": 4,
+   "type": "VEC3",
+   "min": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "max": [
+    1.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "bufferView": 1,
+   "componentType": 5123,
+   "count": 3,
+   "type": "SCALAR"
+  }
+ ],
+ "meshes": [
+  {
+   "name": "mixed",
+   "primitives": [
+    {
+     "attributes": {
+      "POSITION": 0
+     },
+     "mode": 1
+    },
+    {
+     "attributes": {
+      "POSITION": 0
+     },
+     "indices": 1
+    }
+   ]
+  }
+ ],
+ "nodes": [
+  {
+   "name": "mixed",
+   "mesh": 0
+  }
+ ],
+ "buffers": [
+  {
+   "byteLength": 54,
+   "uri": "data:application/octet-stream;base64,AAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAACAPwAAgD8AAAAAAAAAAAAAgD8AAAAAAAABAAIA"
+  }
+ ]
+}

@@ -16,7 +16,7 @@ TR_CHANNEL(CGE_DrawContext);
 
 namespace{
 
-const int BUILTIN_COUNT = 5;
+const int BUILTIN_COUNT = (int)BuiltinShader::LitVertexColor+1;
 
 //! what a cached pipeline was made for
 struct PipelineKey{
@@ -117,6 +117,7 @@ struct DrawContext::Impl{
   bool lightsDirty = true;
   Bound lightsBound;
   Shader* litShader = nullptr;
+  Shader* litVertexColorShader = nullptr;
 
   Texture* texture = nullptr;
   Sampler* sampler = nullptr;
@@ -196,6 +197,10 @@ void DrawContext::setMaterial(const Material& material){
   copy4(uniforms.ambient, ambient.r, ambient.g, ambient.b, ambient.a);
   const Color& specular = material.getSpecular();
   copy4(uniforms.specular, specular.r, specular.g, specular.b, material.getPower());
+  Material::AlphaMode mode = material.getAlphaMode();
+  uniforms.params[0] = mode == Material::AlphaMode::Mask ? material.getAlphaCutoff() : 0.0f;
+  uniforms.params[1] = material.isDoubleSided() ? 1.0f : 0.0f;
+  uniforms.params[2] = mode == Material::AlphaMode::Opaque || mode == Material::AlphaMode::Mask ? 1.0f : 0.0f;
   setMaterial(uniforms);
 }
 
@@ -244,8 +249,9 @@ void DrawContext::setLightUniforms(LightUniforms& uniforms, int index, const Lig
   copy4(uniforms.attenuation[index], light.getAttenuation(), 0, 0, 0);
 }
 
-void DrawContext::setLitShader(Shader* shader){
+void DrawContext::setLitShader(Shader* shader, Shader* vertexColorShader){
   impl_->litShader = shader;
+  impl_->litVertexColorShader = vertexColorShader;
 }
 
 void DrawContext::setTexture(Texture* texture, Sampler* sampler){
@@ -291,6 +297,8 @@ CullMode DrawContext::getCull() const{
 Shader* DrawContext::getShader(BuiltinShader shader){
   if (shader == BuiltinShader::Lit && impl_->litShader)
     return impl_->litShader;
+  if (shader == BuiltinShader::LitVertexColor && impl_->litShader)
+    return impl_->litVertexColorShader ? impl_->litVertexColorShader : impl_->litShader;
   int idx = (int)shader;
   if (idx < 0 || idx >= BUILTIN_COUNT)
     return nullptr;
@@ -359,6 +367,8 @@ void DrawContext::forgetShader(Shader* shader){
   }
   if (impl_->litShader == shader)
     impl_->litShader = nullptr;
+  if (impl_->litVertexColorShader == shader)
+    impl_->litVertexColorShader = nullptr;
 }
 
 bool DrawContext::prepare(Shader* shader, const VertexLayout& layout, PrimitiveType primitive){

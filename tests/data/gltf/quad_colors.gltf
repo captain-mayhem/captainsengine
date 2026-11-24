@@ -1,0 +1,142 @@
+{
+ "asset": {
+  "version": "2.0",
+  "generator": "make_fixtures.py"
+ },
+ "bufferViews": [
+  {
+   "buffer": 0,
+   "byteOffset": 0,
+   "byteLength": 48,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 48,
+   "byteLength": 48,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 96,
+   "byteLength": 32,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 128,
+   "byteLength": 48,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 176,
+   "byteLength": 12,
+   "target": 34963
+  }
+ ],
+ "accessors": [
+  {
+   "bufferView": 0,
+   "componentType": 5126,
+   "count": 4,
+   "type": "VEC3",
+   "min": [
+    0,
+    0,
+    0.0
+   ],
+   "max": [
+    3,
+    2,
+    0.0
+   ]
+  },
+  {
+   "bufferView": 1,
+   "componentType": 5126,
+   "count": 4,
+   "type": "VEC3",
+   "min": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "max": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "bufferView": 2,
+   "componentType": 5126,
+   "count": 4,
+   "type": "VEC2"
+  },
+  {
+   "bufferView": 3,
+   "componentType": 5126,
+   "count": 4,
+   "type": "VEC3",
+   "min": [
+    0.5,
+    0.5,
+    0.5
+   ],
+   "max": [
+    0.5,
+    0.5,
+    0.5
+   ]
+  },
+  {
+   "bufferView": 4,
+   "componentType": 5123,
+   "count": 6,
+   "type": "SCALAR"
+  }
+ ],
+ "materials": [
+  {
+   "pbrMetallicRoughness": {
+    "metallicFactor": 0.0
+   }
+  }
+ ],
+ "meshes": [
+  {
+   "primitives": [
+    {
+     "attributes": {
+      "POSITION": 0,
+      "NORMAL": 1,
+      "TEXCOORD_0": 2,
+      "COLOR_0": 3
+     },
+     "indices": 4,
+     "material": 0
+    }
+   ]
+  }
+ ],
+ "nodes": [
+  {
+   "name": "grey",
+   "mesh": 0
+  }
+ ],
+ "scenes": [
+  {
+   "nodes": [
+    0
+   ]
+  }
+ ],
+ "buffers": [
+  {
+   "byteLength": 188,
+   "uri": "data:application/octet-stream;base64,AAAAAAAAAAAAAAAAAABAQAAAAAAAAAAAAABAQAAAAEAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAgD8AAIA/AACAPwAAgD8AAAAAAAAAAAAAAAAAAAA/AAAAPwAAAD8AAAA/AAAAPwAAAD8AAAA/AAAAPwAAAD8AAAA/AAAAPwAAAD8AAAEAAgAAAAIAAwA="
+  }
+ ]
+}

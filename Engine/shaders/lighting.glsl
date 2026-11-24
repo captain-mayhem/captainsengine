@@ -15,6 +15,8 @@ layout(std140) uniform CGE_Material{
   vec4 cge_specular;
   // x: 1 if the surface is textured with cge_texture
   ivec4 cge_materialFlags;
+  // x: the alpha cutoff (0: none), y: 1 if double-sided, z: 1 if opaque
+  vec4 cge_materialParams;
 };
 
 // uniform buffer slot 3 (Gfx::SLOT_LIGHTS): the lights in view space
@@ -39,6 +41,25 @@ vec4 cge_surfaceColor(vec2 texcoord){
   if (cge_materialFlags.x != 0)
     color *= texture(cge_texture, texcoord);
   return color;
+}
+
+// the material's alpha mode: leaves out pixels below the alpha cutoff, and
+// opaque materials ignore the alpha (call it in fragment shaders)
+vec4 cge_alphaMode(vec4 color){
+  if (color.a < cge_materialParams.x)
+    discard;
+  if (cge_materialParams.z != 0.0)
+    color.a = 1.0;
+  return color;
+}
+
+// the surface normal (normalised) facing the viewer on the back of
+// double-sided materials (call it in fragment shaders)
+vec3 cge_surfaceNormal(vec3 normal){
+  normal = normalize(normal);
+  if (cge_materialParams.y != 0.0 && !gl_FrontFacing)
+    normal = -normal;
+  return normal;
 }
 
 // a light's direction from position (normalised) and its attenuation

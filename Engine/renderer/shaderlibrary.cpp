@@ -103,9 +103,19 @@ bool ShaderLibrary::loadSource(const std::string& path, std::string& source){
   return resolve(path, source, 0);
 }
 
-bool ShaderLibrary::loadDesc(const std::string& vertexPath, const std::string& fragmentPath, ShaderDesc& desc){
+bool ShaderLibrary::loadDesc(const std::string& vertexPath, const std::string& fragmentPath, ShaderDesc& desc,
+  const std::vector<std::string>& defines){
   if (!loadSource(vertexPath, desc.vertexSource) || !loadSource(fragmentPath, desc.fragmentSource))
     return false;
+  if (!defines.empty()){
+    std::string header;
+    for (const std::string& define : defines)
+      header += "#define "+define+"\n";
+    //the messages keep the files' line numbers
+    header += "#line 1\n";
+    desc.vertexSource = header+desc.vertexSource;
+    desc.fragmentSource = header+desc.fragmentSource;
+  }
   desc.uniformBlocks = {{"CGE_Frame", SLOT_FRAME}, {"CGE_Draw", SLOT_DRAW}, {"CGE_Material", SLOT_MATERIAL}, {"CGE_Lights", SLOT_LIGHTS}};
   desc.textures = {{"cge_texture", SLOT_TEXTURE}};
   if (desc.name.empty())
@@ -135,6 +145,10 @@ ShaderDesc ShaderLibrary::getBuiltinDesc(BuiltinShader shader){
       //the sprites' vertex shader
       loadDesc("engine/sprite.vert", "engine/sprite_distance.frag", desc);
       desc.name = "engine/sprite_distance";
+      return desc;
+    case BuiltinShader::LitVertexColor:
+      loadDesc("engine/lit.vert", "engine/lit.frag", desc, {"CGE_VERTEX_COLOR"});
+      desc.name = "engine/lit_vertex_color";
       return desc;
   }
   //the built-in files are part of the engine library, so this can't fail

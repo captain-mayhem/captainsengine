@@ -14,6 +14,7 @@
 #include <math/matrixstack.h>
 #include <mesh/mesh.h>
 #include <mesh/model.h>
+#include <mesh/modelfile.h>
 #include <platform/assets.h>
 #include <renderer/camera.h>
 #include <renderer/drawcontext.h>
@@ -584,6 +585,61 @@ TEST_F(Drawing, ModelsGiveMeshesWithoutMaterialTheirDeviceTexture){
   end();
   EXPECT_EQ(ctx_->getTexture(), nullptr);
   expectPicture(read(rt.get()));
+}
+
+TEST_F(Drawing, GltfModelsShowTheirEmbeddedTextures){
+  std::unique_ptr<ModelFile> model = ModelFile::load("gltf/quad_picture.gltf");
+  ASSERT_NE(model, nullptr);
+  auto rt = target(3, 2);
+  begin(rt.get());
+  model->render(*ctx_);
+  end();
+  EXPECT_EQ(ctx_->getTexture(), nullptr);
+  expectPicture(read(rt.get()));
+}
+
+TEST_F(Drawing, GltfModelsMultiplyTheVertexColors){
+  //white with grey vertex colours (linear 0.5)
+  std::unique_ptr<ModelFile> model = ModelFile::load("gltf/quad_colors.gltf");
+  ASSERT_NE(model, nullptr);
+  auto rt = target(3, 2);
+  begin(rt.get());
+  model->render(*ctx_);
+  end();
+  for (const Pixel& p : read(rt.get()))
+    EXPECT_TRUE(isNear(p, 188, 188, 188));
+}
+
+TEST_F(Drawing, GltfAlphaMasksLeaveOutPixels){
+  //an opaque red and a clear blue pixel, cutoff 0.5
+  std::unique_ptr<ModelFile> model = ModelFile::load("gltf/quad_mask.gltf");
+  ASSERT_NE(model, nullptr);
+  auto rt = target(2, 1);
+  begin(rt.get());
+  model->render(*ctx_);
+  end();
+  std::vector<Pixel> pixels = read(rt.get());
+  EXPECT_TRUE(isNear(pixels[0], 255, 0, 0));
+  EXPECT_TRUE(isNear(pixels[1], 0, 0, 0));
+}
+
+TEST_F(Drawing, GltfDoubleSidedBacksAreDrawnAndLit){
+  //a green quad seen from behind, its normals away from the viewer, lit from the viewer
+  std::unique_ptr<ModelFile> model = ModelFile::load("gltf/quad_back.gltf");
+  ASSERT_NE(model, nullptr);
+  Light light(Light::Directional, Vec3f(0, 0, 1));
+  auto rt = target(3, 2);
+  begin(rt.get());
+  ctx_->setCull(CullMode::Back);
+  ctx_->setLights({&light});
+  model->render(*ctx_);
+  ctx_->clearLights();
+  EXPECT_EQ(ctx_->getCull(), CullMode::Back);
+  ctx_->setCull(CullMode::Off);
+  end();
+  //fully lit (the ambient 0.2 on top saturates); the back's normals unflipped would leave only the ambient
+  for (const Pixel& p : read(rt.get()))
+    EXPECT_TRUE(isNear(p, 0, 255, 0));
 }
 
 TEST_F(Drawing, ScenesLoadTheirTexturesOntoTheDevice){

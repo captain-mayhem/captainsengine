@@ -30,11 +30,8 @@ public:
   Model(Mesh* mesh);
   //! Destructor
   virtual ~Model();
-  //! renders the model through a render device in the context's model matrix
-  /*! The mesh's materials decide the textures. Submeshes without a
-      material get the model's device texture (stage 0, assignDeviceTexture)
-      or, without one, the context's texture. */
-  void render(Gfx::DrawContext& ctx, Mesh::DrawPart part);
+  //! a copy of the model and its children; the mesh is shared
+  Model* clone() const override;
   //! Get the model
   Mesh* getMesh() const {return mesh_;}
   //! Set a bounding object
@@ -50,6 +47,11 @@ public:
   //! Get an attribute
   int getAttrib(int position) {return attribs_[position];}
 protected:
+  //! draws the mesh
+  /*! The mesh's materials decide the textures. Submeshes without a
+      material get the model's device texture (stage 0, assignDeviceTexture)
+      or, without one, the context's texture. */
+  void renderSelf(Gfx::DrawContext& ctx, Mesh::DrawPart part) override;
   //! The mesh
   Mesh* mesh_;
   //! The corresponding bounding object

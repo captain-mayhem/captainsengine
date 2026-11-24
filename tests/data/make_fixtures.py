@@ -21,6 +21,13 @@ and click.ogg come from the Adventure's demo game
 (Adventure/AdvEngine/test/data). The audio tests encode Ogg Vorbis
 themselves.
 
+The glTF models (gltf/) are written by the small glTF writer here: parts
+(meshes with every index size, primitive mode and attribute kind the reader
+handles, two materials and a node hierarchy) as .gltf with external files,
+as .gltf with data URIs and as .glb; one-quad models for the drawing tests;
+and files with errors. Only gltf_models() writes them:
+python -c "import make_fixtures; make_fixtures.gltf_models()".
+
 The video (video/mpeg1.mpg) is made with ffmpeg, if it is on the PATH (it is
 skipped otherwise): two seconds of MPEG-1 at 25 pictures per second, 160x120
 (not a multiple of 16 high), with the quadrants red, green, blue and white
@@ -553,6 +560,276 @@ def tiffs():
     write("tiff/gradient.tif", tiff(gradient, 64, 64, 1, photometric=1, compression=5))
 
 
+# glTF 2.0 models (gltf/), for the ModelFile tests (test_modelfile.cpp) and
+# the drawing tests (test_drawing.cpp)
+
+GL_BYTE, GL_UNSIGNED_BYTE, GL_SHORT, GL_UNSIGNED_SHORT, GL_UNSIGNED_INT, GL_FLOAT = 5120, 5121, 5122, 5123, 5125, 5126
+ARRAY_BUFFER, ELEMENT_ARRAY_BUFFER = 34962, 34963
+
+
+class Gltf:
+    """A glTF document with one binary buffer and PNG images. It is written
+    as .gltf with an external .bin and image files, as .gltf with data URIs,
+    or as .glb with the images in the binary chunk."""
+
+    def __init__(self):
+        self.doc = {"asset": {"version": "2.0", "generator": "make_fixtures.py"}}
+        self.bin = bytearray()
+        self.images = []  # (file name, PNG bytes)
+
+    def add(self, key, item):
+        self.doc.setdefault(key, []).append(item)
+        return len(self.doc[key]) - 1
+
+    def view(self, data, target=None):
+        while len(self.bin) % 4:
+            self.bin.append(0)
+        view = {"buffer": 0, "byteOffset": len(self.bin), "byteLength": len(data)}
+        if target:
+            view["target"] = target
+        self.bin += data
+        return self.add("bufferViews", view)
+
+    def accessor(self, values, kind, component, normalized=False, indices=False):
+        """values: tuples, or numbers for SCALAR."""
+        fmt = {GL_BYTE: "b", GL_UNSIGNED_BYTE: "B", GL_SHORT: "h", GL_UNSIGNED_SHORT: "H",
+               GL_UNSIGNED_INT: "I", GL_FLOAT: "f"}[component]
+        rows = [v if isinstance(v, tuple) else (v,) for v in values]
+        flat = [x for row in rows for x in row]
+        data = struct.pack("<%d%s" % (len(flat), fmt), *flat)
+        accessor = {"bufferView": self.view(data, ELEMENT_ARRAY_BUFFER if indices else ARRAY_BUFFER),
+                    "componentType": component, "count": len(rows), "type": kind}
+        if normalized:
+            accessor["normalized"] = True
+        if kind == "VEC3" and component == GL_FLOAT and not indices:
+            # POSITION needs its bounds
+            accessor["min"] = [min(r[i] for r in rows) for i in range(3)]
+            accessor["max"] = [max(r[i] for r in rows) for i in range(3)]
+        return self.add("accessors", accessor)
+
+    def image(self, name, data):
+        self.images.append((name, data))
+        index = self.add("images", {"name": name})
+        return self.add("textures", {"source": index})
+
+    def write(self, path, variant):
+        """variant: "gltf" (external files), "embedded" (data URIs) or "glb"."""
+        import base64
+        import copy
+        import json
+        doc = copy.deepcopy(self.doc)
+        data = bytearray(self.bin)
+        folder = os.path.dirname(path)
+        base = os.path.splitext(os.path.basename(path))[0]
+        for i, (name, png_data) in enumerate(self.images):
+            image = doc["images"][i]
+            if variant == "gltf":
+                image["uri"] = name
+                write(os.path.join(folder, name), png_data)
+            elif variant == "embedded":
+                image["uri"] = "data:image/png;base64," + base64.b64encode(png_data).decode()
+            else:
+                while len(data) % 4:
+                    data.append(0)
+                doc.setdefault("bufferViews", []).append({"buffer": 0, "byteOffset": len(data), "byteLength": len(png_data)})
+                data += png_data
+                image["bufferView"] = len(doc["bufferViews"]) - 1
+                image["mimeType"] = "image/png"
+        if data:
+            buffer = {"byteLength": len(data)}
+            if variant == "gltf":
+                buffer["uri"] = base + ".bin"
+                write(os.path.join(folder, base + ".bin"), bytes(data))
+            elif variant == "embedded":
+                buffer["uri"] = "data:application/octet-stream;base64," + base64.b64encode(bytes(data)).decode()
+            doc["buffers"] = [buffer]
+        text = json.dumps(doc, indent=1).encode()
+        if variant != "glb":
+            write(path, text)
+            return
+        while len(text) % 4:
+            text += b" "
+        while len(data) % 4:
+            data.append(0)
+        chunks = struct.pack("<I4s", len(text), b"JSON") + text
+        if data:
+            chunks += struct.pack("<I4s", len(data), b"BIN\0") + bytes(data)
+        write(path, struct.pack("<4sII", b"glTF", 2, 12 + len(chunks)) + chunks)
+
+
+def quad_positions(x0, y0, x1, y1):
+    """A quad in the xy plane, counter-clockwise seen from +z."""
+    return [(x0, y0, 0.0), (x1, y0, 0.0), (x1, y1, 0.0), (x0, y1, 0.0)]
+
+
+def parts_model():
+    """Meshes with the attributes, index sizes, primitive modes and
+    materials the reader handles, and a node hierarchy with every kind of
+    transformation. test_modelfile.cpp checks what it reads against this."""
+    g = Gltf()
+    picture = g.image("picture.png", png(PIXELS, 2))
+    g.add("materials", {
+        "name": "picture",
+        "pbrMetallicRoughness": {"baseColorFactor": [0.5, 0.5, 0.5, 1.0], "baseColorTexture": {"index": picture},
+                                 "metallicFactor": 0.0, "roughnessFactor": 1.0},
+        "alphaMode": "MASK", "alphaCutoff": 0.25, "doubleSided": True})
+    g.add("materials", {
+        "name": "metal",
+        "pbrMetallicRoughness": {"baseColorFactor": [1.0, 0.0, 0.0, 0.5], "metallicFactor": 1.0, "roughnessFactor": 0.5},
+        "alphaMode": "BLEND"})
+    # mesh 0 "box": a quad with normals, texture coordinates and 16-bit
+    # indices, and a quad with vertex colours and 8-bit indices
+    top = {
+        "attributes": {
+            "POSITION": g.accessor(quad_positions(0.0, 0.0, 1.0, 1.0), "VEC3", GL_FLOAT),
+            "NORMAL": g.accessor([(0.0, 0.0, 1.0)] * 4, "VEC3", GL_FLOAT),
+            "TEXCOORD_0": g.accessor([(0.0, 1.0), (1.0, 1.0), (1.0, 0.0), (0.0, 0.0)], "VEC2", GL_FLOAT),
+        },
+        "indices": g.accessor([0, 1, 2, 0, 2, 3], "SCALAR", GL_UNSIGNED_SHORT, indices=True),
+        "material": 0}
+    side = {
+        "attributes": {
+            "POSITION": g.accessor([(0.0, 0.0, 0.0), (0.0, 0.0, 1.0), (0.0, 1.0, 1.0), (0.0, 1.0, 0.0)], "VEC3", GL_FLOAT),
+            "NORMAL": g.accessor([(-1.0, 0.0, 0.0)] * 4, "VEC3", GL_FLOAT),
+            "COLOR_0": g.accessor([(255, 0, 0, 255), (0, 255, 0, 255), (0, 0, 255, 255), (255, 255, 255, 51)],
+                                  "VEC4", GL_UNSIGNED_BYTE, normalized=True),
+        },
+        "indices": g.accessor([0, 1, 2, 0, 2, 3], "SCALAR", GL_UNSIGNED_BYTE, indices=True),
+        "material": 1}
+    g.add("meshes", {"name": "box", "primitives": [top, side]})
+    # mesh 1 "strip": a triangle strip with 32-bit indices, quantized texture
+    # coordinates, no normals and no material
+    g.add("meshes", {"name": "strip", "primitives": [{
+        "attributes": {
+            "POSITION": g.accessor([(0.0, 0.0, 0.0), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (1.0, 1.0, 0.0)], "VEC3", GL_FLOAT),
+            "TEXCOORD_0": g.accessor([(0, 0), (65535, 0), (0, 65535), (65535, 65535)], "VEC2", GL_UNSIGNED_SHORT,
+                                     normalized=True),
+        },
+        "indices": g.accessor([0, 1, 2, 3], "SCALAR", GL_UNSIGNED_INT, indices=True),
+        "mode": 5}]})
+    # mesh 2 (no name): a triangle fan without indices
+    g.add("meshes", {"primitives": [{
+        "attributes": {"POSITION": g.accessor(quad_positions(0.0, 0.0, 1.0, 1.0), "VEC3", GL_FLOAT)},
+        "mode": 6}]})
+    s = math.sqrt(0.5)
+    g.doc["nodes"] = [
+        {"name": "body", "mesh": 0, "translation": [1.0, 2.0, 3.0], "children": [1, 2, 3]},
+        {"name": "socket_left", "translation": [0.5, 0.0, 0.0], "rotation": [0.0, s, 0.0, s]},
+        {"name": "socket_right", "scale": [2.0, 2.0, 2.0], "children": [4]},
+        # column-major: a translation by (0, 1, 0)
+        {"name": "arm", "mesh": 1, "matrix": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1]},
+        {"name": "tip", "mesh": 2},
+        {"name": "marker"},
+        # the second user of mesh 0
+        {"name": "body_copy", "mesh": 0, "translation": [-1.0, 0.0, 0.0]},
+        # not in the scene
+        {"name": "unused"},
+    ]
+    g.doc["scenes"] = [{"nodes": [0, 5, 6]}]
+    g.doc["scene"] = 0
+    return g
+
+
+def quad_model(name, x0, y0, x1, y1, material, colors=None, texcoords=True, clockwise=False, normal=(0.0, 0.0, 1.0)):
+    """A one-quad model for the drawing tests. Clockwise: seen from +z, the
+    quad shows its back."""
+    g = Gltf()
+    positions = quad_positions(x0, y0, x1, y1)
+    if clockwise:
+        positions = [positions[0], positions[3], positions[2], positions[1]]
+    attributes = {
+        "POSITION": g.accessor(positions, "VEC3", GL_FLOAT),
+        "NORMAL": g.accessor([normal] * 4, "VEC3", GL_FLOAT),
+    }
+    if texcoords:
+        # v from the top of the image
+        uv = [(0.0, 1.0), (1.0, 1.0), (1.0, 0.0), (0.0, 0.0)]
+        if clockwise:
+            uv = [uv[0], uv[3], uv[2], uv[1]]
+        attributes["TEXCOORD_0"] = g.accessor(uv, "VEC2", GL_FLOAT)
+    if colors:
+        attributes["COLOR_0"] = g.accessor(colors, "VEC3", GL_FLOAT)
+    if "image" in material:
+        material = dict(material)
+        image = material.pop("image")
+        pbr = dict(material.get("pbrMetallicRoughness", {}))
+        pbr["baseColorTexture"] = {"index": g.image(image[0], image[1])}
+        material["pbrMetallicRoughness"] = pbr
+    g.add("materials", material)
+    g.add("meshes", {"primitives": [{"attributes": attributes,
+                                     "indices": g.accessor([0, 1, 2, 0, 2, 3], "SCALAR", GL_UNSIGNED_SHORT, indices=True),
+                                     "material": 0}]})
+    g.doc["nodes"] = [{"name": name, "mesh": 0}]
+    g.doc["scenes"] = [{"nodes": [0]}]
+    return g
+
+
+def gltf_models():
+    os.makedirs(os.path.join(HERE, "gltf"), exist_ok=True)
+    path = lambda name: os.path.join(HERE, "gltf", name)
+    parts = parts_model()
+    parts.write(path("parts.gltf"), "gltf")
+    parts.write(path("parts_embedded.gltf"), "embedded")
+    parts.write(path("parts.glb"), "glb")
+
+    # the drawing tests: image.png on a quad of 3x2 pixels; grey vertex
+    # colours (linear 0.5, sRGB 188) on a white quad; rgba.png (an opaque red
+    # and a clear blue pixel) on a 2x1 quad with an alpha mask; the back of a
+    # green double-sided quad, its normals away from the viewer. All have
+    # texture coordinates: a lit draw without them makes NVIDIA's driver
+    # recompile the vertex shader once, which its debug output reports
+    white = {"pbrMetallicRoughness": {"metallicFactor": 0.0}}
+    quad_model("picture", 0, 0, 3, 2, dict(white, image=("picture.png", png(PIXELS, 2)))).write(
+        path("quad_picture.gltf"), "embedded")
+    quad_model("grey", 0, 0, 3, 2, white, colors=[(0.5, 0.5, 0.5)] * 4).write(
+        path("quad_colors.gltf"), "embedded")
+    quad_model("mask", 0, 0, 2, 1, dict(white, alphaMode="MASK", alphaCutoff=0.5,
+                                         image=("rgba.png", png([[(255, 0, 0, 255), (0, 0, 255, 0)]], 6)))).write(
+        path("quad_mask.gltf"), "embedded")
+    green = {"pbrMetallicRoughness": {"baseColorFactor": [0.0, 1.0, 0.0, 1.0], "metallicFactor": 0.0},
+             "doubleSided": True}
+    quad_model("back", 0, 0, 3, 2, green, clockwise=True, normal=(0.0, 0.0, -1.0)).write(
+        path("quad_back.gltf"), "embedded")
+
+    # files with errors: the reader says why instead of crashing
+    write("gltf/broken.gltf", b'{"asset": {"version": "2.0"}, "nodes": [')
+    write("gltf/missing_buffer.gltf", json_bytes({
+        "asset": {"version": "2.0"}, "buffers": [{"uri": "nothere.bin", "byteLength": 12}]}))
+    write("gltf/draco.gltf", json_bytes({
+        "asset": {"version": "2.0"}, "extensionsUsed": ["KHR_draco_mesh_compression"],
+        "extensionsRequired": ["KHR_draco_mesh_compression"]}))
+    with open(path("parts.glb"), "rb") as f:
+        write("gltf/truncated.glb", f.read()[:100])
+    # an index past the vertices: the file is invalid
+    g = Gltf()
+    g.add("meshes", {"name": "bad", "primitives": [{
+        "attributes": {"POSITION": g.accessor(quad_positions(0.0, 0.0, 1.0, 1.0), "VEC3", GL_FLOAT)},
+        "indices": g.accessor([0, 1, 7], "SCALAR", GL_UNSIGNED_SHORT, indices=True)}]})
+    g.doc["nodes"] = [{"name": "bad", "mesh": 0}]
+    g.write(path("bad_index.gltf"), "embedded")
+    # lines next to a triangle: the lines are left out
+    g = Gltf()
+    positions = g.accessor(quad_positions(0.0, 0.0, 1.0, 1.0), "VEC3", GL_FLOAT)
+    g.add("meshes", {"name": "mixed", "primitives": [
+        {"attributes": {"POSITION": positions}, "mode": 1},
+        {"attributes": {"POSITION": positions},
+         "indices": g.accessor([0, 1, 2], "SCALAR", GL_UNSIGNED_SHORT, indices=True)}]})
+    g.doc["nodes"] = [{"name": "mixed", "mesh": 0}]
+    g.write(path("lines.gltf"), "embedded")
+    # images that can't be decoded: not an image, a PNG and a JPEG with
+    # broken data; the model is read without their textures
+    for name, data in (("garbage", b"this is no image"),
+                       ("broken_png", b"\x89PNG\r\n\x1a\n" + b"\0" * 40),
+                       ("broken_jpeg", b"\xff\xd8\xff\xe0" + b"\x12" * 40)):
+        g = quad_model(name, 0, 0, 1, 1, dict(white, image=(name + ".png", data)))
+        g.write(path("bad_image_%s.gltf" % name), "embedded")
+
+
+def json_bytes(doc):
+    import json
+    return json.dumps(doc, indent=1).encode()
+
+
 def main():
     write("image.bmp", bmp())
     write("image.png", png(PIXELS, 2))
@@ -565,6 +842,7 @@ def main():
     write("folder/a.txt", b"first\n")
     write("folder/b.txt", b"second\n")
     atlases()
+    gltf_models()
     sounds()
     videos()
 

@@ -3,9 +3,17 @@
 in vec3 v_position;
 in vec3 v_normal;
 in vec2 v_texcoord;
+#ifdef CGE_VERTEX_COLOR
+in vec4 v_color;
+#endif
 
 out vec4 o_color;
 
 void main(){
-  o_color = cge_shade(cge_surfaceColor(v_texcoord), normalize(v_normal), v_position);
+  vec4 color = cge_surfaceColor(v_texcoord);
+#ifdef CGE_VERTEX_COLOR
+  color *= v_color;
+#endif
+  color = cge_alphaMode(color);
+  o_color = cge_shade(color, cge_surfaceNormal(v_normal), v_position);
 }

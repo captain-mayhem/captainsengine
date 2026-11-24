@@ -90,10 +90,12 @@ public:
   int getNumLights() const;
   //! writes a light into entry index of uniforms, in the view space of view
   static void setLightUniforms(LightUniforms& uniforms, int index, const Light& light, const Matrix& view);
-  //! the shader that lit draws use instead of BuiltinShader::Lit; nullptr for that
-  /*! It has to take the same vertex inputs and blocks; render techniques
-      use it, e.g. for the light prepass's G-buffer. */
-  void setLitShader(Shader* shader);
+  //! the shaders that lit draws use instead of BuiltinShader::Lit and LitVertexColor; nullptr for those
+  /*! They have to take the same vertex inputs and blocks; render techniques
+      use them, e.g. for the light prepass's G-buffer. Without a
+      vertexColorShader, draws with vertex colours use shader too (without
+      the colours). */
+  void setLitShader(Shader* shader, Shader* vertexColorShader = nullptr);
 
   // --- texture and pipeline state ---
 

@@ -61,10 +61,8 @@ void Scene::clear(){
 }
 
 void Scene::render(Gfx::DrawContext& ctx, Mesh::DrawPart part){
-  for (SceneNode* node : mNodes){
-    if (node->getType() == SceneNode::MESH)
-      static_cast<Model*>(node)->render(ctx, part);
-  }
+  for (SceneNode* node : mNodes)
+    node->render(ctx, part);
 }
 
 //! Get a model

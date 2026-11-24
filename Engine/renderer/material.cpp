@@ -1,10 +1,30 @@
 #include "material.h"
 #include <system/file.h>
 #include <system/engine.h>
+#include <image/image.h>
+#include "renderdevice.h"
+#include "textureloader.h"
 
 using namespace CGE;
 
-Material::Material(std::string const& name) : mName(name){
+MaterialTexture::MaterialTexture(std::unique_ptr<Image> image, std::string const& name) :
+  mName(name), mImage(std::move(image)), mDevice(nullptr){
+}
+
+MaterialTexture::~MaterialTexture(){
+}
+
+Gfx::Texture* MaterialTexture::getTexture(Gfx::RenderDevice& device){
+  if (mDevice)
+    return mDevice == &device ? mTexture.get() : nullptr;
+  mDevice = &device;
+  if (mImage)
+    mTexture = Gfx::createTexture(device, *mImage, false, mName);
+  mImage.reset();
+  return mTexture.get();
+}
+
+Material::Material(std::string const& name) : mName(name), mAlphaMode(AlphaMode::Default), mAlphaCutoff(0.5f), mDoubleSided(false){
   mAmbient = Color(0.0f,0.0f,0.0f,1.0f);
   mDiffuse = Color(1.0f,1.0f,1.0f,1.0f);
   mSpecular = Color(0.0f,0.0f,0.0f,1.0f);

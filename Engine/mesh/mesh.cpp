@@ -48,7 +48,7 @@ Mesh::Mesh() : mComputeEdges(true), mDeviceTried(false){
   filename_ = "none";
   m_visible = true;
   min_ = Vector3D(FLT_MAX,FLT_MAX,FLT_MAX);
-  max_ = Vector3D(FLT_MIN,FLT_MIN,FLT_MIN);
+  max_ = Vector3D(-FLT_MAX,-FLT_MAX,-FLT_MAX);
   center_ = Vector3D();
   mMaterials.push_back(nullptr);
   //vertices_.reserve(200000);
@@ -100,6 +100,15 @@ void Mesh::addNormal(float x, float y, float z){
   mComputeEdges = false;
   mNormals.push_back(Vec3f(x, y, z));
   ++mNumNormals;
+}
+
+void Mesh::addColor(float r, float g, float b, float a){
+  mColors.push_back(Vec4f(r, g, b, a));
+}
+
+int Mesh::addMaterial(Material* material){
+  mMaterials.push_back(material);
+  return (int)mMaterials.size()-1;
 }
 
   
@@ -399,7 +408,8 @@ void Mesh::buildDrawData(std::vector<float>& vdata, std::vector<int>& idata){
   mDrawList.clear();
   std::map<Vec3i, int> distinctVertices;
   vdata.clear();
-  vdata.reserve(numVertices_*(3 + 3 + 2));
+  bool colors = !mColors.empty();
+  vdata.reserve(numVertices_*(3 + 3 + 2 + (colors ? 4 : 0)));
   idata.clear();
   idata.reserve(numTriangles_ * 3);
   int vidx = 0;
@@ -437,6 +447,10 @@ void Mesh::buildDrawData(std::vector<float>& vdata, std::vector<int>& idata){
           else
             norm = getNormal(tri->data[j]);
           vdata.push_back(norm.x); vdata.push_back(norm.y); vdata.push_back(norm.z);
+          if (colors){
+            Vec4f col = tri->data[j] < (int)mColors.size() ? mColors[tri->data[j]] : Vec4f(1, 1, 1, 1);
+            vdata.push_back(col.x); vdata.push_back(col.y); vdata.push_back(col.z); vdata.push_back(col.w);
+          }
           idata.push_back(vidx);
           distinctVertices[idx] = ++vidx;
         }
@@ -459,25 +473,25 @@ bool Mesh::buildBuffers(Gfx::RenderDevice& device){
 
 namespace{
 
-//! the vertex layouts of buildDrawData's vertices
-const Gfx::VertexLayout& meshLayout(bool texCoords){
+//! the vertex layout of buildDrawData's vertices
+Gfx::VertexLayout meshLayout(bool texCoords, bool colors){
   using namespace Gfx;
-  static const VertexLayout withTexCoords = {
-    {
-      {ATTR_POSITION, VertexFormat::Float3, 0, 0},
-      {ATTR_TEXCOORD, VertexFormat::Float2, 0, 12},
-      {ATTR_NORMAL, VertexFormat::Float3, 0, 20},
-    },
-    {{(3+2+3)*(int)sizeof(float), false}},
-  };
-  static const VertexLayout withoutTexCoords = {
-    {
-      {ATTR_POSITION, VertexFormat::Float3, 0, 0},
-      {ATTR_NORMAL, VertexFormat::Float3, 0, 12},
-    },
-    {{(3+3)*(int)sizeof(float), false}},
-  };
-  return texCoords ? withTexCoords : withoutTexCoords;
+  VertexLayout layout;
+  int offset = 0;
+  layout.attributes.push_back({ATTR_POSITION, VertexFormat::Float3, 0, offset});
+  offset += 3*sizeof(float);
+  if (texCoords){
+    layout.attributes.push_back({ATTR_TEXCOORD, VertexFormat::Float2, 0, offset});
+    offset += 2*sizeof(float);
+  }
+  layout.attributes.push_back({ATTR_NORMAL, VertexFormat::Float3, 0, offset});
+  offset += 3*sizeof(float);
+  if (colors){
+    layout.attributes.push_back({ATTR_COLOR, VertexFormat::Float4, 0, offset});
+    offset += 4*sizeof(float);
+  }
+  layout.buffers.push_back({offset, false});
+  return layout;
 }
 
 }
@@ -487,6 +501,7 @@ bool Mesh::createDeviceResources(Gfx::RenderDevice& device, const std::vector<fl
   mDeviceTried = true;
   mVertices = device.createBuffer({BufferType::Vertex, Usage::Immutable, vdata.size()*sizeof(float)}, vdata.data());
   mIndices = device.createBuffer({BufferType::Index, Usage::Immutable, idata.size()*sizeof(int)}, idata.data());
+  mLayout = meshLayout(numTexCoords_ > 0, !mColors.empty());
   //the materials' textures, each file once
   mMaterialTextures.assign(mMaterials.size(), nullptr);
   mDeviceTextures.clear();
@@ -495,6 +510,11 @@ bool Mesh::createDeviceResources(Gfx::RenderDevice& device, const std::vector<fl
     Material* mat = mMaterials[i];
     if (!mat)
       continue;
+    //an image in memory, shared with other meshes
+    if (mat->getDiffuseTexture()){
+      mMaterialTextures[i] = mat->getDiffuseTexture()->getTexture(device);
+      continue;
+    }
     //the diffuse texture wins, as with the old renderers
     bool opacity = mat->getDiffuseTexFile().empty();
     std::string file = opacity ? mat->getOpacityTexFile() : mat->getDiffuseTexFile();
@@ -518,10 +538,10 @@ void Mesh::draw(Gfx::DrawContext& ctx, DrawPart part){
     buildBuffers(ctx.getDevice());
   if (!mVertices || !mIndices)
     return;
-  const Gfx::VertexLayout& layout = meshLayout(numTexCoords_ > 0);
   //submeshes without a material keep the texture the caller set
   Gfx::Texture* texture = ctx.getTexture();
   Gfx::Sampler* sampler = ctx.getSampler();
+  Gfx::CullMode cull = ctx.getCull();
   for (const SubMesh& msh : mDrawList){
     Material* mat = mMaterials[msh.material];
     //no material is assumed opaque
@@ -536,10 +556,14 @@ void Mesh::draw(Gfx::DrawContext& ctx, DrawPart part){
       ctx.resetMaterial();
       ctx.setTexture(texture, sampler);
     }
-    ctx.drawIndexed(Gfx::BuiltinShader::Lit, mVertices.get(), layout, mIndices.get(), Gfx::IndexType::UInt32,
+    //double-sided materials are seen from behind too
+    ctx.setCull(mat && mat->isDoubleSided() ? Gfx::CullMode::Off : cull);
+    ctx.drawIndexed(mColors.empty() ? Gfx::BuiltinShader::Lit : Gfx::BuiltinShader::LitVertexColor, mVertices.get(),
+      mLayout, mIndices.get(), Gfx::IndexType::UInt32,
       Gfx::PrimitiveType::Triangles, msh.count, msh.offset);
   }
   ctx.setTexture(texture, sampler);
+  ctx.setCull(cull);
 }
 
 //! intersects a ray and a triangle
@@ -590,6 +614,7 @@ void Mesh::clear(){
   vertices_.clear();
   texCoords_.clear();
   mNormals.clear();
+  mColors.clear();
   indices_.clear();
   name_ = "none";
   filename_ = "none";
@@ -604,11 +629,12 @@ void Mesh::clear(){
   edges_.clear();
   mVertices.reset();
   mIndices.reset();
+  mLayout = Gfx::VertexLayout();
   mMaterialTextures.clear();
   mDeviceTextures.clear();
   mDeviceTried = false;
   min_ = Vector3D(FLT_MAX,FLT_MAX,FLT_MAX);
-  max_ = Vector3D(FLT_MIN,FLT_MIN,FLT_MIN);
+  max_ = Vector3D(-FLT_MAX,-FLT_MAX,-FLT_MAX);
   center_ = Vector3D();
   mComputeEdges = true;
   for (unsigned i = 0; i < mMaterials.size(); ++i){

@@ -49,6 +49,8 @@ enum GBufferAttachment{
 
 struct LightPrepassRenderer::DeviceResources{
   std::unique_ptr<Gfx::Shader> gbufferShader;
+  //! for meshes with vertex colours
+  std::unique_ptr<Gfx::Shader> gbufferVertexColorShader;
   std::unique_ptr<Gfx::Shader> lightShader;
   std::unique_ptr<Gfx::Shader> composeShader;
   std::unique_ptr<Gfx::Pipeline> lightPipeline;
@@ -73,6 +75,10 @@ bool LightPrepassRenderer::createResources(Gfx::DrawContext& ctx){
   desc.name = "engine/prepass_gbuffer";
   if (ShaderLibrary::loadDesc("engine/lit.vert", "engine/prepass_gbuffer.frag", desc))
     mDevice->gbufferShader = device.createShader(desc);
+  desc = ShaderDesc();
+  desc.name = "engine/prepass_gbuffer_vertex_color";
+  if (ShaderLibrary::loadDesc("engine/lit.vert", "engine/prepass_gbuffer.frag", desc, {"CGE_VERTEX_COLOR"}))
+    mDevice->gbufferVertexColorShader = device.createShader(desc);
 
   desc = ShaderDesc();
   desc.name = "engine/prepass_light";
@@ -88,7 +94,7 @@ bool LightPrepassRenderer::createResources(Gfx::DrawContext& ctx){
     desc.textures = {{"cge_lightBuffer", 0}, {"cge_gbufferDiffuse", 1}, {"cge_gbufferSpecular", 2}, {"cge_gbufferDepth", 3}};
     mDevice->composeShader = device.createShader(desc);
   }
-  if (!mDevice->gbufferShader || !mDevice->lightShader || !mDevice->composeShader){
+  if (!mDevice->gbufferShader || !mDevice->gbufferVertexColorShader || !mDevice->lightShader || !mDevice->composeShader){
     mDevice.reset();
     return false;
   }
@@ -126,6 +132,7 @@ void LightPrepassRenderer::releaseResources(Gfx::DrawContext& ctx){
   if (!mDevice)
     return;
   ctx.forgetShader(mDevice->gbufferShader.get());
+  ctx.forgetShader(mDevice->gbufferVertexColorShader.get());
   mDevice.reset();
 }
 
@@ -170,7 +177,7 @@ void LightPrepassRenderer::render(Gfx::DrawContext& ctx, const Gfx::PassDesc& ou
   BlendMode blend = ctx.getBlend();
   ctx.setBlend(BlendMode::Opaque);
   ctx.setDepth(true, true);
-  ctx.setLitShader(mDevice->gbufferShader.get());
+  ctx.setLitShader(mDevice->gbufferShader.get(), mDevice->gbufferVertexColorShader.get());
   mScene->render(ctx, Mesh::DRAW_OPAQUE);
   ctx.setLitShader(nullptr);
   device.endPass();

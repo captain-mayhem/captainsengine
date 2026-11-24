@@ -19,27 +19,34 @@ std::unique_ptr<Texture> loadTexture(RenderDevice& device, const std::string& fi
     TR_ERROR("cannot load texture %s", file.c_str());
     return nullptr;
   }
+  return createTexture(device, *image, opacity, file);
+}
+
+std::unique_ptr<Texture> createTexture(RenderDevice& device, Image& image, bool opacity, const std::string& name){
+  TR_USE(CGE_TextureLoader);
   TextureDesc desc;
-  desc.width = (int)image->getWidth();
-  desc.height = (int)image->getHeight();
+  desc.width = (int)image.getWidth();
+  desc.height = (int)image.getHeight();
   desc.mipLevels = 0;
   std::vector<unsigned char> rgba;
   if (opacity){
-    unsigned channels = image->getNumChannels();
-    unsigned pixels = image->getWidth()*image->getHeight();
+    unsigned channels = image.getNumChannels();
+    unsigned pixels = image.getWidth()*image.getHeight();
     rgba.resize(pixels*4);
     for (unsigned i = 0; i < pixels; ++i){
       rgba[4*i] = rgba[4*i+1] = rgba[4*i+2] = 255;
-      rgba[4*i+3] = image->getData()[channels*i];
+      rgba[4*i+3] = image.getData()[channels*i];
     }
   }
   else{
-    image->convertFormat(4);
-    rgba.assign(image->getData(), image->getData()+image->getWidth()*image->getHeight()*4);
+    image.convertFormat(4);
+    rgba.assign(image.getData(), image.getData()+image.getWidth()*image.getHeight()*4);
   }
   std::unique_ptr<Texture> texture = device.createTexture(desc, rgba.data());
   if (texture)
     device.generateMipmaps(texture.get());
+  else
+    TR_ERROR("cannot create texture %s", name.c_str());
   return texture;
 }
 

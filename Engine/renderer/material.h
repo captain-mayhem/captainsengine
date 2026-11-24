@@ -3,11 +3,18 @@
 
 #include <cge_export.h>
 
+#include <memory>
 #include <string>
 #include <vector>
 #include "../math/vector.h"
 
 namespace CGE{
+
+class Image;
+namespace Gfx{
+class RenderDevice;
+class Texture;
+}
 
 struct CGE_API Color{
   Color(){r = 1.0; g = 1.0; b = 1.0; a=1.0;}
@@ -28,8 +35,42 @@ struct CGE_API Color{
   };
 };
   
+//! an image for the textures of materials, which share it, and its texture on a render device
+/*! E.g. an image embedded in a model file. The texture is made when it is
+    first needed; the image is freed then. */
+class CGE_API MaterialTexture{
+public:
+  //! name: for messages, e.g. the file or the image's name in a model file
+  MaterialTexture(std::unique_ptr<Image> image, std::string const& name);
+  ~MaterialTexture();
+  MaterialTexture(const MaterialTexture&) = delete;
+  MaterialTexture& operator=(const MaterialTexture&) = delete;
+  std::string const& getName() const { return mName; }
+  //! the image until the texture is made, then nullptr
+  const Image* getImage() const { return mImage.get(); }
+  //! the texture on device (RGBA8 with mipmaps), made at the first call; nullptr if that failed
+  /*! The texture belongs to the first device asked; other devices get nullptr. */
+  Gfx::Texture* getTexture(Gfx::RenderDevice& device);
+private:
+  std::string mName;
+  std::unique_ptr<Image> mImage;
+  std::unique_ptr<Gfx::Texture> mTexture;
+  Gfx::RenderDevice* mDevice;
+};
+
 class CGE_API Material{
 public:
+  //! how the alpha of the diffuse colour and texture is used
+  enum class AlphaMode{
+    //! blended if the opacity is below 1 or there is an opacity texture (as in MTL files)
+    Default,
+    //! opaque; the alpha is ignored
+    Opaque,
+    //! opaque; pixels with an alpha below the cutoff are left out
+    Mask,
+    //! blended: drawn with the transparent part (Mesh::DRAW_TRANSPARENT)
+    Blend,
+  };
   Material(std::string const& name);
   ~Material();
   void setDiffuse(const Color& diffuse) {mDiffuse = diffuse;}
@@ -48,7 +89,23 @@ public:
   void setOpacityTexFile(std::string const& file) { mOpacityTexFile = file; }
   std::string const& getOpacityTexFile() const { return mOpacityTexFile; }
 
-  bool isTransparent() const { return mOpacity != 1.0f || !mOpacityTexFile.empty(); }
+  //! the diffuse texture from an image in memory; it wins over the texture files
+  void setDiffuseTexture(std::shared_ptr<MaterialTexture> const& texture) { mDiffuseTexture = texture; }
+  std::shared_ptr<MaterialTexture> const& getDiffuseTexture() const { return mDiffuseTexture; }
+  void setAlphaMode(AlphaMode mode) { mAlphaMode = mode; }
+  AlphaMode getAlphaMode() const { return mAlphaMode; }
+  //! the alpha below which AlphaMode::Mask leaves pixels out
+  void setAlphaCutoff(float cutoff) { mAlphaCutoff = cutoff; }
+  float getAlphaCutoff() const { return mAlphaCutoff; }
+  //! drawn from both sides (without culling), the back lit as the front
+  void setDoubleSided(bool doubleSided) { mDoubleSided = doubleSided; }
+  bool isDoubleSided() const { return mDoubleSided; }
+
+  bool isTransparent() const {
+    if (mAlphaMode == AlphaMode::Default)
+      return mOpacity != 1.0f || !mOpacityTexFile.empty();
+    return mAlphaMode == AlphaMode::Blend;
+  }
   
   std::string const & getName() const { return mName; }
 
@@ -63,6 +120,10 @@ protected:
   float mOpacity;
   std::string mDiffuseTexFile;
   std::string mOpacityTexFile;
+  std::shared_ptr<MaterialTexture> mDiffuseTexture;
+  AlphaMode mAlphaMode;
+  float mAlphaCutoff;
+  bool mDoubleSided;
 };
 
 }

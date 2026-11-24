@@ -180,7 +180,7 @@ endif()
 target_link_libraries(Engine
 	PUBLIC lua
 	PRIVATE minizip ZLIB::ZLIB JPEG::JPEG PNG::PNG gif miniaudio vorbisfile
-	theoradec vorbis pl_mpeg
+	theoradec vorbis pl_mpeg cgltf
 )
 if (WIN32)
 	# applications see the Lua API as dllimport (see extern/lua)

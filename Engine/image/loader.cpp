@@ -1,7 +1,9 @@
 #include "loader.h"
 
+#include <csetjmp>
 #include <cstdlib>
 #include <cstdio>
+#include <memory>
 
 #include "../system/engine.h"
 #include "../io/MemReader.h"
@@ -105,13 +107,40 @@ METHODDEF(void) jpg_skip_input_data(j_decompress_ptr cinfo, long num_bytes){
 METHODDEF(void) jpg_term_source(j_decompress_ptr cinfo){
 }
 
+//! libjpeg's error manager, with the place to return to on an error
+struct jpgError{
+  jpeg_error_mgr mgr;
+  jmp_buf jump;
+};
+
+//! an error in the data: back to loadJPG (libjpeg's default would exit the program)
+METHODDEF(void) jpg_error_exit(j_common_ptr cinfo){
+  TR_USE(CGE_Imageloader);
+  char message[JMSG_LENGTH_MAX];
+  (*cinfo->err->format_message)(cinfo, message);
+  TR_ERROR("cannot decode JPEG: %s", message);
+  longjmp(((jpgError*)cinfo->err)->jump, 1);
+}
+
+//! warnings go to the trace instead of stderr
+METHODDEF(void) jpg_output_message(j_common_ptr cinfo){
+}
+
 Image* ImageLoader::loadJPG(void* memory, unsigned size){
   struct jpeg_decompress_struct cinfo;
-  Image *pImageData = nullptr;
-  
+  //on the heap, so that they are valid after a longjmp
+  std::unique_ptr<jpgError> jerr(new jpgError);
+  std::unique_ptr<Image> image(new Image());
+  Image* pImageData = image.get();
+
   // Create an error handler
-  jpeg_error_mgr jerr;
-  cinfo.err = jpeg_std_error(&jerr);
+  cinfo.err = jpeg_std_error(&jerr->mgr);
+  jerr->mgr.error_exit = jpg_error_exit;
+  jerr->mgr.output_message = jpg_output_message;
+  if (setjmp(jerr->jump)){
+    jpeg_destroy_decompress(&cinfo);
+    return nullptr;
+  }
 
   // Initialize the decompression object
   jpeg_create_decompress(&cinfo);
@@ -125,13 +154,12 @@ Image* ImageLoader::loadJPG(void* memory, unsigned size){
   cinfo.src->bytes_in_buffer = size;
   cinfo.src->next_input_byte = (const JOCTET*)memory;
 
-  pImageData = new Image();
   // Decode the jpeg file and fill in the image data structure to pass back
   decodeJPG(&cinfo, pImageData);
 
   jpeg_destroy_decompress(&cinfo);
 
-  return pImageData;
+  return image.release();
 }
 
 void decodeJPG(jpeg_decompress_struct* cinfo, Image *pImageData){
@@ -144,16 +172,11 @@ void decodeJPG(jpeg_decompress_struct* cinfo, Image *pImageData){
 
   pImageData->allocateData();
 
-  unsigned char** rowPtr = new unsigned char*[pImageData->getHeight()];
-  for (unsigned i = 0; i < pImageData->getHeight(); i++)
-    rowPtr[i] = &(pImageData->getData()[i * pImageData->getRowSpan()]);
-
-  //read the rows in the image
-  int rowsRead = 0;
+  //read the rows in the image, one at a time (an error in the data jumps out of here)
   while (cinfo->output_scanline < cinfo->output_height){
-    rowsRead += jpeg_read_scanlines(cinfo, &rowPtr[rowsRead], cinfo->output_height - rowsRead);
+    unsigned char* row = &(pImageData->getData()[cinfo->output_scanline * pImageData->getRowSpan()]);
+    jpeg_read_scanlines(cinfo, &row, 1);
   }
-  delete [] rowPtr;
 
   // Finish decompressing the data
   jpeg_finish_decompress(cinfo);
@@ -403,15 +426,30 @@ Image* decodeBMP(Reader* rdr){
 
 struct pngReadStruct{
   unsigned char* data;
+  unsigned char* end;
+  //! the image being decoded, deleted if that fails
+  Image* image;
 };
 
 static void png_read_data(png_structp png_ptr, png_bytep data, png_size_t length){
   pngReadStruct* source = (pngReadStruct*)png_get_io_ptr(png_ptr);
+  if ((png_size_t)(source->end - source->data) < length)
+    png_error(png_ptr, "unexpected end of the data");
   memcpy(data, source->data, length);
   source->data += length;
 }
 
-static Image* loadPNGinternal(png_structp png_ptr, png_infop info_ptr){
+//! an error in the data: back to loadPNG
+static void png_error_fn(png_structp png_ptr, png_const_charp message){
+  TR_USE(CGE_Imageloader);
+  TR_ERROR("cannot decode PNG: %s", message);
+  png_longjmp(png_ptr, 1);
+}
+
+static void png_warning_fn(png_structp png_ptr, png_const_charp message){
+}
+
+static Image* loadPNGinternal(png_structp png_ptr, png_infop info_ptr, pngReadStruct* rs){
   TR_USE(CGE_Imageloader);
 
   png_read_info(png_ptr, info_ptr);
@@ -449,6 +487,7 @@ static Image* loadPNGinternal(png_structp png_ptr, png_infop info_ptr){
   png_set_packing(png_ptr);
 
   Image* image = new Image();
+  rs->image = image;
   image->setFormat(channels, width, height);
   image->allocateData();
 
@@ -467,15 +506,24 @@ static Image* loadPNGinternal(png_structp png_ptr, png_infop info_ptr){
 Image* ImageLoader::loadPNG(void* memory, unsigned size){
   TR_USE(CGE_Imageloader);
   
-  png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+  png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, png_error_fn, png_warning_fn);
+  if (!png_ptr)
+    return nullptr;
   png_infop info_ptr = png_create_info_struct(png_ptr);
-  setjmp(png_jmpbuf(png_ptr));
+  //on the heap, so that it is valid after a longjmp
+  std::unique_ptr<pngReadStruct> rs(new pngReadStruct);
+  rs->data = (unsigned char*)memory;
+  rs->end = rs->data + size;
+  rs->image = nullptr;
+  if (!info_ptr || setjmp(png_jmpbuf(png_ptr))){
+    delete rs->image;
+    png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
+    return nullptr;
+  }
 
-  pngReadStruct rs;
-  rs.data = (unsigned char*)memory;
-  png_set_read_fn(png_ptr, &rs, png_read_data);
+  png_set_read_fn(png_ptr, rs.get(), png_read_data);
 
-  Image* img = loadPNGinternal(png_ptr, info_ptr);
+  Image* img = loadPNGinternal(png_ptr, info_ptr, rs.get());
 
   png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
   return img;

@@ -42,7 +42,7 @@ Model::Model(Mesh* mesh) : SceneNode(MESH){
 Model::Model(const Model& m) : SceneNode(m){
   //trafo_ = m.trafo_;
   mesh_ = m.mesh_;
-  boundingObj_ = new BSphere(*dynamic_cast<BSphere*>(m.boundingObj_));
+  boundingObj_ = m.boundingObj_ ? m.boundingObj_->copy() : nullptr;
   for (int i = 0; i < MAX_TEXTURES; i++){
     deviceTextures_[i] = m.deviceTextures_[i];
   }
@@ -55,10 +55,12 @@ Model::~Model(){
   SAFE_DELETE(boundingObj_);
 }
 
-void Model::render(Gfx::DrawContext& ctx, Mesh::DrawPart part){
+Model* Model::clone() const{
+  return new Model(*this);
+}
+
+void Model::renderSelf(Gfx::DrawContext& ctx, Mesh::DrawPart part){
   assert(mesh_ && "A mesh needs to be assigned to the model");
-  ctx.model().push();
-  ctx.model().multiply(trafo_);
   if (deviceTextures_[0]){
     Gfx::Texture* texture = ctx.getTexture();
     Gfx::Sampler* sampler = ctx.getSampler();
@@ -68,5 +70,4 @@ void Model::render(Gfx::DrawContext& ctx, Mesh::DrawPart part){
   }
   else
     mesh_->draw(ctx, part);
-  ctx.model().pop();
 }

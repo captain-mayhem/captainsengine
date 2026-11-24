@@ -127,6 +127,14 @@ void Image::convertFormat(int numChannels){
       data[i*numChannels + 3] = 0xff;
     }
   }
+  else if (numChannels == 4 && (mChannels == 1 || mChannels == 2)){
+    //gray, with alpha if there are two channels
+    for (int i = 0; i < mWidth*mHeight; ++i){
+      unsigned char gray = mData[i*mChannels];
+      data[i*4] = data[i*4 + 1] = data[i*4 + 2] = gray;
+      data[i*4 + 3] = mChannels == 2 ? mData[i*2 + 1] : 0xff;
+    }
+  }
   else if (numChannels == 1 && mChannels == 3){
     for (int i = 0; i < mWidth*mHeight; ++i){
       int intensity = 0;

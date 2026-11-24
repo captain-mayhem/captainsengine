@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "gfxtypes.h"
 #include "../math/matrix.h"
@@ -65,10 +66,13 @@ struct MaterialUniforms{
   float ambient[4] = {0, 0, 0, 1};
   //! rgb, w: the shininess (specular exponent)
   float specular[4] = {0, 0, 0, 10};
-  //! x: 1 if the surface is textured
+  //! x: 1 if the surface is textured (set by DrawContext::prepare)
   int32_t flags[4] = {0, 0, 0, 0};
+  //! x: the alpha cutoff (0: none), y: 1 if double-sided (the back is lit
+  //! as the front), z: 1 if opaque (the alpha is ignored)
+  float params[4] = {0, 0, 0, 0};
 };
-static_assert(sizeof(MaterialUniforms) == 64, "MaterialUniforms must match CGE_Material");
+static_assert(sizeof(MaterialUniforms) == 80, "MaterialUniforms must match CGE_Material");
 
 //! the CGE_Lights block (std140) of lit shaders (lighting.glsl), in view space
 struct LightUniforms{
@@ -109,6 +113,9 @@ enum class BuiltinShader{
   //! SpriteBatch's quads with a distance field in the texture's alpha and
   //! the edge in cge_color.x (SpriteBatch::setDistanceField)
   SpriteDistanceField,
+  //! Lit with a colour per vertex (ATTR_COLOR, multiplied with the surface's):
+  //! lit.vert and lit.frag with CGE_VERTEX_COLOR defined
+  LitVertexColor,
 };
 
 //! Shader sources and the built-in shaders
@@ -131,7 +138,10 @@ public:
   /*! The description binds the engine's blocks and sampler (CGE_Frame,
       CGE_Draw, CGE_Material, CGE_Lights, cge_texture); add more bindings
       before creating the shader. */
-  static bool loadDesc(const std::string& vertexPath, const std::string& fragmentPath, ShaderDesc& desc);
+  /*! defines: names #defined at the start of both sources, for variants of
+      a shader (e.g. CGE_VERTEX_COLOR for lit.vert and lit.frag). */
+  static bool loadDesc(const std::string& vertexPath, const std::string& fragmentPath, ShaderDesc& desc,
+    const std::vector<std::string>& defines = {});
   //! the description of a built-in shader
   static ShaderDesc getBuiltinDesc(BuiltinShader shader);
   //! creates a built-in shader on a device; nullptr if that fails

@@ -38,6 +38,7 @@
 
 #include "triangle.h"
 #include "../math/bbox.h"
+#include "../renderer/gfxtypes.h"
 
 namespace CGE{
 class Material;
@@ -77,7 +78,15 @@ public:
   //! add texture coordinates
   void addTexCoord(float x, float y, float z = -1);
   //! add normal
+  /*! A mesh with normals uses them as the triangles give them; one without
+      gets each vertex's normal averaged from its triangles. Add the normals
+      before the triangles. */
   void addNormal(float x, float y, float z);
+  //! add the colour of the vertex with the same index
+  /*! Vertices without one are white, if other vertices have colours. */
+  void addColor(float r, float g, float b, float a = 1);
+  //! add a material; the mesh owns it. Returns its index for addSubMesh
+  int addMaterial(Material* material);
   //! add edge
   Edge* addEdge(int v0, int v1);
   //! add triangle
@@ -97,6 +106,8 @@ public:
   void draw(Gfx::DrawContext& ctx, DrawPart part);
   //! get the name of the mesh
   std::string getName() const {return name_;}
+  //! set the name of the mesh
+  void setName(const std::string& name) {name_ = name;}
   //! get the filename of the mesh
   std::string getFilename() const {return filename_;}
   //! the file name a scene saves for the mesh
@@ -123,6 +134,28 @@ public:
   //! get number of triangles
   int getNumTriangles() const {return numTriangles_;}
 
+  //! get number of vertices
+  int getNumVertices() const {return numVertices_;}
+
+  //! the vertices' positions, texture coordinates, normals and colours as added
+  /*! Texture coordinates are stored with v from the top of the image. */
+  Vec3f getVertex(int i) const {return Vec3f(vertices_[i].data[0], vertices_[i].data[1], vertices_[i].data[2]);}
+  int getNumTexCoords() const {return numTexCoords_;}
+  Vec3f getTexCoord(int i) const {return texCoords_[i];}
+  int getNumNormals() const {return mNumNormals;}
+  Vec3f getStoredNormal(int i) const {return mNormals[i];}
+  int getNumColors() const {return (int)mColors.size();}
+  Vec4f getColor(int i) const {return mColors[i];}
+
+  //! a triangle's indices of the vertices, texture coordinates and normals
+  const Triangle* getTriangleIndices(int i) const {return triangles_[i];}
+
+  //! the submeshes: ranges of triangle indices (offset and count in indices, 3 per triangle) with a material
+  const std::vector<SubMesh>& getSubMeshes() const {return mSubmeshes;}
+
+  //! the materials by index; index 0 is no material (nullptr) in a new mesh
+  const std::vector<Material*>& getMaterials() const {return mMaterials;}
+
   //! clear an existing mesh
   void clear();
 
@@ -138,7 +171,7 @@ protected:
   //! the submesh compare function
   static int submeshCompare(const void* p1, const void* p2);
 
-  //! the interleaved vertices (position, texture coordinates if any, normal) and the indices
+  //! the interleaved vertices (position, texture coordinates if any, normal, colour if any) and the indices
   void buildDrawData(std::vector<float>& vdata, std::vector<int>& idata);
   //! the buffers and textures on a render device
   bool createDeviceResources(Gfx::RenderDevice& device, const std::vector<float>& vdata, const std::vector<int>& idata);
@@ -163,6 +196,9 @@ protected:
 
   //! the normals
   std::vector<Vec3f> mNormals;
+
+  //! the colours, by vertex
+  std::vector<Vec4f> mColors;
 
   //! the edges
   EdgeList edges_;
@@ -203,6 +239,8 @@ protected:
   //! the vertex and index buffer on a render device
   std::unique_ptr<Gfx::Buffer> mVertices;
   std::unique_ptr<Gfx::Buffer> mIndices;
+  //! the layout of the vertices in the buffer
+  Gfx::VertexLayout mLayout;
   //! the materials' textures on the render device, by material index (nullptr: untextured)
   std::vector<Gfx::Texture*> mMaterialTextures;
   std::vector<std::unique_ptr<Gfx::Texture>> mDeviceTextures;
