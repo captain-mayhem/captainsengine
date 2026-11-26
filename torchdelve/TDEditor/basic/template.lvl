@@ -1,0 +1,17 @@
+# A starting point for a new quest: one room with the stair, one corridor, one room.
+# The format is described in tools/make_levels.py.
+title: Template
+cells:
+aaaa.bbbb
+aaaa.bbbb
+aaaa.bbbb
+end
+door 3 1 RIGHT
+door 5 1 LEFT
+overlay st 0 0 A
+script A 1 0 0 1 1 1
+start 2 0
+start 3 0
+start 2 1
+start 3 1
+monster go 7 1

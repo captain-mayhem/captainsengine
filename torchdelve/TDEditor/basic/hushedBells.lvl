@@ -1,0 +1,100 @@
+# Quest 7: the palace of the Ashen Court. The throne room holds the ember-heart and has
+# no door: only secret doors from the two rooms beside it. Taking the heart rings the
+# silent bells, and Ashen Knights come.
+title: The Hall of Hushed Bells
+rooms: t=21 c=6 d=19 f=13 g=17 b=5 e=10 h=12 i=4 j=16 a=7
+size: 28 18
+rect . 0 5 10 1
+rect . 18 5 10 1
+rect . 2 5 1 11
+rect . 25 5 1 11
+rect . 9 5 1 10
+rect . 18 5 1 10
+rect . 9 14 10 1
+rect t 10 0 8 5
+rect c 0 0 4 5
+rect d 5 0 5 5
+rect f 18 0 5 5
+rect g 24 0 4 5
+rect b 10 6 8 8
+rect # 12 8 1 1
+rect # 15 8 1 1
+rect # 12 11 1 1
+rect # 15 11 1 1
+rect e 3 7 6 4
+rect h 19 7 6 4
+rect i 3 13 6 3
+rect j 19 13 6 3
+rect a 11 15 6 3
+door 12 15 TOP
+door 15 15 TOP
+door 10 9 LEFT
+door 17 9 RIGHT
+door 13 13 BOTTOM
+door 2 4 BOTTOM
+door 7 4 BOTTOM
+door 20 4 BOTTOM
+door 25 4 BOTTOM
+door 3 8 LEFT
+door 8 9 RIGHT
+door 24 8 RIGHT
+door 19 9 LEFT
+door 3 14 LEFT
+door 8 14 RIGHT
+door 19 14 LEFT
+door 24 14 RIGHT
+# into the throne room
+door 9 2 RIGHT S
+door 18 2 LEFT S
+# the forecourt: in and out
+overlay st 11 16 A
+script A 12 16 11 17 12 17
+start 14 16
+start 15 16
+start 14 17
+start 15 17
+# the throne room
+furniture th 13 0 top H
+furniture bc 10 0 top
+furniture bc 15 0 top
+monster dc 14 2 N
+monster ak 11 3
+monster ak 16 3
+# the bell-ringers' rooms beside it
+furniture wr 5 0 top
+monster or 7 2
+monster or 8 3
+furniture bc 19 0 top
+monster ak 21 3
+# the guard rooms
+furniture wr 3 0 right
+monster or 1 2
+monster or 0 4
+furniture ch 27 0 top
+monster go 25 2
+monster go 26 3
+monster or 24 1
+# the Hall of Hushed Bells
+monster ga 11 7
+monster ga 16 7
+monster sk 13 10
+monster sk 14 12
+# the banquet room and the crypt
+furniture ta 4 7 top
+monster or 7 9
+monster go 5 10
+furniture to 19 7 top
+monster mu 22 8
+monster mu 23 10
+# the servants' rooms
+furniture cb 8 15 bottom
+monster go 5 14
+monster or 4 13
+furniture fp 24 15 bottom
+monster sk 20 13
+monster sk 21 14
+# traps
+overlay sp 6 5 b
+overlay rt 21 5 c
+overlay pt 9 12 a
+overlay pt 18 11 a

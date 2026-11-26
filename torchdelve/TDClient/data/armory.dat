@@ -1,0 +1,16 @@
+trap_tools -> id: 0  price: 200 description: Picks, wedges and a steady hand: a 50% chance to disarm a trap you have found but not sprung. /description
+sidesword -> id: 1  price: 140 description: A light, straight blade. Attack 2. Not for the Mage. /description
+iron_helm -> id: 2  price: 120 description: A plain iron helm. 1 extra defence. Not for the Mage. /description
+dirk -> id: 3  price: 30 description: A long knife. Attack 1. It can be thrown at any creature you can see, but is lost once thrown. /description
+falchion -> id: 4  price: 260 description: A heavy, single-edged blade that bites deep. Attack 3. Not for the Mage. /description
+buckler -> id: 5  price: 130 description: A small round shield for the left hand. 1 extra defence. Not for the Mage. /description
+oak_staff -> id: 6  price: 80 description: A long staff of black oak. Attack 1; it reaches diagonally. /description
+halberd -> id: 7  price: 330 description: An axe blade on a long shaft, held in both hands. Attack 3; it reaches diagonally. Not for the Mage. /description
+mail_shirt -> id: 8  price: 450 description: A shirt of riveted rings. 1 extra defence. Not for the Mage. /description
+arbalest -> id: 9  price: 380 description: A heavy crossbow with a winch. Attack 3 against any creature you can see, but not against an adjacent one. The bolts never run out. Not for the Mage. /description
+great_axe -> id: 10  price: 480 description: A huge, double-bladed axe, held in both hands. Attack 4. Not for the Mage. /description
+full_plate -> id: 11  price: 800 description: Plates of steel from head to foot. 2 extra defence, but you move with one die less. Not for the Mage. /description
+lamp_charm -> id: 12 price: -1 description: A tiny brass lantern on a chain, its flame never out. 1 extra will while worn. /description
+star_cloak -> id: 13 price: -1 description: A cloak of night-blue cloth stitched with silver stars. 1 extra defence. Only for the Mage. /description
+emberplate -> id: 14 price: -1 description: Plate armour forged in the Hearthflame itself, light as leather. 2 extra defence, and it does not slow you. Not for the Mage. /description
+hand_axe -> id: 15  price: 150 description: A bearded axe for one hand. Attack 2. Not for the Mage. /description

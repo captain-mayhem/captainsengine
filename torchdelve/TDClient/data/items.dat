@@ -1,0 +1,7 @@
+hearthbalm ->  id: 0  type: potion  description: A warm, amber balm from the Wardens' hearths. Gives back up to 4 health. /description
+battle_ale ->  id: 1  type: potion  description: Dark, bitter and strong. Drink it to attack once more this turn. /description
+iron_tonic ->  id: 2  type: potion  description: Tastes of rust. You throw 2 extra dice the next time you defend. /description
+fire_tonic ->  id: 3  type: potion  description: It burns all the way down. You throw 2 extra dice when attacking, until the end of your turn. /description
+strongbox ->  id: 4  type: unusable  description: A small iron strongbox, locked and heavy with coins. /description
+murky_vial ->  id: 5  type: potion  description: A vial of murky liquid that nobody could name. Drink it at your own risk. /description
+twin_wand ->  id: 6  type: artifact  description: A wand of two woods grown into one. A Ranger or a Mage holding it may cast two different spells in one turn. /description

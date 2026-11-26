@@ -1,0 +1,288 @@
+//  ==================================================================
+// |                         Torchdelve                               |
+// |------------------------------------------------------------------|
+// |                   A turn-based dungeon crawler                   |
+// |                                                                  |
+// | Marco Staginski                                                  |
+// |------------------------------------------------------------------|
+// | File: main.cpp                                                   |
+//  ==================================================================
+
+#include <iostream>
+#include <fstream>
+#include <filesystem>
+#include <cstring>
+#include <string>
+#include "system/engine.h"
+#include "system/application.h"
+#include "system/file.h"
+#include "io/TraceManager.h"
+#include "math/vector.h"
+#include "../../editor/tdmExport.h"
+
+#include "compiler.h"
+
+using std::cerr;
+using std::endl;
+using std::ifstream;
+
+using namespace CGE;
+
+TR_CHANNEL(TD_Editor);
+
+//! compiles the maps given on the command line and quits
+class TDEditorApp : public CGE::IApplication{
+public:
+  void init(int argc, char** argv) override;
+};
+
+void TDEditorApp::init(int argc, char** argv){
+  CGE::LogOutputter* putty = new CGE::LogOutputter("TDEditor.log");
+  CGE::TraceManager::instance()->setTraceOutputter(putty);
+  TR_USE(TD_Editor);
+  if (argc < 2){
+    TR_ERROR("Usage: TDEdit <mapfile>");
+    exit(EXIT_FAILURE);
+  }
+
+  //calculate correct directory
+  /*string temp_path(argv[0]);
+  int t = temp_path.find_last_of('/');
+  if (t != -1){
+    temp_path.erase(t);
+    path = getCwd()+"/"+temp_path+"/";
+  }
+  else
+    path = getCwd()+"/";
+*/
+  //the models and textures are loaded from the client's directory, so the map
+  //paths are made absolute before changing to it; the compiled maps are written
+  //next to the .map files
+  std::vector<string> mapfiles;
+  for (int mc = 1; mc < argc; mc++){
+    mapfiles.push_back(std::filesystem::absolute(argv[mc]).string());
+  }
+  Filesystem::changeDir("../TDClient/");
+
+  for (const string& mapfile : mapfiles){
+
+    //open .map file
+    string temp;
+    ifstream in(mapfile);
+    if (!(in >> temp)){
+      TR_ERROR("map %s not found", mapfile.c_str());
+      exit(EXIT_FAILURE);
+    }
+
+    int width,height,i,j;
+    char c;
+    //read map size (Mapsize: i x j \n);
+    in >> width;
+    in >> c;
+    in >> height;
+
+    //move to correct starting position
+    string line;
+    std::getline(in, line);
+
+    //create the map compiler
+    Compiler cmp(width,height);
+
+    //build character representation of the map; the lines may end with \r\n
+    //(a Windows checkout read on Linux), and short lines are padded with blanks
+    char** map;
+    map = new char*[height*3+1];
+    for (int k = 0; k < height*3+1; k++){
+      map[k] = new char[width*5+2];
+      std::getline(in, line);
+      if (!line.empty() && line.back() == '\r')
+        line.pop_back();
+      line.resize(width*5+1, ' ');
+      memcpy(map[k], line.c_str(), width*5+2);
+    }
+
+    cmp.setMap(map);
+    //Now parse the map data
+    for (j = 0; j < height; j++){
+      //***********
+      //upper wall line
+      //***********
+      short ypos = j*3;
+      i = -1;
+      for(short xpos = 2; xpos < width*5; xpos+=5){
+        i++;
+        c = map[ypos][xpos];
+        //is it a horizontal wall?
+        if (c == '-'){
+          cmp.setWall(Vector2D(i,j), TOP);
+        }
+        //or a door
+        else if (c == 'D'){
+          cmp.setDoor(Vector2D(i,j), TOP, 0);
+        }
+        else if (c == 'S'){
+          cmp.setDoor(Vector2D(i,j), TOP, 1);
+        }
+        else if (c == 'H'){
+          cmp.setDoor(Vector2D(i,j), TOP, 2);
+        }
+      }
+
+      //********************
+      //object/action line
+      //********************
+      ypos++;
+      i = -1;
+      for(short xpos = 0; xpos < width*5; xpos+=5){
+        i++;
+        c = map[ypos][xpos];
+        //left side
+        //is it a horizontal wall?
+        if (c == '|'){
+          cmp.setWall(Vector2D(i,j), LEFT);
+        }
+        //or a door?
+        else if (c == 'D'){
+          cmp.setDoor(Vector2D(i,j), LEFT, 0);
+        }
+        else if (c == 'S'){
+          cmp.setDoor(Vector2D(i,j), LEFT, 1);
+        }
+        else if (c == 'H'){
+          cmp.setDoor(Vector2D(i,j), LEFT, 2);
+        }
+      }
+
+      i = -1;
+      for(short xpos = 5; xpos <= width*5; xpos+=5){
+        i++;
+        c = map[ypos][xpos];
+        //right side
+        //the same as above
+        if (c == '|'){
+          cmp.setWall(Vector2D(i,j), RIGHT);
+        }
+        else if (c == 'D'){
+          cmp.setDoor(Vector2D(i,j), RIGHT, 0);
+        }
+        else if (c == 'S'){
+          cmp.setDoor(Vector2D(i,j), RIGHT, 1);
+        }
+        else if (c == 'H'){
+          cmp.setDoor(Vector2D(i,j), RIGHT, 2);
+        }
+      }
+
+      //monsters and furniture
+      i=-1;
+      for(short xpos = 1; xpos <=width*5; xpos+=5){
+        i++;
+        c = map[ypos][xpos];
+        if(c == 'M'){
+          char monster[] = {map[ypos][xpos+1], map[ypos][xpos+2]};
+          cmp.addMonster(Vector2D(i,j), monster);
+        }
+        else if(c == 'F'){
+          char furniture[] = {map[ypos][xpos+1], map[ypos][xpos+2]};
+          cmp.addFurniture(Vector2D(i,j), furniture);
+        }
+      }
+
+      //special actions
+      i = -1;
+      for(short xpos = 4; xpos <= width*5; xpos+=5){
+        i++;
+        c = map[ypos][xpos];
+        //hero starting position?
+        if (c == 'X'){
+          cmp.addStartPos(Vector2D(i,j));
+        }
+        else if (c != ' '){
+          cmp.addScript(c, Vector2D(i,j));
+        }
+      }
+
+      //*******************
+      //non-blocking object/room line
+      //*******************
+      ypos++;
+      //roomId
+      i = -1;
+      for(short xpos = 3; xpos < width*5; xpos+=5){
+        i++;
+        char room[3];
+        room[2] = '\0';
+        room[0] = map[ypos][xpos];
+        //if no id is given, it's 0 (corridor)
+        if (room[0] == ' '){
+          short id = 0;
+          cmp.addRoom(Vector2D(i,j), id);
+        }
+        //we have a room, so add it
+        else{
+          room[1] = map[ypos][xpos+1];
+          short id = toInt(string(room));
+          cmp.addRoom(Vector2D(i,j), id);
+        }
+      }
+
+      //overlay
+      i = -1;
+      for(short xpos = 1; xpos <=width*5; xpos+=5){
+        i++;
+        char overlay[] = {map[ypos][xpos], map[ypos][xpos+1], '\0'};
+        if (overlay[0] == '*' || overlay[0] == ' ')
+          continue;
+        cmp.addOverlay(Vector2D(i,j), overlay);
+      }
+
+
+      //******************
+      //bottom wall line
+      //******************
+      ypos++;
+      i = -1;
+      for(short xpos = 2; xpos < width*5; xpos+=5){
+        i++;
+        c = map[ypos][xpos];
+        //is there a wall?
+        if (c == '-'){
+          cmp.setWall(Vector2D(i,j), BOTTOM);
+        }
+        //or a door?
+        else if (c == 'D'){
+          cmp.setDoor(Vector2D(i,j), BOTTOM, 0);
+        }
+        else if (c == 'S'){
+          cmp.setDoor(Vector2D(i,j), BOTTOM, 1);
+        }
+        else if (c == 'H'){
+          cmp.setDoor(Vector2D(i,j), BOTTOM, 2);
+        }
+      }
+    }
+
+    in.close();
+
+    //write the compiled map
+    cmp.write(mapfile);
+
+    //delete allocated memory
+    for (int k = 0; k < height * 3 + 1; k++){
+      delete [] map[k];
+    }
+    delete [] map;
+
+    TDMExport exp;
+    string filename = mapfile;
+    int idx = filename.find_last_of(".");
+    filename.erase(idx);
+    filename += ".tdm";
+    exp.exportTDM(cmp.getScene(), filename);
+
+  }
+
+  Engine::instance()->requestShutdown();
+}
+
+CGE_MAIN(TDEditorApp)

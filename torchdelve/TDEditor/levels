@@ -1,0 +1,10 @@
+#/bin/sh
+
+TDEditor basic/lamplighterTest.map
+TDEditor basic/saltCellars.map
+TDEditor basic/drownedChapel.map
+TDEditor basic/ossuaryBridge.map
+TDEditor basic/smugglersWarren.map
+TDEditor basic/vesksFurnace.map
+TDEditor basic/hushedBells.map
+TDEditor basic/hearthflameDeep.map

@@ -1,0 +1,87 @@
+# Quest 5: the smugglers who carry the stolen salt. Their chart (in the captain's cabin)
+# opens the hidden tunnel to the way out; or the heroes find the secret door themselves.
+title: The Smugglers' Warren
+rooms: a=2 b=6 c=11 d=19 e=21 f=13 g=4 h=15 i=9 k=17 j=12
+size: 24 16
+rect . 5 0 1 13
+rect . 5 3 8 1
+rect . 5 4 14 1
+rect . 18 0 1 14
+rect . 5 10 14 1
+rect . 8 11 1 5
+rect b 0 0 5 4
+rect c 6 0 6 3
+rect d 13 0 5 4
+rect e 19 0 5 5
+rect f 0 5 5 4
+rect g 7 5 6 4
+rect g 7 9 3 1
+rect h 14 6 4 4
+rect a 0 11 5 5
+rect a 5 13 3 3
+rect i 9 11 6 4
+rect k 15 11 3 5
+rect j 19 10 5 6
+door 4 1 RIGHT
+door 6 1 LEFT
+door 9 2 BOTTOM
+door 13 3 LEFT
+door 17 1 RIGHT
+door 19 2 LEFT
+door 4 6 RIGHT
+door 10 5 TOP
+door 8 9 BOTTOM
+door 15 9 BOTTOM
+door 17 7 RIGHT
+door 4 11 RIGHT
+door 5 13 TOP
+door 7 14 RIGHT
+door 9 12 LEFT
+door 12 11 TOP
+door 16 11 TOP
+# the hidden tunnel
+door 18 12 RIGHT S
+# the sea cave: the heroes row in here
+start 1 12
+start 2 12
+start 1 13
+start 2 13
+# the barrel store
+monster or 2 2
+monster go 3 0
+# the bunk cave
+furniture cb 6 0 top
+monster go 10 1
+monster go 8 2
+# the counting room
+furniture ch 13 0 top
+furniture bc 15 0 top
+monster or 14 2
+# Captain Brannoch's cabin
+furniture ta 20 0 top C
+monster ak 22 3 B
+# the guard post
+furniture wr 0 5 top
+monster or 2 6
+monster or 3 8
+# the still
+furniture ab 7 5 top
+monster go 11 7
+monster bb 8 9
+# the kennel
+monster go 15 7
+monster go 16 8
+# the hall of pits
+overlay pt 10 12 a
+overlay pt 12 13 a
+overlay pt 13 11 a
+overlay sp 11 14 b
+monster or 14 13
+# the brig
+furniture ch 15 11 top
+monster go 17 14
+# the tunnel and the way out
+monster or 20 13
+overlay st 22 14 A
+script A 23 14 22 15 23 15
+overlay rt 18 9 c

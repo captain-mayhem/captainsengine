@@ -2,7 +2,7 @@
 #include "menu.h"
 #include "graphics.h"
 #include "editor.h"
-#include "hqmExport.h"
+#include "tdmExport.h"
 
 #include <cfloat>
 #include <cstdio>
@@ -312,13 +312,13 @@ void optionsDialog(){
   ImGui::End();
 }
 
-void hqmExport(){
-  HQMExport exp;
+void tdmExport(){
+  TDMExport exp;
   std::string file = Graphic::instance()->getFilename();
   unsigned idx = file.find_last_of('.');
   file.erase(idx+1);
-  file += "hqm";
-  exp.exportHQM(Graphic::instance()->getScene(), file);
+  file += "tdm";
+  exp.exportTDM(Graphic::instance()->getScene(), file);
 }
 
 //! the buttons, in the lower right corner
@@ -329,8 +329,8 @@ void toolWindow(){
     ImGuiCond_FirstUseEver, ImVec2(1, 1));
   if (ImGui::Begin("Editor", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings)){
     const ImVec2 size(9*ImGui::GetFontSize(), 0);
-    if (ImGui::Button("Export HQM", size))
-      hqmExport();
+    if (ImGui::Button("Export TDM", size))
+      tdmExport();
     if (ImGui::Button("Load scene", size))
       openFile(FileAction::LoadScene);
     if (ImGui::Button("Save scene", size))

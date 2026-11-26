@@ -1,0 +1,82 @@
+# Quest 6: the alchemist Vesk Morrow distils shadow for the Ashen Court. His three
+# alembics heal him while they boil: smash them (search their rooms), then defeat him.
+title: Vesk's Furnace
+rooms: a=7 b=19 c=13 d=6 e=16 f=21 g=10 h=3 i=20 j=1 k=18
+cells:
+aaaa.bbbbbbbbbb.cccc
+aaaa.bbbbbbbbbb.cccc
+aaaa.bbbbbbbbbb.cccc
+....................
+dddd.ffffffffff.eeee
+dddd.ffffffffff.eeee
+dddd.ff#ffff#ff.eeee
+.....ffffffffff.....
+gggg.ff#ffff#ff.hhhh
+gggg.ffffffffff.hhhh
+gggg.ffffffffff.hhhh
+....................
+iiii.jjjjjjjjjj.kkkk
+iiii.jjjjjjjjjj.kkkk
+iiii.jjjjjjjjjj.kkkk
+end
+door 2 2 BOTTOM
+door 7 2 BOTTOM
+door 12 2 BOTTOM
+door 17 2 BOTTOM
+door 3 5 RIGHT
+door 16 5 LEFT
+door 5 7 LEFT
+door 14 7 RIGHT
+door 10 10 BOTTOM
+door 3 9 RIGHT
+door 16 9 LEFT
+door 2 12 TOP
+door 7 12 TOP
+door 12 12 TOP
+door 17 12 TOP
+# the stair: in and out
+overlay st 0 0 A
+script A 1 0 0 1 1 1
+start 2 0
+start 3 0
+start 2 1
+start 3 1
+# the library
+furniture bc 5 0 top
+furniture cb 12 0 top
+monster bb 9 1
+monster go 13 2
+# the alembics
+furniture ab 16 0 top P
+monster zo 19 2
+furniture ab 0 10 left Q
+monster zo 3 8
+furniture ab 14 14 bottom R
+monster bb 9 13
+monster zo 6 14
+# the furnace hall, four pillars
+furniture st 8 4 top
+furniture fp 11 4 top
+monster dc 9 7 V
+monster bb 6 5
+monster bb 13 9
+# the vats
+furniture ra 0 4 top
+monster zo 3 6
+furniture cb 19 4 right
+monster zo 17 6
+monster go 18 4
+# the store
+furniture ch 19 8 top
+monster bb 17 10
+# the barracks
+furniture wr 3 14 bottom
+monster go 0 12
+# Vesk's bedchamber
+furniture bc 19 12 right
+monster mu 17 14
+# the hot corridors
+overlay sp 10 3 b
+overlay sp 10 11 b
+overlay pt 0 7 a
+overlay rt 19 7 c

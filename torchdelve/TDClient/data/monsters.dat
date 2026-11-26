@@ -1,0 +1,9 @@
+Goblin        -> id: 2000  short: go movement: 9  attack: 2 defend: 1 body: 1 mind: 1
+Skeleton      -> id: 2001  short: sk movement: 7  attack: 2 defend: 2 body: 1 mind: 0
+Zombie        -> id: 2002  short: zo movement: 4  attack: 2 defend: 3 body: 2 mind: 0
+Orc           -> id: 2003  short: or movement: 7  attack: 3 defend: 2 body: 2 mind: 1
+Bogbrute      -> id: 2004  short: bb movement: 5  attack: 4 defend: 2 body: 3 mind: 1
+Mummy         -> id: 2005  short: mu movement: 4  attack: 3 defend: 3 body: 3 mind: 0
+Ashen_Knight  -> id: 2006  short: ak movement: 6  attack: 4 defend: 4 body: 3 mind: 2
+Gargoyle      -> id: 2007  short: ga movement: 7  attack: 3 defend: 5 body: 3 mind: 3
+Duskcaller    -> id: 2008  short: dc movement: 7  attack: 2 defend: 4 body: 3 mind: 6

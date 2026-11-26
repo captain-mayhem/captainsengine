@@ -1,0 +1,74 @@
+# Quest 4: a bridge of bones over a chasm. Pull the two levers on the west bank to open
+# the bone gate at the bridge's east end, cross, and take the stair on the far side.
+title: The Ossuary Bridge
+rooms: a=7 b=12 e=20 g=3 h=10 c=22 d=6 f=17 i=13 j=1
+cells:
+aaaa.bbbbb##########ccccc.dddd
+aaaa.bbbbb##########ccccc.dddd
+aaaa.bbbbb##########ccccc.dddd
+aaaa.bbbbb##########ccccc.dddd
+..........##########..........
+eeee......................ffff
+eeee......................ffff
+..........##########..........
+gggg.hhhhh##########iiiii.jjjj
+gggg.hhhhh##########iiiii.jjjj
+gggg.hhhhh##########iiiii.jjjj
+gggg.hhhhh##########iiiii.jjjj
+end
+door 3 2 RIGHT
+door 5 2 LEFT
+door 7 3 BOTTOM
+door 3 6 RIGHT
+door 3 9 RIGHT
+door 5 10 LEFT
+door 7 8 TOP
+door 24 2 RIGHT
+door 26 1 LEFT
+door 22 3 BOTTOM
+door 26 6 LEFT
+door 24 10 RIGHT
+door 26 9 LEFT
+# the bone gate across both lanes of the bridge
+door 19 5 RIGHT S
+door 19 6 RIGHT S
+# the landing: the heroes come down the old stair
+overlay st 0 0
+start 2 0
+start 3 0
+start 2 1
+start 3 1
+# the lever chambers
+script L 9 1
+furniture wr 5 0 top
+monster sk 6 2
+monster sk 8 3
+script R 9 10
+furniture bc 9 11 bottom
+monster zo 6 9
+monster sk 8 9
+# the bone pits
+furniture to 0 5 top
+monster mu 3 5
+furniture ch 0 8 top
+monster zo 2 10
+# the bridge
+monster sk 12 5
+monster sk 15 6
+overlay rt 17 5 c
+overlay rt 13 6 c
+# the far bank
+furniture to 20 0 top
+monster sk 21 3
+monster sk 23 2
+furniture cb 29 0 right
+monster mu 27 2
+monster ga 28 5 G
+furniture st 24 11 bottom
+monster zo 21 8
+monster zo 20 11
+# the stair down
+overlay st 28 10 A
+script A 29 10 28 11 29 11
+monster mu 27 9
+monster sk 29 8

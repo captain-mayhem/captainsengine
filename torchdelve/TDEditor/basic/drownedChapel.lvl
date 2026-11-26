@@ -1,0 +1,84 @@
+# Quest 3: the flooded chapel of the Grey Abbot. Find his ledger in the vestry, then
+# climb the bell tower out (the porch collapses behind the heroes).
+title: The Drowned Chapel
+rooms: a=8 b=18 c=12 g=22 e=16 d=5 f=15 n=9 h=3 i=14 j=11 k=20 p=7
+cells:
+aaaa..bbbbbbbb..cccc
+aaaa.#bbbbbbbb#.cccc
+aaaa.#bbbbbbbb#.cccc
+.....###gggg###.....
+.#######gggg#######.
+.eeeeeeeddddfffffff.
+.eeeeeeeddddfffffff.
+.eeeeeeeddddfffffff.
+.#######nnnn#######.
+.hhhh.##nnnn##.iiii.
+.hhhh.##nnnn##.iiii.
+.hhhh.##nnnn##.iiii.
+......##nnnn##......
+#jjjj.##nnnn##.kkkk#
+#jjjj...pppp...kkkk#
+#jjjj.##pppp##.kkkk#
+end
+door 3 1 RIGHT
+door 6 0 LEFT
+door 13 0 RIGHT
+door 16 1 LEFT
+door 10 3 TOP
+door 9 5 TOP
+door 8 6 LEFT
+door 11 6 RIGHT
+door 1 6 LEFT
+door 18 6 RIGHT
+door 10 8 TOP
+door 9 14 TOP
+door 8 14 LEFT
+door 11 14 RIGHT
+door 4 10 RIGHT
+door 15 10 LEFT
+door 4 13 RIGHT
+door 15 13 LEFT
+# the porch: the heroes come in here
+start 8 15
+start 9 15
+start 10 15
+start 11 15
+# the bell tower: the way out
+overlay st 0 0 A
+script A 1 0 0 1 1 1
+monster ga 3 2
+# the apse
+furniture to 7 0 top
+furniture bc 11 0 top
+monster sk 6 2
+monster sk 12 2
+# the choir
+monster sk 10 4
+# the crossing and the transept
+monster mu 10 6
+monster sk 3 6
+monster zo 5 7
+monster zo 14 5
+monster zo 16 7
+# the nave
+monster zo 9 9
+monster zo 10 11
+monster sk 8 12
+# the vestry: the Abbot and his ledger
+furniture cb 17 0 top V
+monster mu 18 2 W
+# the baptistery
+furniture ch 1 9 top
+overlay pt 2 10 a
+# the ossuary
+monster zo 16 10
+monster zo 17 11
+# the cells
+furniture cb 1 15 left
+monster sk 3 14
+# the kitchen
+furniture fp 18 15 bottom
+monster zo 17 14
+# the cloister walks
+overlay sp 0 8 b
+overlay rt 19 8 c

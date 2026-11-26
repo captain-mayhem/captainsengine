@@ -1,0 +1,76 @@
+# Quest 2: goblins in the salt galleries. Defeat their chief Snikkerbrand, then leave.
+title: The Salt Cellars
+rooms: a=7 b=1 c=13 d=6 e=19 f=10 g=4 h=15 i=2 j=21
+cells:
+aaaa.######bbbbbb.####
+aaaa.######bbbbbb.cccc
+aaaa.......bbbbbb.cccc
+####.#####.bbbbbb.cccc
+dddd.#eeee........cccc
+dddd.#eeee.###########
+dddd.#eeee.ffff.gggggg
+dddd.......ffff.gggggg
+#####.####.ffff.gggggg
+hhhhh.####......gggggg
+hhhhh.iiiiiiii.#######
+hhhhh.iiiiiiii.jjjjjjj
+......iiiiiiii.jjjjjjj
+##############.jjjjjjj
+end
+door 3 1 RIGHT
+door 11 2 LEFT
+door 16 1 RIGHT
+door 18 4 LEFT
+door 3 5 RIGHT
+door 9 5 RIGHT
+door 11 7 LEFT
+door 14 8 BOTTOM
+door 16 6 LEFT
+door 4 10 RIGHT
+door 6 11 LEFT
+door 13 10 RIGHT
+door 15 12 LEFT
+# the stair down from the town
+overlay st 0 0
+start 2 0
+start 3 0
+start 2 1
+start 3 1
+script A 0 0 1 0 0 1 1 1
+# the salt store
+furniture cb 11 0 top
+furniture cb 14 0 top
+monster go 12 2
+monster go 15 3
+# the pickers' cave
+furniture wr 21 1 right
+monster go 19 3
+# the goblins' mess
+furniture ta 0 4 top
+monster go 2 7
+monster go 3 6
+# the brine cistern
+furniture ch 9 4 top T
+monster or 7 6
+# the boiling room
+furniture fp 11 6 top
+monster go 13 8
+# the sleeping cave
+furniture ta 16 9 left
+monster or 20 7
+monster go 19 9
+# the old adits
+furniture wr 4 11 bottom
+monster go 1 9
+monster or 8 11
+monster go 11 10
+monster or 12 12
+# Snikkerbrand's hall
+furniture th 21 11 top
+monster or 20 12 K
+furniture ch 16 11 top L
+monster go 17 13
+monster go 19 13
+# traps in the galleries
+overlay pt 2 12 a
+overlay sp 12 9 b

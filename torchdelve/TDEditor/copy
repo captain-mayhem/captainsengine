@@ -1,0 +1,6 @@
+#!/bin/bash
+cp basic/*.tdm ../TDClient/levels/basic/
+cp basic/*.lua ../TDClient/levels/basic/
+cp basic/*.hsf ../TDClient/levels/basic/
+cp basic/*.tdm ../TDServer/levels/basic/
+cp basic/*.lua ../TDServer/levels/basic/
