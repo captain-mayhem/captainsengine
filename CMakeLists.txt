@@ -52,6 +52,9 @@ else()
   set(PROJECT_EDITOR_DEFAULT OFF)
 endif()
 option(PROJECT_EDITOR "compile the 3D scene editor" ${PROJECT_EDITOR_DEFAULT})
+# Torchdelve (client, server, level compiler) is a desktop game; its client starts
+# the 3D scene editor, and its level compiler builds the editor's TDM export
+option(PROJECT_TORCHDELVE "compile the Torchdelve projects (TDClient, TDServer, TDEditor)" ${PROJECT_EDITOR_DEFAULT})
 set(STORY_DESIGNER_VERSION "1.1.0" CACHE STRING "Story Designer Version" FORCE)
 
 # physics (ODE) is a separate library; only OSMRacer uses it
@@ -100,6 +103,9 @@ if (PROJECT_ADVENTURE)
 endif()
 if (PROJECT_OSMRACER)
   add_subdirectory(OSMRacer)
+endif()
+if (PROJECT_TORCHDELVE)
+  add_subdirectory(torchdelve)
 endif()
 add_subdirectory(tools)
 

@@ -6,3 +6,4 @@ CMakeUserPresets.json
 /Adventure/Editor/**/obj/
 /Adventure/Editor/**/.vs/
 CLAUDE.local.md
+__pycache__/

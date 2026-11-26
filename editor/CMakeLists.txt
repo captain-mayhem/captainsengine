@@ -2,7 +2,7 @@ SET(editor_SRCS
 	camera.cpp
 	editor.cpp
 	graphics.cpp
-	hqmExport.cpp
+	tdmExport.cpp
 	main.cpp
 	menu.cpp)
 
@@ -10,7 +10,7 @@ SET(editor_HDRS
 	camera.h
 	editor.h
 	graphics.h
-	hqmExport.h
+	tdmExport.h
 	menu.h)
 
 if (OS STREQUAL "android")

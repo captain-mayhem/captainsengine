@@ -1,0 +1,20 @@
+stonemend   -> id: 0  class: stone description: The stone draws the hurt out of a creature you can see: it gets back up to 3 health and 1 will, but no more than it started with. /description
+stone_hide  -> id: 1  class: stone description: The skin of a creature you can see turns to granite: it throws 2 extra dice when defending, until it suffers its first damage. /description
+wall_walk   -> id: 2  class: stone description: A creature you can see may walk through walls on its next move. /description
+cinder_dart -> id: 3  class: ember description: A burning cinder strikes a creature you can see: 1 point of damage, which it cannot defend against. /description
+flame_burst -> id: 4  class: ember description: Fire bursts around a creature you can see: 3 points of damage; it defends with 3 dice. /description
+bold_flame  -> id: 5  class: ember description: A flame burns in the chest of a creature you can see: 1 extra attack die and 1 extra defence die for as long as it can see a monster. /description
+thunderclap -> id: 6  class: gale description: Thunder strikes a creature you can see with 4 combat dice. /description
+far_sight   -> id: 7  class: gale description: The wind brings back what it saw: you see into any room on the board. /description
+tailwind    -> id: 8  class: gale description: A creature you can see rolls twice as many dice the next time it moves. /description
+downdraft   -> id: 9  class: gale description: A downdraft pins a creature you can see to the floor: it misses its next turn. /description
+drowse      -> id: 10 class: tide description: A creature you can see falls into a deep sleep and cannot move or attack. At the start of each of its turns it rolls one die per point of will; a 6 wakes it. /description
+mistwalk    -> id: 11 class: tide description: A creature you can see may move through fields that its enemies stand on, on its next move. /description
+wellspring  -> id: 12 class: tide description: Clear water washes over a creature you can see: it gets back up to 4 health, but no more than it started with. /description
+dread       -> id: 13 class: shadow description: A creature you can see is gripped by dread: it attacks with 1 die only. At the start of each of its turns it rolls one die per point of will; a 6 breaks the spell. /description
+nightfall   -> id: 14 class: shadow description: Night falls over a creature you can see: it sleeps and cannot move or attack. At the start of each of its turns it rolls one die per point of will; a 6 wakes it. /description
+black_gust  -> id: 15 class: shadow description: A black gust wraps a creature you can see: it misses its next turn. /description
+witchfire   -> id: 16 class: shadow description: Green fire strikes a creature you can see: 2 points of damage; it defends with 2 dice. /description
+ash_storm   -> id: 17 class: shadow description: Burning ash fills the air: every creature the caster can see suffers 3 points of damage and defends with 2 dice. The caster is spared. /description
+pack_call   -> id: 18 class: shadow description: The caster calls the pack: three to five goblins appear around them. /description
+shadowstep  -> id: 19 class: shadow description: The caster steps into one shadow and out of another, at a place the quest has chosen. /description

@@ -1,0 +1,4 @@
+stairs      -> id: 4000  short: st  width: 2  height: 2  walkable: yes  description: stairs /description
+pit_trap    -> id: 4001  short: pt  width: 1  height: 1  walkable: yes  description: a dangerous pit /description
+rock_trap   -> id: 4002  short: rt  width: 1  height: 1  walkable: no   description: falling rocks /description
+spear_trap  -> id: 4003  short: sp  width: 1  height: 1  walkable: yes  description: a spear trap /description

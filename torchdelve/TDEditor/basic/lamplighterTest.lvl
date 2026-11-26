@@ -1,0 +1,54 @@
+# Quest 1: the training quest. Light the three beacons, then leave by the stair.
+title: The Lamplighter's Test
+rooms: a=5 b=14 c=9 d=20 e=3 f=11 g=17
+cells:
+##aaaaaaaaaaaa##
+##aaaaaaaaaaaa##
+bbb..........ccc
+bbb.eeeeeeee.ccc
+bbb.eeeeeeee.ccc
+###.eeeeeeee.###
+ddd.eeeeeeee.fff
+ddd.eeeeeeee.fff
+ddd..........fff
+##gggggggggggg##
+##gggggggggggg##
+end
+door 5 1 BOTTOM
+door 10 1 BOTTOM
+door 2 3 RIGHT
+door 13 3 LEFT
+door 4 5 LEFT
+door 11 5 RIGHT
+door 2 7 RIGHT
+door 13 7 LEFT
+door 5 8 BOTTOM
+door 10 8 BOTTOM
+# the barracks: the recruits start here
+start 6 0
+start 7 0
+start 8 0
+start 9 0
+furniture wr 2 0 top
+furniture cb 11 0 top
+# the three beacons
+script P 1 3
+script Q 14 3
+script R 1 7
+furniture ch 0 2 top
+monster go 2 4
+monster go 15 4
+monster sk 0 8
+# the practice hall
+furniture ta 6 3 top
+monster go 5 6
+monster go 10 6
+monster sk 10 4
+# the storeroom
+furniture ch 15 6 top T
+monster zo 14 8
+# the stair out
+overlay st 7 9 A
+script A 8 9 7 10 8 10
+monster sk 3 10
+monster sk 12 10

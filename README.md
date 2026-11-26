@@ -9,6 +9,7 @@ On top level is the code of the engine and its main projects. In this Readme, th
   * Editor: the mighty adventure editor written in C# (StoryDesigner)
 * editor: A very basic 3D scene editor for the core engine
 * OSMRacer: A car racing game based on OpenStreetMap data
+* torchdelve: Torchdelve, a turn-based multiplayer dungeon crawler in 3D (client, server and the level compiler; Windows and Linux). `torchdelve/README.txt` is its manual; after installing, `python torchdelve/tools/install_pack.py build/install/<preset>` compiles its quests into the install folder
 * extern: The 3rd-party libraries used by the engine or its projects (libjpeg, Lua, etc.), as sources integrated into the CMake build
 
 ## How to build
@@ -91,7 +92,7 @@ cge_install_runtime(mygame mygame)         # installs the engine library with th
 cge_web_application(mygame PRELOAD engine.ini@engine.ini assets@assets)
 ```
 
-The engine's own projects (Adventure, OSMRacer, the editor) are switched off when the engine isn't the top-level project. `cge_install_runtime` puts the engine library next to the executable on Windows, and into `lib/` (found through an `$ORIGIN/lib` RPATH) on Linux; on the web it installs the page's `.js`, `.wasm` and `.data` files. `cge_web_package(name <source>@<path>... [DESTINATION dir])` makes a data package for web pages.
+The engine's own projects (Adventure, OSMRacer, Torchdelve, the editor) are switched off when the engine isn't the top-level project. `cge_install_runtime` puts the engine library next to the executable on Windows, and into `lib/` (found through an `$ORIGIN/lib` RPATH) on Linux; on the web it installs the page's `.js`, `.wasm` and `.data` files. `cge_web_package(name <source>@<path>... [DESTINATION dir])` makes a data package for web pages.
 
 Engine classes and functions that applications use must be marked `CGE_API` (from `<cge_export.h>`). On Linux the library is built with hidden visibility, so anything else isn't visible to applications.
 

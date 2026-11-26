@@ -1,0 +1,4 @@
+number: 3
+world/ground.obj 0
+world/pit.obj 1
+world/rocktrap.obj 2

@@ -1,0 +1,99 @@
+# Quest 8: the finale. Bring the ember-heart to the hearth at the centre of the Deep:
+# that breaks the Shade Regent's ward. Defeat him, then leave by the stair.
+title: The Hearthflame Deep
+rooms: q=22 r=21 s=7 a=8 b=16 c=4 d=19 e=12 f=10 g=13 h=3
+size: 26 20
+rect . 7 4 12 1
+rect . 7 15 12 1
+rect . 7 4 1 12
+rect . 18 4 1 12
+rect q 8 5 10 10
+rect # 11 9 4 2
+rect # 9 7 1 1
+rect # 16 7 1 1
+rect # 9 12 1 1
+rect # 16 12 1 1
+rect r 9 0 8 4
+rect s 10 16 6 4
+rect . 0 4 7 1
+rect . 0 9 7 1
+rect . 0 15 7 1
+rect . 19 4 7 1
+rect . 19 9 7 1
+rect . 19 15 7 1
+rect a 0 0 6 4
+rect b 0 5 6 4
+rect c 0 10 6 5
+rect d 0 16 9 4
+rect e 20 0 6 4
+rect f 20 5 6 4
+rect g 20 10 6 5
+rect h 17 16 9 4
+door 12 3 BOTTOM
+door 8 9 LEFT
+door 17 10 RIGHT
+door 12 5 TOP
+door 13 14 BOTTOM
+door 12 16 TOP
+door 3 3 BOTTOM
+door 4 5 TOP
+door 4 8 BOTTOM
+door 2 10 TOP
+door 3 14 BOTTOM
+door 4 16 TOP
+door 22 3 BOTTOM
+door 23 5 TOP
+door 21 8 BOTTOM
+door 23 10 TOP
+door 22 14 BOTTOM
+door 21 16 TOP
+# the stair: in and out
+overlay st 10 18 A
+script A 11 18 10 19 11 19
+start 13 18
+start 14 18
+start 13 19
+start 14 19
+# the hearth hall: the chimney in the middle, a hearth on each side of it
+furniture fp 11 11 top
+furniture fp 14 8 bottom
+script H 11 12 12 12 13 12 12 7 13 7 14 7
+monster sk 10 6
+monster sk 15 13
+monster zo 9 10
+monster ga 16 9
+monster mu 10 13
+# the Shade Regent's hall
+furniture th 12 0 top
+furniture bc 14 0 top
+monster dc 12 1 R
+monster ak 10 2
+monster ak 15 2
+# the side rooms
+furniture to 0 0 top
+monster mu 4 1
+furniture ra 0 5 top
+monster bb 3 7
+furniture wr 0 14 left
+monster go 3 12
+monster go 4 11
+monster or 1 10
+furniture ch 8 16 top T
+monster sk 2 18
+monster zo 6 19
+furniture cb 20 0 top
+monster sk 24 2
+furniture ta 20 5 top
+monster or 24 7
+monster or 25 8
+furniture ab 25 10 right
+monster bb 21 12
+furniture st 25 19 bottom
+monster mu 19 17
+monster mu 21 19
+# traps
+overlay pt 7 7 a
+overlay pt 18 12 a
+overlay sp 15 4 b
+overlay rt 10 15 c
+overlay rt 3 9 c
