@@ -17,6 +17,8 @@ add_library(DesignerModel STATIC
   model/project.h
   model/projectfile.cpp
   model/projectfile.h
+  model/roomedit.cpp
+  model/roomedit.h
   model/scriptcheck.cpp
   model/scriptcheck.h
   model/stateframes.cpp
@@ -37,6 +39,8 @@ cge_add_application(Designer WIN32
   app/main.cpp
   app/projectwindows.cpp
   app/resourcewindows.cpp
+  app/roomeditor.cpp
+  app/roomeditor.h
   app/scripteditor.cpp
   app/scripteditor.h
   app/stateframeeditor.cpp
@@ -56,6 +60,7 @@ install(FILES app/engine.ini DESTINATION designer)
 if (CGE_BUILD_TESTS)
   add_executable(designer_tests
     tests/test_projectfile.cpp
+    tests/test_roomedit.cpp
     tests/test_scripts.cpp
     tests/test_stateframes.cpp
   )

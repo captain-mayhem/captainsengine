@@ -11,6 +11,7 @@
 
 #include "filedialog.h"
 #include "imagecache.h"
+#include "roomeditor.h"
 #include "stateframeeditor.h"
 #include "scripteditor.h"
 
@@ -51,6 +52,8 @@ private:
   struct View{
     ResourceID kind;
     std::string name;
+    //! a script's kind, for kind Script
+    Script::Type scriptType = Script::Cutscene;
     bool open = true;
     std::string title() const;
   };
@@ -59,7 +62,9 @@ private:
   void layout(ImGuiID dockspace);
   void pool(const char* title, std::vector<PoolNode>& nodes, bool* open);
   void poolNodes(std::vector<PoolNode>& nodes, bool game, std::vector<size_t>& path);
-  void openView(ResourceID kind, const std::string& name);
+  void openView(ResourceID kind, const std::string& name, Script::Type scriptType = Script::Cutscene);
+  //! shows a script in a window of its own, created if there is none (as the C# editor)
+  void openScript(Script::Type type, const std::string& name);
   void view(View& v);
   void settingsWindow();
   void commandsWindow();
@@ -79,7 +84,7 @@ private:
   void deleteResource(ResourceID kind, const std::string& name);
   bool renameScript(const std::string& from, const std::string& to);
 
-  void showRoom(const Room& room);
+  void showRoom(Room& room);
   void showObject(Object& obj);
   void showItem(Item& item);
   void showCharacter(Character& chr);
@@ -109,6 +114,8 @@ private:
   //! the state and frame editors by kind and lowercase name
   std::map<std::string, StateFrameEditor> frameEditors_;
   ImageCache images_;
+  //! the room editors by lowercase name
+  std::map<std::string, RoomEditor> roomEditors_;
   bool showMouseIcons_ = false;
   //! the characters' picture background (the C# editor keeps it in its settings)
   ImU32 charBackground_ = IM_COL32(0, 0, 0, 255);

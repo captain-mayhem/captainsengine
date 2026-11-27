@@ -65,6 +65,20 @@ const char* kindName(ResourceID kind){
   return "Resource";
 }
 
+//! the window title's kind of a script that isn't a cutscene
+const char* scriptKindName(Script::Type type){
+  switch (type){
+    case Script::Cutscene: return "Cutscene";
+    case Script::Item: return "Item script";
+    case Script::Character: return "Character script";
+    case Script::Room: return "Room script";
+    case Script::Object: return "Object script";
+    case Script::Walkmap: return "Walkmap script";
+    case Script::NumTypes: break;
+  }
+  return "Script";
+}
+
 std::string parentFolder(const std::string& path){
   std::filesystem::path p(std::u8string(path.begin(), path.end()));
   std::u8string str = p.parent_path().u8string();
@@ -75,7 +89,10 @@ std::string parentFolder(const std::string& path){
 
 std::string Designer::View::title() const{
   //the name shown, the kind and name as the window's id
-  return toUtf8(name) + " (" + kindName(kind) + ")###" + kindName(kind) + "/" + toUtf8(toLower(name));
+  std::string kindText = kindName(kind);
+  if (kind == ResourceID::Script && scriptType != Script::Cutscene)
+    kindText = scriptKindName(scriptType);
+  return toUtf8(name) + " (" + kindText + ")###" + kindText + "/" + toUtf8(toLower(name));
 }
 
 Designer::Designer(){
@@ -93,6 +110,7 @@ bool Designer::openProject(const std::string& path){
   views_.clear();
   scriptEditors_.clear();
   frameEditors_.clear();
+  roomEditors_.clear();
   images_.clear();
   language_.clear();
   modified_ = false;
@@ -319,8 +337,16 @@ void Designer::poolNodes(std::vector<PoolNode>& nodes, bool game, std::vector<si
       if (ImGui::IsItemHovered())
         ImGui::SetTooltip("%s", kindName((ResourceID)node.id));
       //images are dragged into the frames of items, objects, characters and the cursor
-      if (node.id == (int)ResourceID::Image && ImGui::BeginDragDropSource()){
-        ImGui::SetDragDropPayload(kImagePayload, node.label.data(), node.label.size());
+      //objects and characters are dragged into rooms
+      const char* payload = nullptr;
+      if (node.id == (int)ResourceID::Image)
+        payload = kImagePayload;
+      else if (node.id == (int)ResourceID::Object)
+        payload = kObjectPayload;
+      else if (node.id == (int)ResourceID::Character)
+        payload = kCharacterPayload;
+      if (payload && ImGui::BeginDragDropSource()){
+        ImGui::SetDragDropPayload(payload, node.label.data(), node.label.size());
         ImGui::TextUnformatted(label.c_str());
         ImGui::EndDragDropSource();
       }
@@ -540,9 +566,9 @@ void Designer::namePopup(){
   ImGui::EndPopup();
 }
 
-void Designer::openView(ResourceID kind, const std::string& name){
+void Designer::openView(ResourceID kind, const std::string& name, Script::Type scriptType){
   for (View& v : views_){
-    if (v.kind == kind && toLower(v.name) == toLower(name)){
+    if (v.kind == kind && v.scriptType == scriptType && toLower(v.name) == toLower(name)){
       ImGui::SetWindowFocus(v.title().c_str());
       return;
     }
@@ -550,7 +576,20 @@ void Designer::openView(ResourceID kind, const std::string& name){
   View v;
   v.kind = kind;
   v.name = name;
+  v.scriptType = scriptType;
   views_.push_back(v);
+}
+
+void Designer::openScript(Script::Type type, const std::string& name){
+  if (project_.scripts[type].find(name) == nullptr){
+    Script created;
+    created.type = type;
+    created.name = name;
+    created.text = std::string();
+    project_.scripts[type].add(name, created);
+    changed();
+  }
+  openView(ResourceID::Script, name, type);
 }
 
 void Designer::view(View& v){
@@ -559,7 +598,7 @@ void Designer::view(View& v){
   if (ImGui::Begin(v.title().c_str(), &v.open)){
     switch (v.kind){
       case ResourceID::Room:
-        if (const Room* room = project_.rooms.find(v.name))
+        if (Room* room = project_.rooms.find(v.name))
           showRoom(*room);
         else
           ImGui::TextDisabled("There is no room of this name.");
@@ -583,7 +622,7 @@ void Designer::view(View& v){
           ImGui::TextDisabled("There is no character of this name.");
         break;
       case ResourceID::Script:
-        showScript(Script::Cutscene, v.name);
+        showScript(v.scriptType, v.name);
         break;
       default:{
         NamedList<std::string>* files = nullptr;
@@ -609,88 +648,15 @@ void Designer::view(View& v){
   ImGui::End();
 }
 
-void Designer::showRoom(const Room& room){
-  if (ImGui::CollapsingHeader("Room", ImGuiTreeNodeFlags_DefaultOpen) && beginTable("room")){
-    row("Size", room.size);
-    row("Scroll offset", room.scrollOffset);
-    row("Background", room.background);
-    row("Parallax background", room.parallaxBackground);
-    row("Depth map", room.depthmap);
-    row("Zoom", room.zoom);
-    row("Double walkmap", room.doubleWalkmap);
-    row("Lighting", std::to_string(room.lighting[0]) + ", " + std::to_string(room.lighting[1]) + ", " + std::to_string(room.lighting[2]));
-    row("Inventory", room.hasInventory);
-    if (room.hasInventory){
-      row("Inventory position", room.invPos);
-      row("Inventory size", room.invSize);
-      char scale[64];
-      snprintf(scale, sizeof(scale), "%g, %g", room.invScale.x, room.invScale.y);
-      row("Inventory scale", std::string(scale));
-      row("Inventory spacing", room.invSpacing);
-    }
-    int free = 0, scripts = 0;
-    for (const auto& column : room.walkmap){
-      for (const WalkMapEntry& field : column){
-        free += field.isFree ? 1 : 0;
-        scripts += field.hasScript ? 1 : 0;
-      }
-    }
-    row("Walkable fields", free);
-    row("Fields with scripts", scripts);
-    ImGui::EndTable();
-  }
-  if (ImGui::CollapsingHeader("Objects", ImGuiTreeNodeFlags_DefaultOpen)){
-    if (ImGui::BeginTable("objects", 7, ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchProp)){
-      for (const char* header : {"Name", "Object", "Position", "State", "Layer", "Depth", "Locked"})
-        ImGui::TableSetupColumn(header);
-      ImGui::TableHeadersRow();
-      for (const ObjectInstance& obj : room.objects){
-        ImGui::TableNextRow();
-        ImGui::TableNextColumn(); text(obj.name);
-        ImGui::TableNextColumn(); text(obj.object);
-        ImGui::TableNextColumn(); ImGui::Text("%d, %d", obj.position.x, obj.position.y);
-        ImGui::TableNextColumn(); ImGui::Text("%d", obj.state);
-        ImGui::TableNextColumn(); ImGui::Text("%d", obj.layer);
-        ImGui::TableNextColumn(); ImGui::Text("%d", obj.depth);
-        ImGui::TableNextColumn(); ImGui::TextUnformatted(obj.locked ? "yes" : "no");
-      }
-      ImGui::EndTable();
-    }
-  }
-  if (ImGui::CollapsingHeader("Characters", ImGuiTreeNodeFlags_DefaultOpen)){
-    const std::vector<CharacterInstance>& chars = project_.roomCharacters(room.name);
-    if (ImGui::BeginTable("characters", 5, ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchProp)){
-      for (const char* header : {"Name", "Character", "Position", "Looks", "Locked"})
-        ImGui::TableSetupColumn(header);
-      ImGui::TableHeadersRow();
-      for (const CharacterInstance& chr : chars){
-        ImGui::TableNextRow();
-        ImGui::TableNextColumn(); text(chr.name);
-        ImGui::TableNextColumn(); text(chr.character);
-        ImGui::TableNextColumn(); ImGui::Text("%d, %d", chr.position.x, chr.position.y);
-        ImGui::TableNextColumn(); ImGui::Text("%d", chr.lookDir);
-        ImGui::TableNextColumn(); ImGui::TextUnformatted(chr.locked ? "yes" : "no");
-      }
-      ImGui::EndTable();
-    }
-  }
-  if (ImGui::CollapsingHeader("FX shapes")){
-    for (size_t i = 0; i < room.fxShapes.size(); ++i){
-      const FxShape& shape = room.fxShapes[i];
-      ImGui::PushID((int)i);
-      if (beginTable("shape")){
-        row("Shape", (int)i+1);
-        row("Active", shape.active);
-        row("Effect", shape.effect);
-        row("Depth", shape.depth);
-        row("Strength", shape.strength);
-        ImGui::EndTable();
-      }
-      ImGui::PopID();
-    }
-  }
-  if (ImGui::CollapsingHeader("Script"))
-    showScript(Script::Room, room.name);
+void Designer::showRoom(Room& room){
+  RoomEditor& editor = roomEditors_[toLower(room.name)];
+  RoomEditor::Requests requests;
+  if (editor.draw(project_, room, images_, projectFolder(), requests))
+    changed();
+  if (requests.openScript)
+    openScript(requests.scriptType, requests.script);
+  if (requests.show)
+    openView(requests.showKind, requests.showName);
 }
 
 void Designer::showScript(Script::Type type, const std::string& name){
