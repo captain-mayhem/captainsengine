@@ -1,6 +1,7 @@
 #ifndef SD_DESIGNER_H
 #define SD_DESIGNER_H
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -9,8 +10,14 @@
 #include <model/project.h>
 
 #include "filedialog.h"
+#include "scripteditor.h"
 
 namespace sd{
+
+//! the project's windows (and their ImGui ids)
+inline const char* const kSettings = "Project settings";
+inline const char* const kCommands = "Commands and bools";
+inline const char* const kLanguages = "Languages";
 
 //! the StoryDesigner's window: the project's pools and its resources in docked ImGui windows
 class Designer{
@@ -23,9 +30,18 @@ public:
   //! the project's file, empty for a new project
   const std::string& path() const {return path_;}
   Project& project() {return project_;}
-  //! the main menu's Quit was chosen
+  //! the main menu's Quit was chosen (and the changes saved or dropped)
   bool quitRequested() const {return quit_;}
+  //! the project has changes that aren't saved
+  bool modified() const {return modified_;}
 private:
+  //! what waits for the question whether to save the changes
+  enum class Pending{
+    None,
+    New,
+    Open,
+    Quit,
+  };
   //! a resource shown in a window of its own
   struct View{
     ResourceID kind;
@@ -37,18 +53,33 @@ private:
   void menu();
   void layout(ImGuiID dockspace);
   void pool(const char* title, std::vector<PoolNode>& nodes, bool* open);
-  void poolNodes(std::vector<PoolNode>& nodes);
+  void poolNodes(std::vector<PoolNode>& nodes, bool game, std::vector<size_t>& path);
   void openView(ResourceID kind, const std::string& name);
   void view(View& v);
   void settingsWindow();
+  void commandsWindow();
+  void languagesWindow();
   void errorPopup();
+  void unsavedPopup();
+  void namePopup();
+  //! runs an action that drops the project, after asking to save changes
+  void whenSaved(Pending action);
+  void runPending();
   bool save(const std::string& path);
+  void changed() {modified_ = true;}
+
+  //! the pool's node at a path of child indices
+  PoolNode* poolNode(std::vector<PoolNode>& nodes, const std::vector<size_t>& path);
+  void newScript(const std::vector<size_t>& folder);
+  void deleteResource(ResourceID kind, const std::string& name);
+  bool renameScript(const std::string& from, const std::string& to);
 
   void showRoom(const Room& room);
   void showObject(const Object& obj);
   void showItem(const Item& item);
   void showCharacter(const Character& chr);
-  void showScript(const Script* scr);
+  //! the script of a resource, editable; creates it on request
+  void showScript(Script::Type type, const std::string& name);
   void showFrames(const std::vector<ExtendedFrame>& frames);
 
   Project project_;
@@ -59,6 +90,26 @@ private:
   bool showGamePool_ = true;
   bool showMediaPool_ = true;
   bool showSettings_ = false;
+  bool showCommands_ = false;
+  bool showLanguages_ = false;
+  bool modified_ = false;
+  Pending pending_ = Pending::None;
+  //! the open scripts' editors by type and lowercase name
+  std::map<std::string, ScriptEditor> scriptEditors_;
+  //! the language whose translation is shown, empty for none
+  std::string language_;
+  //! the name popup: a new language, a new script name
+  enum class NameFor{
+    None,
+    Language,
+    RenameScript,
+  };
+  NameFor nameFor_ = NameFor::None;
+  std::string nameTarget_;
+  char nameBuf_[128] = "";
+  //! a resource asked to be deleted, until confirmed
+  ResourceID deleteKind_ = ResourceID::Folder;
+  std::string deleteName_;
   bool layoutDone_ = false;
   ImGuiID mainDock_ = 0;
   std::string error_;

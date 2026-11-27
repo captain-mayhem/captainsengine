@@ -40,7 +40,7 @@ public:
 
 private:
   void updateTitle(){
-    std::string title = "StoryDesigner - " + sd::toUtf8(designer_.project().settings.projectName);
+    std::string title = "StoryDesigner - " + sd::toUtf8(designer_.project().settings.projectName) + (designer_.modified() ? " *" : "");
     if (title != title_){
       title_ = title;
       if (CGE::AppWindow* win = CGE::Engine::instance()->getWindow())

@@ -1,11 +1,16 @@
 #include "designer.h"
 
+#include <algorithm>
 #include <cstdio>
 #include <filesystem>
 
 #include <imgui_internal.h>
 
+#include <model/languages.h>
+#include <model/pcdkparser.h>
 #include <model/projectfile.h>
+
+#include "widgets.h"
 
 namespace sd{
 
@@ -13,7 +18,6 @@ namespace{
 
 const char* const kGamePool = "Game pool";
 const char* const kMediaPool = "Media pool";
-const char* const kSettings = "Project settings";
 
 //! a project text (Windows-1252) as ImGui text
 void text(const std::string& str){
@@ -87,6 +91,9 @@ bool Designer::openProject(const std::string& path){
   project_ = std::move(project);
   path_ = path;
   views_.clear();
+  scriptEditors_.clear();
+  language_.clear();
+  modified_ = false;
   return true;
 }
 
@@ -97,7 +104,73 @@ bool Designer::save(const std::string& path){
     return false;
   }
   path_ = path;
+  modified_ = false;
   return true;
+}
+
+void Designer::whenSaved(Pending action){
+  pending_ = action;
+  //asked in unsavedPopup
+  if (!modified_)
+    runPending();
+}
+
+void Designer::runPending(){
+  Pending action = pending_;
+  pending_ = Pending::None;
+  switch (action){
+    case Pending::New:
+      project_ = Project();
+      path_.clear();
+      views_.clear();
+      scriptEditors_.clear();
+      language_.clear();
+      modified_ = false;
+      break;
+    case Pending::Open:
+      saving_ = false;
+      fileDialog_.open(FileDialog::Mode::Open, "Open a project", parentFolder(path_), {".adv", ".dat"});
+      break;
+    case Pending::Quit:
+      quit_ = true;
+      break;
+    case Pending::None:
+      break;
+  }
+}
+
+void Designer::unsavedPopup(){
+  const char* const title = "Unsaved changes";
+  //not while the save dialog of "Save" runs
+  if (pending_ != Pending::None && modified_ && !fileDialog_.isOpen() && !ImGui::IsPopupOpen(title))
+    ImGui::OpenPopup(title);
+  if (!ImGui::BeginPopupModal(title, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+    return;
+  ImGui::Text("Save the changes to %s?", toUtf8(project_.settings.projectName).c_str());
+  const ImVec2 size(7*ImGui::GetFontSize(), 0);
+  if (ImGui::Button("Save", size)){
+    ImGui::CloseCurrentPopup();
+    if (path_.empty()){
+      saving_ = true;
+      fileDialog_.open(FileDialog::Mode::Save, "Save the project as", parentFolder(path_), {".adv"});
+    }
+    else if (save(path_))
+      runPending();
+    else
+      pending_ = Pending::None;
+  }
+  ImGui::SameLine();
+  if (ImGui::Button("Don't save", size)){
+    ImGui::CloseCurrentPopup();
+    modified_ = false;
+    runPending();
+  }
+  ImGui::SameLine();
+  if (ImGui::Button("Cancel", size) || ImGui::IsKeyPressed(ImGuiKey_Escape)){
+    ImGui::CloseCurrentPopup();
+    pending_ = Pending::None;
+  }
+  ImGui::EndPopup();
 }
 
 void Designer::gui(){
@@ -113,6 +186,10 @@ void Designer::gui(){
     pool(kMediaPool, project_.mediaPool, &showMediaPool_);
   if (showSettings_)
     settingsWindow();
+  if (showCommands_)
+    commandsWindow();
+  if (showLanguages_)
+    languagesWindow();
   for (View& v : views_)
     view(v);
   //closed windows go after the frame
@@ -120,12 +197,19 @@ void Designer::gui(){
     if (!views_[i].open)
       views_.erase(views_.begin()+i);
   }
+  const bool dialogWasOpen = fileDialog_.isOpen();
   if (fileDialog_.draw()){
-    if (saving_)
-      save(fileDialog_.path());
+    if (saving_){
+      if (save(fileDialog_.path()) && pending_ != Pending::None)
+        runPending();
+    }
     else
       openProject(fileDialog_.path());
   }
+  else if (dialogWasOpen && !fileDialog_.isOpen() && saving_)
+    pending_ = Pending::None; //the save was cancelled, and what waited for it
+  unsavedPopup();
+  namePopup();
   errorPopup();
 }
 
@@ -133,15 +217,10 @@ void Designer::menu(){
   if (!ImGui::BeginMainMenuBar())
     return;
   if (ImGui::BeginMenu("File")){
-    if (ImGui::MenuItem("New")){
-      project_ = Project();
-      path_.clear();
-      views_.clear();
-    }
-    if (ImGui::MenuItem("Open...")){
-      saving_ = false;
-      fileDialog_.open(FileDialog::Mode::Open, "Open a project", parentFolder(path_), {".adv", ".dat"});
-    }
+    if (ImGui::MenuItem("New"))
+      whenSaved(Pending::New);
+    if (ImGui::MenuItem("Open..."))
+      whenSaved(Pending::Open);
     if (ImGui::MenuItem("Save", nullptr, false, !path_.empty()))
       save(path_);
     if (ImGui::MenuItem("Save as...")){
@@ -150,11 +229,17 @@ void Designer::menu(){
     }
     ImGui::Separator();
     if (ImGui::MenuItem("Quit"))
-      quit_ = true;
+      whenSaved(Pending::Quit);
     ImGui::EndMenu();
   }
   if (ImGui::BeginMenu("Project")){
     ImGui::MenuItem("Settings", nullptr, &showSettings_);
+    ImGui::MenuItem("Commands and bools", nullptr, &showCommands_);
+    if (ImGui::MenuItem("Languages", nullptr, &showLanguages_) && showLanguages_){
+      //the C# StoryDesigner gathers the texts when its language tools open
+      updateLanguageList(project_);
+      changed();
+    }
     ImGui::EndMenu();
   }
   if (ImGui::BeginMenu("View")){
@@ -162,8 +247,8 @@ void Designer::menu(){
     ImGui::MenuItem(kMediaPool, nullptr, &showMediaPool_);
     ImGui::EndMenu();
   }
-  //the project's name on the right
-  std::string name = toUtf8(project_.settings.projectName);
+  //the project's name on the right, with a star for unsaved changes
+  std::string name = toUtf8(project_.settings.projectName) + (modified_ ? " *" : "");
   float width = ImGui::CalcTextSize(name.c_str()).x;
   ImGui::SameLine(ImGui::GetWindowWidth() - width - ImGui::GetStyle().ItemSpacing.x*2);
   ImGui::TextDisabled("%s", name.c_str());
@@ -182,6 +267,8 @@ void Designer::layout(ImGuiID dockspace){
   ImGui::DockBuilderDockWindow(kGamePool, top);
   ImGui::DockBuilderDockWindow(kMediaPool, bottom);
   ImGui::DockBuilderDockWindow(kSettings, right);
+  ImGui::DockBuilderDockWindow(kCommands, right);
+  ImGui::DockBuilderDockWindow(kLanguages, right);
   ImGui::DockBuilderFinish(dockspace);
   mainDock_ = right;
 }
@@ -190,18 +277,32 @@ void Designer::pool(const char* title, std::vector<PoolNode>& nodes, bool* open)
   if (ImGui::Begin(title, open)){
     if (nodes.empty())
       ImGui::TextDisabled("(empty)");
-    poolNodes(nodes);
+    std::vector<size_t> path;
+    poolNodes(nodes, &nodes == &project_.gamePool, path);
   }
   ImGui::End();
 }
 
-void Designer::poolNodes(std::vector<PoolNode>& nodes){
-  for (PoolNode& node : nodes){
+void Designer::poolNodes(std::vector<PoolNode>& nodes, bool game, std::vector<size_t>& path){
+  //the actions change the pool: they wait until it is drawn
+  std::vector<size_t> newScriptIn;
+  bool newScript = false;
+  for (size_t i = 0; i < nodes.size(); ++i){
+    PoolNode& node = nodes[i];
     std::string label = toUtf8(node.label);
-    ImGui::PushID(&node);
+    ImGui::PushID((int)i);
+    path.push_back(i);
     if (node.id == (int)ResourceID::Folder){
-      if (ImGui::TreeNodeEx("##folder", ImGuiTreeNodeFlags_SpanAvailWidth, "%s/", label.c_str())){
-        poolNodes(node.children);
+      bool open = ImGui::TreeNodeEx("##folder", ImGuiTreeNodeFlags_SpanAvailWidth, "%s/", label.c_str());
+      if (game && ImGui::BeginPopupContextItem()){
+        if (ImGui::MenuItem("New script")){
+          newScript = true;
+          newScriptIn = path;
+        }
+        ImGui::EndPopup();
+      }
+      if (open){
+        poolNodes(node.children, game, path);
         ImGui::TreePop();
       }
     }
@@ -211,9 +312,220 @@ void Designer::poolNodes(std::vector<PoolNode>& nodes){
         openView((ResourceID)node.id, node.label);
       if (ImGui::IsItemHovered())
         ImGui::SetTooltip("%s", kindName((ResourceID)node.id));
+      if (node.id == (int)ResourceID::Script && ImGui::BeginPopupContextItem()){
+        if (ImGui::MenuItem("Open"))
+          openView(ResourceID::Script, node.label);
+        if (ImGui::MenuItem("Rename...")){
+          nameFor_ = NameFor::RenameScript;
+          nameTarget_ = node.label;
+          snprintf(nameBuf_, sizeof(nameBuf_), "%s", label.c_str());
+        }
+        if (ImGui::MenuItem("Delete")){
+          deleteKind_ = ResourceID::Script;
+          deleteName_ = node.label;
+        }
+        ImGui::EndPopup();
+      }
     }
+    path.pop_back();
     ImGui::PopID();
   }
+  if (newScript)
+    this->newScript(newScriptIn);
+}
+
+PoolNode* Designer::poolNode(std::vector<PoolNode>& nodes, const std::vector<size_t>& path){
+  std::vector<PoolNode>* level = &nodes;
+  PoolNode* node = nullptr;
+  for (size_t idx : path){
+    if (idx >= level->size())
+      return nullptr;
+    node = &(*level)[idx];
+    level = &node->children;
+  }
+  return node;
+}
+
+namespace{
+
+//! the pool's nodes sorted by their labels, as the C# tree view sorts them
+void sortPool(std::vector<PoolNode>& nodes){
+  std::stable_sort(nodes.begin(), nodes.end(), [](const PoolNode& a, const PoolNode& b){
+    return toLower(a.label) < toLower(b.label);
+  });
+}
+
+//! removes a resource's node from the pool; true if it was there
+bool removeFromPool(std::vector<PoolNode>& nodes, ResourceID kind, const std::string& name){
+  for (size_t i = 0; i < nodes.size(); ++i){
+    if (nodes[i].id == (int)kind && toLower(nodes[i].label) == toLower(name)){
+      nodes.erase(nodes.begin()+i);
+      return true;
+    }
+    if (removeFromPool(nodes[i].children, kind, name))
+      return true;
+  }
+  return false;
+}
+
+//! the list of nodes that holds a resource
+std::vector<PoolNode>* poolListOf(std::vector<PoolNode>& nodes, ResourceID kind, const std::string& name){
+  for (PoolNode& node : nodes){
+    if (node.id == (int)kind && toLower(node.label) == toLower(name))
+      return &nodes;
+    if (std::vector<PoolNode>* found = poolListOf(node.children, kind, name))
+      return found;
+  }
+  return nullptr;
+}
+
+PoolNode* findInPool(std::vector<PoolNode>& nodes, ResourceID kind, const std::string& name){
+  for (PoolNode& node : nodes){
+    if (node.id == (int)kind && toLower(node.label) == toLower(name))
+      return &node;
+    if (PoolNode* found = findInPool(node.children, kind, name))
+      return found;
+  }
+  return nullptr;
+}
+
+}
+
+void Designer::newScript(const std::vector<size_t>& folder){
+  //into the scripts' folder (the pool's second), as in the C# StoryDesigner
+  PoolNode* parent = nullptr;
+  if (!folder.empty() && folder[0] == 1)
+    parent = poolNode(project_.gamePool, folder);
+  else if (project_.gamePool.size() > 1)
+    parent = &project_.gamePool[1];
+  if (parent == nullptr || parent->id != (int)ResourceID::Folder)
+    return;
+  NamedList<Script>& scripts = project_.scripts[Script::Cutscene];
+  int count = (int)scripts.size()+1;
+  std::string name = "Script" + std::to_string(count);
+  while (scripts.find(name) != nullptr)
+    name = "Script" + std::to_string(++count);
+  Script scr;
+  scr.type = Script::Cutscene;
+  scr.name = name;
+  scr.text = std::string();
+  scripts.add(name, scr);
+  PoolNode node;
+  node.id = (int)ResourceID::Script;
+  node.label = name;
+  parent->children.push_back(node);
+  sortPool(parent->children);
+  changed();
+  openView(ResourceID::Script, name);
+}
+
+void Designer::deleteResource(ResourceID kind, const std::string& name){
+  if (kind != ResourceID::Script)
+    return;
+  project_.scripts[Script::Cutscene].remove(name);
+  removeFromPool(project_.gamePool, kind, name);
+  scriptEditors_.erase(std::to_string(Script::Cutscene) + "/" + toLower(name));
+  for (View& v : views_){
+    if (v.kind == kind && toLower(v.name) == toLower(name))
+      v.open = false;
+  }
+  changed();
+}
+
+bool Designer::renameScript(const std::string& from, const std::string& to){
+  NamedList<Script>& scripts = project_.scripts[Script::Cutscene];
+  if (to.empty()){
+    error_ = "A script needs a name.";
+    return false;
+  }
+  Script* scr = scripts.find(from);
+  if (scr == nullptr)
+    return false;
+  if (toLower(from) != toLower(to) && scripts.find(to) != nullptr){
+    error_ = "There is a script called " + toUtf8(to) + " already.";
+    return false;
+  }
+  if (from == to)
+    return true;
+  //as the C# StoryDesigner: taken out and added again with the new name
+  Script copy = *scr;
+  copy.name = to;
+  scripts.remove(from);
+  scripts.add(to, copy);
+  if (std::vector<PoolNode>* list = poolListOf(project_.gamePool, ResourceID::Script, from)){
+    findInPool(*list, ResourceID::Script, from)->label = to;
+    sortPool(*list);
+  }
+  scriptEditors_.erase(std::to_string(Script::Cutscene) + "/" + toLower(from));
+  for (View& v : views_){
+    if (v.kind == ResourceID::Script && toLower(v.name) == toLower(from))
+      v.name = to;
+  }
+  changed();
+  return true;
+}
+
+void Designer::namePopup(){
+  const char* const title = "Name";
+  if (nameFor_ != NameFor::None && !ImGui::IsPopupOpen(title)){
+    ImGui::OpenPopup(title);
+    ImGui::SetNextWindowFocus();
+  }
+  if (!ImGui::BeginPopupModal(title, nullptr, ImGuiWindowFlags_AlwaysAutoResize)){
+    if (!deleteName_.empty() && !ImGui::IsPopupOpen("Delete"))
+      ImGui::OpenPopup("Delete");
+    if (ImGui::BeginPopupModal("Delete", nullptr, ImGuiWindowFlags_AlwaysAutoResize)){
+      ImGui::Text("Delete %s?", toUtf8(deleteName_).c_str());
+      const ImVec2 size(6*ImGui::GetFontSize(), 0);
+      if (ImGui::Button("Delete", size)){
+        deleteResource(deleteKind_, deleteName_);
+        deleteName_.clear();
+        ImGui::CloseCurrentPopup();
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("Cancel", size) || ImGui::IsKeyPressed(ImGuiKey_Escape)){
+        deleteName_.clear();
+        ImGui::CloseCurrentPopup();
+      }
+      ImGui::EndPopup();
+    }
+    return;
+  }
+  ImGui::TextUnformatted(nameFor_ == NameFor::Language ? "The new language's name:" : "The script's new name:");
+  if (ImGui::IsWindowAppearing())
+    ImGui::SetKeyboardFocusHere();
+  bool ok = ImGui::InputText("##name", nameBuf_, sizeof(nameBuf_), ImGuiInputTextFlags_EnterReturnsTrue);
+  const ImVec2 size(6*ImGui::GetFontSize(), 0);
+  ok = ImGui::Button("OK", size) || ok;
+  ImGui::SameLine();
+  bool cancel = ImGui::Button("Cancel", size) || ImGui::IsKeyPressed(ImGuiKey_Escape);
+  if (ok){
+    std::string name = trim(fromUtf8(nameBuf_));
+    bool done = false;
+    if (nameFor_ == NameFor::RenameScript)
+      done = renameScript(nameTarget_, name);
+    else if (nameFor_ == NameFor::Language){
+      if (name.empty())
+        error_ = "A language needs a name.";
+      else if (project_.languages.find(name) != nullptr)
+        error_ = "There is a language called " + toUtf8(name) + " already.";
+      else{
+        Language lang;
+        lang.name = name;
+        project_.languages.add(name, lang);
+        language_ = name;
+        changed();
+        done = true;
+      }
+    }
+    if (done)
+      cancel = true;
+  }
+  if (cancel){
+    nameFor_ = NameFor::None;
+    ImGui::CloseCurrentPopup();
+  }
+  ImGui::EndPopup();
 }
 
 void Designer::openView(ResourceID kind, const std::string& name){
@@ -259,7 +571,7 @@ void Designer::view(View& v){
           ImGui::TextDisabled("There is no character of this name.");
         break;
       case ResourceID::Script:
-        showScript(project_.scripts[Script::Cutscene].find(v.name));
+        showScript(Script::Cutscene, v.name);
         break;
       default:{
         NamedList<std::string>* files = nullptr;
@@ -364,7 +676,7 @@ void Designer::showRoom(const Room& room){
     }
   }
   if (ImGui::CollapsingHeader("Script"))
-    showScript(project_.scripts[Script::Room].find(room.name));
+    showScript(Script::Room, room.name);
 }
 
 void Designer::showFrames(const std::vector<ExtendedFrame>& frames){
@@ -412,7 +724,7 @@ void Designer::showItem(const Item& item){
     }
   }
   if (ImGui::CollapsingHeader("Script"))
-    showScript(project_.scripts[Script::Item].find(item.name));
+    showScript(Script::Item, item.name);
 }
 
 void Designer::showCharacter(const Character& chr){
@@ -440,54 +752,26 @@ void Designer::showCharacter(const Character& chr){
     }
   }
   if (ImGui::CollapsingHeader("Script"))
-    showScript(project_.scripts[Script::Character].find(chr.name));
+    showScript(Script::Character, chr.name);
 }
 
-void Designer::showScript(const Script* scr){
-  if (!scr || !scr->text){
+void Designer::showScript(Script::Type type, const std::string& name){
+  Script* scr = project_.scripts[type].find(name);
+  if (scr == nullptr){
     ImGui::TextDisabled("(no script)");
+    if (ImGui::Button("Create script")){
+      Script created;
+      created.type = type;
+      created.name = name;
+      created.text = std::string();
+      project_.scripts[type].add(name, created);
+      changed();
+    }
     return;
   }
-  std::string utf8 = toUtf8(*scr->text);
-  ImGui::InputTextMultiline("##script", utf8.data(), utf8.size()+1, ImVec2(-FLT_MIN, -FLT_MIN), ImGuiInputTextFlags_ReadOnly);
-}
-
-void Designer::settingsWindow(){
-  if (ImGui::Begin(kSettings, &showSettings_)){
-    const ProjectSettings& s = project_.settings;
-    if (beginTable("settings")){
-      row("Project", s.projectName);
-      row("Resolution", s.resolution);
-      row("16:9", s.is16to9);
-      row("Start script", s.startScript);
-      row("Main script", s.mainScript);
-      row("Anywhere room", s.anywhereRoom);
-      row("Screen change", (int)s.screenChange);
-      row("Task bar room", s.taskRoom);
-      row("Task bar height", s.taskHeight);
-      row("Menu room", s.customMenu ? s.customMenuRoom : std::string("(standard)"));
-      row("Text colour", colorText(s.textColor));
-      row("Walk text", s.walkText);
-      row("Link text", s.linkText);
-      row("Give link", s.giveLink);
-      row("Scripting language", std::string(s.scriptingLanguage == ScriptLang::Lua ? "Lua" : "PCDK"));
-      row("Protected data files", s.protectGameFile);
-      ImGui::EndTable();
-    }
-    if (ImGui::CollapsingHeader("Commands")){
-      for (const auto& cmd : s.commands)
-        ImGui::BulletText("%s: %s", toUtf8(cmd.first).c_str(), toUtf8(cmd.second).c_str());
-    }
-    if (ImGui::CollapsingHeader("Booleans")){
-      for (const auto& b : s.booleans)
-        ImGui::BulletText("%s = %s", toUtf8(b.first).c_str(), b.second ? "true" : "false");
-    }
-    if (ImGui::CollapsingHeader("Fonts")){
-      for (const FontInfo& font : s.fonts)
-        ImGui::BulletText("%s, %d%s%s", toUtf8(font.name).c_str(), font.size, font.bold ? ", bold" : "", font.italic ? ", italic" : "");
-    }
-  }
-  ImGui::End();
+  ScriptEditor& editor = scriptEditors_[std::to_string(type) + "/" + toLower(name)];
+  if (editor.draw(*scr, project_))
+    changed();
 }
 
 void Designer::errorPopup(){

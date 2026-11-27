@@ -7,13 +7,20 @@ endif()
 
 # the project model, its files and its editing, without a window
 add_library(DesignerModel STATIC
+  model/languages.cpp
+  model/languages.h
+  model/pcdkparser.cpp
+  model/pcdkparser.h
   model/project.cpp
   model/project.h
   model/projectfile.cpp
   model/projectfile.h
+  model/scriptcheck.cpp
+  model/scriptcheck.h
 )
 target_include_directories(DesignerModel PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(DesignerModel PUBLIC CGE::Engine)
+# the game's script parser checks the scripts
+target_link_libraries(DesignerModel PUBLIC CGE::Engine AdventureBase)
 
 # the editor; the target isn't called StoryDesigner, the C# one's name
 cge_add_application(Designer WIN32
@@ -22,6 +29,11 @@ cge_add_application(Designer WIN32
   app/filedialog.cpp
   app/filedialog.h
   app/main.cpp
+  app/projectwindows.cpp
+  app/scripteditor.cpp
+  app/scripteditor.h
+  app/widgets.cpp
+  app/widgets.h
 )
 target_link_libraries(Designer PRIVATE DesignerModel)
 # started from the build folder, it finds its engine.ini there
@@ -35,6 +47,7 @@ install(FILES app/engine.ini DESTINATION designer)
 if (CGE_BUILD_TESTS)
   add_executable(designer_tests
     tests/test_projectfile.cpp
+    tests/test_scripts.cpp
   )
   target_link_libraries(designer_tests PRIVATE DesignerModel GTest::gtest GTest::gtest_main)
   # the test games and the files the C# StoryDesigner wrote from them
