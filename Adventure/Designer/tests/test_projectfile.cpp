@@ -131,19 +131,26 @@ TEST(ProjectFile, WritesAnArchiveNamedAfterTheFile){
   ASSERT_TRUE(readProject(std::string(SD_TEST_DATA_DIR) + "/airfight_cs.adv", project, &error)) << error;
   std::string path = (std::filesystem::temp_directory_path() / "sd_test_written.adv").string();
   ASSERT_TRUE(writeProject(path, project, &error)) << error;
-  CGE::ZipReader zip(path);
-  std::vector<std::pair<std::string, std::string>> entries = zipEntries(zip);
+  std::vector<std::pair<std::string, std::string>> entries;
+  {
+    //closed before the file is removed, which Windows refuses for an open file
+    CGE::ZipReader zip(path);
+    entries = zipEntries(zip);
+  }
   std::vector<std::pair<std::string, std::string>> expected = writeProjectEntries(project, false);
+  Project again;
+  bool read = readProject(path, again, &error);
+  std::error_code ec;
+  std::filesystem::remove(path, ec);
+  EXPECT_FALSE(ec) << ec.message();
   ASSERT_EQ(entries.size(), expected.size());
   for (size_t i = 0; i < entries.size(); ++i){
     EXPECT_EQ(entries[i].first, "sd_test_written" + expected[i].first);
     EXPECT_GT(entries[i].second.size(), 0u);
     EXPECT_TRUE(entries[i].second == expected[i].second);
   }
-  Project again;
-  ASSERT_TRUE(readProject(path, again, &error)) << error;
+  ASSERT_TRUE(read) << error;
   EXPECT_EQ(again.rooms.size(), project.rooms.size());
-  std::filesystem::remove(path);
 }
 
 TEST(ProjectFile, TextsAreShownInUtf8){
