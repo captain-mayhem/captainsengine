@@ -10,6 +10,8 @@
 #include <model/project.h>
 
 #include "filedialog.h"
+#include "imagecache.h"
+#include "stateframeeditor.h"
 #include "scripteditor.h"
 
 namespace sd{
@@ -18,6 +20,7 @@ namespace sd{
 inline const char* const kSettings = "Project settings";
 inline const char* const kCommands = "Commands and bools";
 inline const char* const kLanguages = "Languages";
+inline const char* const kMouseIcons = "Mouse icons";
 
 //! the StoryDesigner's window: the project's pools and its resources in docked ImGui windows
 class Designer{
@@ -34,6 +37,8 @@ public:
   bool quitRequested() const {return quit_;}
   //! the project has changes that aren't saved
   bool modified() const {return modified_;}
+  //! drops the images' textures, before the render device goes
+  void releaseTextures();
 private:
   //! what waits for the question whether to save the changes
   enum class Pending{
@@ -75,12 +80,17 @@ private:
   bool renameScript(const std::string& from, const std::string& to);
 
   void showRoom(const Room& room);
-  void showObject(const Object& obj);
-  void showItem(const Item& item);
-  void showCharacter(const Character& chr);
+  void showObject(Object& obj);
+  void showItem(Item& item);
+  void showCharacter(Character& chr);
+  void showImage(const std::string& name);
+  void mouseIconsWindow();
   //! the script of a resource, editable; creates it on request
   void showScript(Script::Type type, const std::string& name);
-  void showFrames(const std::vector<ExtendedFrame>& frames);
+  //! the state and frame editor of a resource's view
+  StateFrameEditor& frameEditor(const char* kind, const std::string& name);
+  //! the folder of the project's file, where its gfx.dat is
+  std::string projectFolder() const;
 
   Project project_;
   std::string path_;
@@ -96,6 +106,18 @@ private:
   Pending pending_ = Pending::None;
   //! the open scripts' editors by type and lowercase name
   std::map<std::string, ScriptEditor> scriptEditors_;
+  //! the state and frame editors by kind and lowercase name
+  std::map<std::string, StateFrameEditor> frameEditors_;
+  ImageCache images_;
+  bool showMouseIcons_ = false;
+  //! the characters' picture background (the C# editor keeps it in its settings)
+  ImU32 charBackground_ = IM_COL32(0, 0, 0, 255);
+  //! a character's state copied by Customize > Copy action
+  CopiedState copiedState_;
+  bool stateCopied_ = false;
+  //! the extra state being renamed (-1: none)
+  int renameState_ = -1;
+  char stateNameBuf_[128] = "";
   //! the language whose translation is shown, empty for none
   std::string language_;
   //! the name popup: a new language, a new script name

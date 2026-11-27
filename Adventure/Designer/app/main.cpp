@@ -35,6 +35,14 @@ public:
       engine->requestShutdown();
   }
 
+  void shutdown() override{
+    designer_.releaseTextures();
+  }
+
+  void onDeviceLost() override{
+    designer_.releaseTextures();
+  }
+
   //! Escape belongs to the dialogs, the main menu quits
   void onKeyDown(int key) override {}
 

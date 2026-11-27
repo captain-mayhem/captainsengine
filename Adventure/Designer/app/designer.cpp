@@ -92,6 +92,8 @@ bool Designer::openProject(const std::string& path){
   path_ = path;
   views_.clear();
   scriptEditors_.clear();
+  frameEditors_.clear();
+  images_.clear();
   language_.clear();
   modified_ = false;
   return true;
@@ -190,6 +192,8 @@ void Designer::gui(){
     commandsWindow();
   if (showLanguages_)
     languagesWindow();
+  if (showMouseIcons_)
+    mouseIconsWindow();
   for (View& v : views_)
     view(v);
   //closed windows go after the frame
@@ -235,6 +239,7 @@ void Designer::menu(){
   if (ImGui::BeginMenu("Project")){
     ImGui::MenuItem("Settings", nullptr, &showSettings_);
     ImGui::MenuItem("Commands and bools", nullptr, &showCommands_);
+    ImGui::MenuItem(kMouseIcons, nullptr, &showMouseIcons_);
     if (ImGui::MenuItem("Languages", nullptr, &showLanguages_) && showLanguages_){
       //the C# StoryDesigner gathers the texts when its language tools open
       updateLanguageList(project_);
@@ -269,6 +274,7 @@ void Designer::layout(ImGuiID dockspace){
   ImGui::DockBuilderDockWindow(kSettings, right);
   ImGui::DockBuilderDockWindow(kCommands, right);
   ImGui::DockBuilderDockWindow(kLanguages, right);
+  ImGui::DockBuilderDockWindow(kMouseIcons, right);
   ImGui::DockBuilderFinish(dockspace);
   mainDock_ = right;
 }
@@ -312,6 +318,12 @@ void Designer::poolNodes(std::vector<PoolNode>& nodes, bool game, std::vector<si
         openView((ResourceID)node.id, node.label);
       if (ImGui::IsItemHovered())
         ImGui::SetTooltip("%s", kindName((ResourceID)node.id));
+      //images are dragged into the frames of items, objects, characters and the cursor
+      if (node.id == (int)ResourceID::Image && ImGui::BeginDragDropSource()){
+        ImGui::SetDragDropPayload(kImagePayload, node.label.data(), node.label.size());
+        ImGui::TextUnformatted(label.c_str());
+        ImGui::EndDragDropSource();
+      }
       if (node.id == (int)ResourceID::Script && ImGui::BeginPopupContextItem()){
         if (ImGui::MenuItem("Open"))
           openView(ResourceID::Script, node.label);
@@ -553,19 +565,19 @@ void Designer::view(View& v){
           ImGui::TextDisabled("There is no room of this name.");
         break;
       case ResourceID::Object:
-        if (const Object* obj = project_.objects.find(v.name))
+        if (Object* obj = project_.objects.find(v.name))
           showObject(*obj);
         else
           ImGui::TextDisabled("There is no object of this name.");
         break;
       case ResourceID::Item:
-        if (const Item* item = project_.items.find(v.name))
+        if (Item* item = project_.items.find(v.name))
           showItem(*item);
         else
           ImGui::TextDisabled("There is no item of this name.");
         break;
       case ResourceID::Character:
-        if (const Character* chr = project_.characters.find(v.name))
+        if (Character* chr = project_.characters.find(v.name))
           showCharacter(*chr);
         else
           ImGui::TextDisabled("There is no character of this name.");
@@ -588,6 +600,8 @@ void Designer::view(View& v){
           row("File", file ? *file : std::string("(none)"));
           ImGui::EndTable();
         }
+        if (v.kind == ResourceID::Image && file)
+          showImage(v.name);
         break;
       }
     }
@@ -677,82 +691,6 @@ void Designer::showRoom(const Room& room){
   }
   if (ImGui::CollapsingHeader("Script"))
     showScript(Script::Room, room.name);
-}
-
-void Designer::showFrames(const std::vector<ExtendedFrame>& frames){
-  for (size_t f = 0; f < frames.size(); ++f){
-    std::string parts;
-    for (size_t p = 0; p < frames[f].names.size(); ++p){
-      if (p > 0)
-        parts += " + ";
-      parts += frames[f].names[p];
-    }
-    ImGui::BulletText("%zu: %s", f+1, toUtf8(parts).c_str());
-  }
-}
-
-void Designer::showObject(const Object& obj){
-  if (beginTable("object")){
-    row("Size", obj.size);
-    row("Lighten", obj.lighten);
-    ImGui::EndTable();
-  }
-  for (size_t s = 0; s < obj.states.size(); ++s){
-    const ObjectState& state = obj.states[s];
-    if (state.frames.empty())
-      continue;
-    char label[64];
-    snprintf(label, sizeof(label), "State %zu (%zu frames, every %d)", s+1, state.frames.size(), state.fpsDivider);
-    if (ImGui::TreeNode(label)){
-      showFrames(state.frames);
-      ImGui::TreePop();
-    }
-  }
-}
-
-void Designer::showItem(const Item& item){
-  for (size_t s = 0; s < item.states.size(); ++s){
-    const ItemState& state = item.states[s];
-    if (state.frames.empty())
-      continue;
-    char label[64];
-    snprintf(label, sizeof(label), "State %zu (%zu frames, every %d)", s+1, state.frames.size(), state.fpsDivider);
-    if (ImGui::TreeNode(label)){
-      for (size_t f = 0; f < state.frames.size(); ++f)
-        ImGui::BulletText("%zu: %s", f+1, toUtf8(state.frames[f]).c_str());
-      ImGui::TreePop();
-    }
-  }
-  if (ImGui::CollapsingHeader("Script"))
-    showScript(Script::Item, item.name);
-}
-
-void Designer::showCharacter(const Character& chr){
-  if (beginTable("character")){
-    row("Text colour", colorText(chr.textColor));
-    row("Walk speed", chr.walkSpeed);
-    row("Zoom", chr.zoom);
-    row("Not zoomed", chr.noZoom);
-    row("Real left animations", chr.realLeftAnimations);
-    row("Memory resistant", chr.memoryResistant);
-    row("Ghost", chr.ghost);
-    row("Walk sound", chr.walkSound);
-    row("Font", chr.font);
-    ImGui::EndTable();
-  }
-  for (size_t s = 0; s < chr.states.size(); ++s){
-    const CharacterState& state = chr.states[s];
-    if (state.frames.empty())
-      continue;
-    char label[96];
-    snprintf(label, sizeof(label), "State %zu (%zu frames, size %d x %d)", s+1, state.frames.size(), state.size.x, state.size.y);
-    if (ImGui::TreeNode(label)){
-      showFrames(state.frames);
-      ImGui::TreePop();
-    }
-  }
-  if (ImGui::CollapsingHeader("Script"))
-    showScript(Script::Character, chr.name);
 }
 
 void Designer::showScript(Script::Type type, const std::string& name){

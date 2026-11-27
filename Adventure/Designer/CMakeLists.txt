@@ -7,6 +7,8 @@ endif()
 
 # the project model, its files and its editing, without a window
 add_library(DesignerModel STATIC
+  model/images.cpp
+  model/images.h
   model/languages.cpp
   model/languages.h
   model/pcdkparser.cpp
@@ -17,6 +19,8 @@ add_library(DesignerModel STATIC
   model/projectfile.h
   model/scriptcheck.cpp
   model/scriptcheck.h
+  model/stateframes.cpp
+  model/stateframes.h
 )
 target_include_directories(DesignerModel PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 # the game's script parser checks the scripts
@@ -28,10 +32,15 @@ cge_add_application(Designer WIN32
   app/designer.h
   app/filedialog.cpp
   app/filedialog.h
+  app/imagecache.cpp
+  app/imagecache.h
   app/main.cpp
   app/projectwindows.cpp
+  app/resourcewindows.cpp
   app/scripteditor.cpp
   app/scripteditor.h
+  app/stateframeeditor.cpp
+  app/stateframeeditor.h
   app/widgets.cpp
   app/widgets.h
 )
@@ -48,6 +57,7 @@ if (CGE_BUILD_TESTS)
   add_executable(designer_tests
     tests/test_projectfile.cpp
     tests/test_scripts.cpp
+    tests/test_stateframes.cpp
   )
   target_link_libraries(designer_tests PRIVATE DesignerModel GTest::gtest GTest::gtest_main)
   # the test games and the files the C# StoryDesigner wrote from them
