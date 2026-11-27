@@ -2,6 +2,7 @@
 // window: their states and frames in the state and frame editor
 
 #include "designer.h"
+#include "i18n.h"
 
 #include <cfloat>
 #include <cstdio>
@@ -60,14 +61,14 @@ void Designer::showItem(Item& item){
   if (frameEditor("item", item.name).draw(data, style, images_, project_, projectFolder()))
     changed();
   ImGui::Separator();
-  if (ImGui::CollapsingHeader("Script"))
+  if (ImGui::CollapsingHeader(tr("Script")))
     showScript(Script::Item, item.name);
 }
 
 void Designer::showObject(Object& obj){
   ObjectFrames data(obj);
   StateFrameStyle style;
-  style.adaptFirstDrop = true;
+  style.adaptFirstDrop = prefs_.fitImages;
   if (frameEditor("object", obj.name).draw(data, style, images_, project_, projectFolder()))
     changed();
   ImGui::Separator();
@@ -85,28 +86,28 @@ void Designer::showCharacter(Character& chr){
   style.background = charBackground_;
 
   //the C# dialog's Customize menu
-  if (ImGui::Button("Customize"))
-    ImGui::OpenPopup("customize");
+  if (ImGui::Button(tr("Customize")))
+    ImGui::OpenPopup(tr("customize"));
   if (ImGui::BeginPopup("customize")){
     int state = editor.state();
-    if (ImGui::MenuItem("Copy action")){
+    if (ImGui::MenuItem(tr("Copy action"))){
       copiedState_ = copyState(data, state);
       stateCopied_ = true;
     }
-    if (ImGui::MenuItem("Paste action", nullptr, false, stateCopied_)){
+    if (ImGui::MenuItem(tr("Paste action"), nullptr, false, stateCopied_)){
       pasteState(data, state, copiedState_);
       changed();
     }
-    if (ImGui::MenuItem("Delete action")){
+    if (ImGui::MenuItem(tr("Delete action"))){
       clearState(data, state);
       changed();
     }
-    if (ImGui::MenuItem("Rename action", nullptr, false, state >= 16)){
+    if (ImGui::MenuItem(tr("Rename action"), nullptr, false, state >= 16)){
       renameState_ = state;
       snprintf(stateNameBuf_, sizeof(stateNameBuf_), "%s", toUtf8(chr.extraStateNames[state-16]).c_str());
     }
     ImGui::Separator();
-    if (ImGui::MenuItem("Equalize all sizes and footprints")){
+    if (ImGui::MenuItem(tr("Equalize all sizes and footprints"))){
       Vec2i size = data.size(state), spot = data.hotspot(state);
       for (int s = 0; s < data.states(); ++s){
         data.setSize(s, size);
@@ -114,7 +115,7 @@ void Designer::showCharacter(Character& chr){
       }
       changed();
     }
-    if (ImGui::MenuItem("Equalize all actions (like selected)")){
+    if (ImGui::MenuItem(tr("Equalize all actions (like selected)"))){
       CopiedState copy = copyState(data, state);
       for (int s = 0; s < data.states(); ++s)
         pasteState(data, s, copy);
@@ -122,7 +123,7 @@ void Designer::showCharacter(Character& chr){
     }
     ImGui::Separator();
     ImVec4 bg = toVec4(charBackground_);
-    if (ImGui::ColorEdit3("Background colour", &bg.x, ImGuiColorEditFlags_NoInputs))
+    if (ImGui::ColorEdit3(tr("Background colour"), &bg.x, ImGuiColorEditFlags_NoInputs))
       charBackground_ = ImGui::ColorConvertFloat4ToU32(bg);
     ImGui::EndPopup();
   }
@@ -157,7 +158,7 @@ void Designer::showCharacter(Character& chr){
         fonts.push_back(toUtf8(fi.name) + " (" + std::to_string(fi.size) + ")");
       int font = chr.font;
       ImGui::SetNextItemWidth(-FLT_MIN);
-      if (ImGui::BeginCombo("##font", font >= 0 && font < (int)fonts.size() ? fonts[font].c_str() : "")){
+      if (ImGui::BeginCombo(tr("##font"), font >= 0 && font < (int)fonts.size() ? fonts[font].c_str() : "")){
         for (int i = 0; i < (int)fonts.size(); ++i){
           if (ImGui::Selectable(fonts[i].c_str(), i == font)){
             chr.font = i;
@@ -171,7 +172,7 @@ void Designer::showCharacter(Character& chr){
     {
       ImGui::SetNextItemWidth(-FLT_MIN);
       std::string speed = chr.walkSpeed >= 1 && chr.walkSpeed <= 9 ? std::to_string(chr.walkSpeed) : "";
-      if (ImGui::BeginCombo("##walkspeed", speed.c_str())){
+      if (ImGui::BeginCombo(tr("##walkspeed"), speed.c_str())){
         for (int i = 1; i < 10; ++i){
           if (ImGui::Selectable(std::to_string(i).c_str(), i == chr.walkSpeed)){
             chr.walkSpeed = i;
@@ -202,7 +203,7 @@ void Designer::showCharacter(Character& chr){
   if (checkbox("Ghost mode", chr.ghost))
     changed();
   ImGui::Separator();
-  if (ImGui::CollapsingHeader("Script"))
+  if (ImGui::CollapsingHeader(tr("Script")))
     showScript(Script::Character, chr.name);
 }
 
@@ -218,7 +219,7 @@ void Designer::showImage(const std::string& name){
 
 void Designer::mouseIconsWindow(){
   ImGui::SetNextWindowDockID(mainDock_, ImGuiCond_FirstUseEver);
-  if (ImGui::Begin(kMouseIcons, &showMouseIcons_)){
+  if (ImGui::Begin(windowTitle(kMouseIcons), &showMouseIcons_)){
     CursorFrames data(project_.cursor);
     StateFrameStyle style;
     style.labels = {"S", "1", "2", "3", "4", "5", "6", "7", "8", "L"};
@@ -239,7 +240,7 @@ void Designer::mouseIconsWindow(){
     editor.drawFrame(ImGui::GetWindowDrawList(), data, style, images_, project_, projectFolder(), pos, ImVec2(32, 32));
     ImGui::SameLine();
     ImGui::BeginGroup();
-    ImGui::TextUnformatted("32x32");
+    ImGui::TextUnformatted(tr("32x32"));
     int state = editor.state();
     CursorState& cs = project_.cursor[state];
     std::vector<std::string> commands{"walkto (standard)", "loading icon"};
@@ -249,7 +250,7 @@ void Designer::mouseIconsWindow(){
     ImGui::BeginDisabled(state == 0 || state == 9);
     int index = cs.command-1;
     ImGui::SetNextItemWidth(16*ImGui::GetFontSize());
-    if (ImGui::BeginCombo("Command", index >= 0 && index < (int)commands.size() ? commands[index].c_str() : "")){
+    if (ImGui::BeginCombo(tr("Command"), index >= 0 && index < (int)commands.size() ? commands[index].c_str() : "")){
       for (int i = 0; i < (int)commands.size(); ++i){
         if (ImGui::Selectable(commands[i].c_str(), i == index)){
           cs.command = i+1;
@@ -260,7 +261,7 @@ void Designer::mouseIconsWindow(){
     }
     ImGui::EndDisabled();
     ImGui::EndGroup();
-    ImGui::SeparatorText("Right click...");
+    ImGui::SeparatorText(tr("Right click..."));
     if (radioButtons(project_.settings.rightClick, {"... changes the icons (classic)", "... selects icon 1 (intelligent)", "... does nothing"}))
       changed();
     ImGui::BeginDisabled(project_.settings.rightClick != 0);

@@ -1,10 +1,14 @@
 #include "images.h"
 
+#include <algorithm>
 #include <cctype>
 #include <filesystem>
 #include <fstream>
 #include <iterator>
+#include <memory>
 #include <vector>
+
+#include <png.h>
 
 #include <image/loader.h>
 #include <io/ZipReader.h>
@@ -162,6 +166,71 @@ std::unique_ptr<CGE::Image> loadProjectImage(const Project& project, const std::
   if (img->getNumChannels() != 4)
     img.reset(img->convertImage(4));
   return img;
+}
+
+bool cropTransparentImage(const std::string& file, std::string* error){
+  namespace fs = std::filesystem;
+  fs::path path(std::u8string(file.begin(), file.end()));
+  std::ifstream in(path, std::ios::binary);
+  std::vector<char> data((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+  std::unique_ptr<CGE::Image> image(data.empty() ? nullptr : CGE::ImageLoader::load(data.data(), (unsigned)data.size(), CGE::ImageLoader::PNG));
+  if (!image){
+    if (error)
+      *error = "Can't read " + file;
+    return false;
+  }
+  //only an image with alpha has a transparent border
+  if (!image->hasAlpha())
+    return true;
+  const int width = (int)image->getWidth();
+  const int height = (int)image->getHeight();
+  const unsigned char* pixels = image->getData();
+  int minx = width, miny = height, maxx = -1, maxy = -1;
+  for (int y = 0; y < height; ++y){
+    for (int x = 0; x < width; ++x){
+      if (pixels[(y*width+x)*4+3] == 0)
+        continue;
+      minx = std::min(minx, x);
+      maxx = std::max(maxx, x);
+      miny = std::min(miny, y);
+      maxy = std::max(maxy, y);
+    }
+  }
+  //nothing to cut, or nothing left (the C# editor fails on that)
+  if (maxx < 0 || (minx == 0 && miny == 0 && maxx == width-1 && maxy == height-1))
+    return true;
+  const int w = maxx-minx+1;
+  const int h = maxy-miny+1;
+  std::vector<unsigned char> cropped((size_t)w*h*4);
+  for (int y = 0; y < h; ++y)
+    std::copy_n(pixels + ((size_t)(y+miny)*width+minx)*4, (size_t)w*4, cropped.data() + (size_t)y*w*4);
+  png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+  png_infop info = png ? png_create_info_struct(png) : nullptr;
+  std::vector<char> out;
+  if (!info || setjmp(png_jmpbuf(png))){
+    png_destroy_write_struct(&png, &info);
+    if (error)
+      *error = "Can't write " + file;
+    return false;
+  }
+  png_set_write_fn(png, &out, [](png_structp p, png_bytep bytes, png_size_t length){
+    std::vector<char>* buffer = (std::vector<char>*)png_get_io_ptr(p);
+    buffer->insert(buffer->end(), (const char*)bytes, (const char*)bytes + length);
+  }, nullptr);
+  png_set_IHDR(png, info, w, h, 8, PNG_COLOR_TYPE_RGBA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+  png_write_info(png, info);
+  for (int y = 0; y < h; ++y)
+    png_write_row(png, cropped.data() + (size_t)y*w*4);
+  png_write_end(png, nullptr);
+  png_destroy_write_struct(&png, &info);
+  std::ofstream os(path, std::ios::binary | std::ios::trunc);
+  os.write(out.data(), (std::streamsize)out.size());
+  if (!os){
+    if (error)
+      *error = "Can't write " + file;
+    return false;
+  }
+  return true;
 }
 
 }

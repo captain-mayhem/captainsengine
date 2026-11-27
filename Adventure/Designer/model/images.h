@@ -28,6 +28,10 @@ std::string findMediaFile(const Project& project, const std::string& folder, Res
 //! (also in the game's .dat of its kind: gfx, sfx, music or movie); false if none
 bool readMediaFile(const Project& project, const std::string& folder, ResourceID kind, const std::string& name, std::vector<char>& data);
 
+//! cuts the fully transparent border off a PNG file (UTF-8 path) and
+//! writes it back, as the C# StoryDesigner's "Crop transparent image
+//! parts" does when images are added; false and why if it can't
+bool cropTransparentImage(const std::string& file, std::string* error = nullptr);
 //! the file name of a path with / or \ (a project's paths are Windows')
 std::string fileNameOf(const std::string& path);
 

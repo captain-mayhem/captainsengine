@@ -1,4 +1,5 @@
 #include "stateframeeditor.h"
+#include "i18n.h"
 
 #include <algorithm>
 #include <cmath>
@@ -104,7 +105,7 @@ bool StateFrameEditor::stateButtons(StateFrames& data, const StateFrameStyle& st
   }
   else{
     ImGui::SetNextItemWidth(16*ImGui::GetFontSize());
-    if (ImGui::BeginCombo("State", label(state_).c_str())){
+    if (ImGui::BeginCombo(tr("State"), label(state_).c_str())){
       for (int s = 0; s < states; ++s){
         ImGui::PushID(s);
         if (ImGui::Selectable(label(s).c_str(), s == state_))
@@ -424,16 +425,16 @@ bool StateFrameEditor::sizeAndSpeed(StateFrames& data, const StateFrameStyle& st
 bool StateFrameEditor::popups(StateFrames& data, const StateFrameStyle& style){
   bool changed = false;
   if (openCopyMove_){
-    ImGui::OpenPopup("copymove");
+    ImGui::OpenPopup(tr("copymove"));
     openCopyMove_ = false;
   }
   if (ImGui::BeginPopup("copymove")){
-    if (ImGui::MenuItem("Copy")){
+    if (ImGui::MenuItem(tr("Copy"))){
       copyFrame(data, state_, fromFrame_, toFrame_);
       frame_ = toFrame_;
       changed = true;
     }
-    if (ImGui::MenuItem("Move")){
+    if (ImGui::MenuItem(tr("Move"))){
       moveFrame(data, state_, fromFrame_, toFrame_);
       frame_ = toFrame_;
       changed = true;
@@ -441,28 +442,28 @@ bool StateFrameEditor::popups(StateFrames& data, const StateFrameStyle& style){
     ImGui::EndPopup();
   }
   if (openRemove_){
-    ImGui::OpenPopup("remove");
+    ImGui::OpenPopup(tr("remove"));
     openRemove_ = false;
   }
   if (ImGui::BeginPopup("remove")){
-    if (ImGui::MenuItem("Remove")){
+    if (ImGui::MenuItem(tr("Remove"))){
       removeSelectedPart(data);
       changed = true;
     }
     ImGui::EndPopup();
   }
   if (openScript_){
-    ImGui::OpenPopup("Frame script");
+    ImGui::OpenPopup(tr("Frame script"));
     openScript_ = false;
   }
-  if (ImGui::BeginPopupModal("Frame script", nullptr, ImGuiWindowFlags_AlwaysAutoResize)){
+  if (ImGui::BeginPopupModal(tr("Frame script"), nullptr, ImGuiWindowFlags_AlwaysAutoResize)){
     std::string state = state_ < (int)style.labels.size() ? toUtf8(style.labels[state_]) : std::to_string(state_+1);
     ImGui::Text("Script for %s/%d", state.c_str(), frame_+1);
     if (ImGui::IsWindowAppearing())
       ImGui::SetKeyboardFocusHere();
     ImGui::SetNextItemWidth(30*ImGui::GetFontSize());
     bool enter = inputTextUtf8("##script", scriptText_, ImGuiInputTextFlags_EnterReturnsTrue);
-    if (ImGui::Button("OK", ImVec2(6*ImGui::GetFontSize(), 0)) || enter){
+    if (ImGui::Button(tr("OK"), ImVec2(6*ImGui::GetFontSize(), 0)) || enter){
       std::string text = fromUtf8(scriptText_);
       if (text != data.script(state_, frame_)){
         data.setScript(state_, frame_, text);
@@ -471,7 +472,7 @@ bool StateFrameEditor::popups(StateFrames& data, const StateFrameStyle& style){
       ImGui::CloseCurrentPopup();
     }
     ImGui::SameLine();
-    if (ImGui::Button("Cancel", ImVec2(6*ImGui::GetFontSize(), 0)) || ImGui::IsKeyPressed(ImGuiKey_Escape))
+    if (ImGui::Button(tr("Cancel"), ImVec2(6*ImGui::GetFontSize(), 0)) || ImGui::IsKeyPressed(ImGuiKey_Escape))
       ImGui::CloseCurrentPopup();
     ImGui::EndPopup();
   }

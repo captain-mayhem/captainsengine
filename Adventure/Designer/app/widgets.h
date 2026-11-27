@@ -12,7 +12,7 @@ namespace sd{
 
 // ImGui widgets for the project's values. The project's texts are
 // Windows-1252 and ImGui's UTF-8; these convert. Each returns true when the
-// value changed.
+// value changed. The labels are shown in the StoryDesigner's language (tr).
 
 //! a text field for a project text
 bool inputText(const char* label, std::string& value, ImGuiInputTextFlags flags = 0);

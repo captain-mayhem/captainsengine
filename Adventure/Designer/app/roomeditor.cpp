@@ -1,4 +1,5 @@
 #include "roomeditor.h"
+#include "i18n.h"
 
 #include <algorithm>
 #include <cmath>
@@ -61,7 +62,7 @@ bool RoomEditor::draw(Project& project, Room& room, ImageCache& images, const st
     drag_ = Drag::None;
   }
   ImGui::SameLine();
-  ImGui::TextDisabled("(keys 1 to 5)");
+  ImGui::TextDisabled("%s", tr("(keys 1 to 5)"));
   const float panelWidth = 19*ImGui::GetFontSize();
   const float canvasWidth = std::max(ImGui::GetContentRegionAvail().x - panelWidth - ImGui::GetStyle().ItemSpacing.x, 50.0f);
   if (ImGui::BeginChild("canvas", ImVec2(canvasWidth, 0), ImGuiChildFlags_None, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
@@ -732,42 +733,42 @@ bool RoomEditor::drop(Project& project, Room& room){
 bool RoomEditor::popups(Project& project, Room& room, Requests& requests){
   bool changed = false;
   if (openImageMenu_){
-    ImGui::OpenPopup("image");
+    ImGui::OpenPopup(tr("image"));
     openImageMenu_ = false;
   }
   if (openObjectMenu_){
-    ImGui::OpenPopup("object");
+    ImGui::OpenPopup(tr("object"));
     openObjectMenu_ = false;
   }
   if (openRoomMenu_){
-    ImGui::OpenPopup("background");
+    ImGui::OpenPopup(tr("background"));
     openRoomMenu_ = false;
   }
   if (openWalkmapMenu_){
-    ImGui::OpenPopup("walkmap");
+    ImGui::OpenPopup(tr("walkmap"));
     openWalkmapMenu_ = false;
   }
   if (openInventoryMenu_){
-    ImGui::OpenPopup("inventory");
+    ImGui::OpenPopup(tr("inventory"));
     openInventoryMenu_ = false;
   }
   if (ImGui::BeginPopup("image")){
-    if (ImGui::MenuItem("Add as Background")){
+    if (ImGui::MenuItem(tr("Add as Background"))){
       room.background = pendingImage_;
       changed = true;
     }
-    if (ImGui::MenuItem("Add as Parallax Background")){
+    if (ImGui::MenuItem(tr("Add as Parallax Background"))){
       room.parallaxBackground = pendingImage_;
       changed = true;
     }
     ImGui::EndPopup();
   }
   if (ImGui::BeginPopup("background")){
-    if (ImGui::MenuItem("Remove Background", nullptr, false, !room.background.empty())){
+    if (ImGui::MenuItem(tr("Remove Background"), nullptr, false, !room.background.empty())){
       room.background.clear();
       changed = true;
     }
-    if (ImGui::MenuItem("Remove Parallax Background", nullptr, false, !room.parallaxBackground.empty())){
+    if (ImGui::MenuItem(tr("Remove Parallax Background"), nullptr, false, !room.parallaxBackground.empty())){
       room.parallaxBackground.clear();
       changed = true;
     }
@@ -776,7 +777,7 @@ bool RoomEditor::popups(Project& project, Room& room, Requests& requests){
   if (ImGui::BeginPopup("object")){
     const bool valid = selectionValid(project, room);
     const bool character = valid && selected_->character;
-    if (ImGui::MenuItem("Remove", nullptr, false, valid)){
+    if (ImGui::MenuItem(tr("Remove"), nullptr, false, valid)){
       if (project.settings.silentDelete){
         if (character)
           removeCharacterInstance(project, room.name, selected_->index);
@@ -793,21 +794,21 @@ bool RoomEditor::popups(Project& project, Room& room, Requests& requests){
       requests.showKind = character ? ResourceID::Character : ResourceID::Object;
       requests.showName = character ? project.roomCharacters(room.name)[selected_->index].character : room.objects[selected_->index].object;
     }
-    if (ImGui::MenuItem("Set to back", nullptr, false, valid)){
+    if (ImGui::MenuItem(tr("Set to back"), nullptr, false, valid)){
       selected_->index = moveToBack(project, room, *selected_);
       changed = true;
     }
-    if (ImGui::MenuItem("Set to front", nullptr, false, valid)){
+    if (ImGui::MenuItem(tr("Set to front"), nullptr, false, valid)){
       selected_->index = moveToFront(project, room, *selected_);
       changed = true;
     }
     ImGui::EndPopup();
   }
   if (openRemove_){
-    ImGui::OpenPopup("Confirmation");
+    ImGui::OpenPopup(tr("Confirmation"));
     openRemove_ = false;
   }
-  if (ImGui::BeginPopupModal("Confirmation", nullptr, ImGuiWindowFlags_AlwaysAutoResize)){
+  if (ImGui::BeginPopupModal(tr("Confirmation"), nullptr, ImGuiWindowFlags_AlwaysAutoResize)){
     const bool valid = selectionValid(project, room);
     if (valid){
       const bool character = selected_->character;
@@ -815,7 +816,7 @@ bool RoomEditor::popups(Project& project, Room& room, Requests& requests){
       ImGui::Text("Delete the %s \"%s\" from your room?", character ? "Character" : "Object", toUtf8(name).c_str());
     }
     const ImVec2 size(6*ImGui::GetFontSize(), 0);
-    if (ImGui::Button("Yes", size)){
+    if (ImGui::Button(tr("Yes"), size)){
       if (valid){
         if (selected_->character)
           removeCharacterInstance(project, room.name, selected_->index);
@@ -827,14 +828,14 @@ bool RoomEditor::popups(Project& project, Room& room, Requests& requests){
       ImGui::CloseCurrentPopup();
     }
     ImGui::SameLine();
-    if (ImGui::Button("No", size) || ImGui::IsKeyPressed(ImGuiKey_Escape))
+    if (ImGui::Button(tr("No"), size) || ImGui::IsKeyPressed(ImGuiKey_Escape))
       ImGui::CloseCurrentPopup();
     ImGui::EndPopup();
   }
   if (ImGui::BeginPopup("walkmap")){
-    if (ImGui::MenuItem("Free", nullptr, penFree_))
+    if (ImGui::MenuItem(tr("Free"), nullptr, penFree_))
       penFree_ = true;
-    if (ImGui::MenuItem("Block", nullptr, !penFree_))
+    if (ImGui::MenuItem(tr("Block"), nullptr, !penFree_))
       penFree_ = false;
     ImGui::Separator();
     const char* pens[] = {"Pen Size 1", "Pen Size 2", "Pen Size 3", "Script Paster", "Script Eraser"};
@@ -846,16 +847,16 @@ bool RoomEditor::popups(Project& project, Room& room, Requests& requests){
     ImGui::Separator();
     const bool inside = inWalkmap(room, menuField_);
     const bool hasScript = inside && room.walkmap[menuField_.x][menuField_.y].hasScript;
-    if (ImGui::MenuItem("Copy Walkmap Script", nullptr, false, hasScript)){
+    if (ImGui::MenuItem(tr("Copy Walkmap Script"), nullptr, false, hasScript)){
       const Script* scr = project.scripts[Script::Walkmap].find(Script::walkmapScriptName(menuField_.x, menuField_.y, room.name));
       copiedScript_ = scr ? scr->text : std::optional<std::string>();
       scriptCopied_ = true;
     }
-    if (ImGui::MenuItem("Paste Walkmap Script", nullptr, false, inside && scriptCopied_)){
+    if (ImGui::MenuItem(tr("Paste Walkmap Script"), nullptr, false, inside && scriptCopied_)){
       pasteWalkmapScript(project, room, menuField_, copiedScript_);
       changed = true;
     }
-    if (ImGui::MenuItem("Edit Script", nullptr, false, inside)){
+    if (ImGui::MenuItem(tr("Edit Script"), nullptr, false, inside)){
       walkmapScript(project, room, menuField_);
       requests.openScript = true;
       requests.scriptType = Script::Walkmap;
@@ -865,7 +866,7 @@ bool RoomEditor::popups(Project& project, Room& room, Requests& requests){
     ImGui::EndPopup();
   }
   if (ImGui::BeginPopup("inventory")){
-    if (ImGui::MenuItem("Remove Field")){
+    if (ImGui::MenuItem(tr("Remove Field"))){
       room.hasInventory = false;
       changed = true;
     }
@@ -878,12 +879,12 @@ bool RoomEditor::panel(Project& project, Room& room, Requests& requests){
   bool changed = false;
   const ProjectSettings& s = project.settings;
   ImGui::PushItemWidth(-7*ImGui::GetFontSize());
-  if (ImGui::CollapsingHeader("Room", ImGuiTreeNodeFlags_DefaultOpen)){
+  if (ImGui::CollapsingHeader(tr("Room"), ImGuiTreeNodeFlags_DefaultOpen)){
     changed |= inputInt("Width", room.size.x, windowWidth(s), s.resolution.x*3);
     changed |= inputInt("Height", room.size.y, s.resolution.y, s.resolution.y*2);
     char zoom[16];
     snprintf(zoom, sizeof(zoom), "%d", room.zoom);
-    if (ImGui::BeginCombo("Zoom factor", zoom)){
+    if (ImGui::BeginCombo(tr("Zoom factor"), zoom)){
       for (int i = 1; i <= 9; ++i){
         snprintf(zoom, sizeof(zoom), "%d", i);
         if (ImGui::Selectable(zoom, room.zoom == i) && room.zoom != i){
@@ -895,7 +896,7 @@ bool RoomEditor::panel(Project& project, Room& room, Requests& requests){
     }
     changed |= checkbox("Double walkmap", room.doubleWalkmap);
     float light[3] = {room.lighting[0]/255.0f, room.lighting[1]/255.0f, room.lighting[2]/255.0f};
-    if (ImGui::ColorEdit3("Room light", light)){
+    if (ImGui::ColorEdit3(tr("Room light"), light)){
       for (int i = 0; i < 3; ++i)
         room.lighting[i] = (uint8_t)std::clamp((int)std::lround(light[i]*255), 0, 255);
       changed = true;
@@ -934,7 +935,7 @@ bool RoomEditor::panel(Project& project, Room& room, Requests& requests){
     else
       scrolling_ = false;
     ImGui::Text("Scroll offset: %d, %d", room.scrollOffset.x, room.scrollOffset.y);
-    if (ImGui::Button("Edit room script")){
+    if (ImGui::Button(tr("Edit room script"))){
       requests.openScript = true;
       requests.scriptType = Script::Room;
       requests.script = room.name;
@@ -945,7 +946,7 @@ bool RoomEditor::panel(Project& project, Room& room, Requests& requests){
     const bool valid = selectionValid(project, room);
     const bool obj = valid && !selected_->character;
     const bool chr = valid && selected_->character;
-    if (ImGui::CollapsingHeader("Object", ImGuiTreeNodeFlags_DefaultOpen)){
+    if (ImGui::CollapsingHeader(tr("Object"), ImGuiTreeNodeFlags_DefaultOpen)){
       ImGui::BeginDisabled(!obj);
       if (obj){
         ObjectInstance& inst = room.objects[selected_->index];
@@ -953,7 +954,7 @@ bool RoomEditor::panel(Project& project, Room& room, Requests& requests){
         changed |= checkbox("Locked##object", inst.locked);
         char state[16];
         snprintf(state, sizeof(state), "%d", inst.state);
-        if (ImGui::BeginCombo("State", state)){
+        if (ImGui::BeginCombo(tr("State"), state)){
           for (int i = 0; i <= 10; ++i){
             snprintf(state, sizeof(state), "%d", i);
             if (ImGui::Selectable(state, inst.state == i) && inst.state != i){
@@ -963,12 +964,12 @@ bool RoomEditor::panel(Project& project, Room& room, Requests& requests){
           }
           ImGui::EndCombo();
         }
-        ImGui::TextUnformatted("Drawstyle");
+        ImGui::TextUnformatted(tr("Drawstyle"));
         if (radioButtons(inst.layer, {"Back", "Middle", "Front"}, true)){
           selected_->depth = objectDepth(inst);
           changed = true;
         }
-        if (ImGui::Button("Edit script##object")){
+        if (ImGui::Button(tr("Edit script##object"))){
           requests.openScript = true;
           requests.scriptType = Script::Object;
           requests.script = Script::objectScriptName(inst.name, room.name);
@@ -978,7 +979,7 @@ bool RoomEditor::panel(Project& project, Room& room, Requests& requests){
         ImGui::TextDisabled("Instancename: none");
       ImGui::EndDisabled();
     }
-    if (ImGui::CollapsingHeader("Character", ImGuiTreeNodeFlags_DefaultOpen)){
+    if (ImGui::CollapsingHeader(tr("Character"), ImGuiTreeNodeFlags_DefaultOpen)){
       ImGui::BeginDisabled(!chr);
       if (chr){
         CharacterInstance& inst = (*project.characterInstances.find(room.name))[selected_->index];
@@ -993,7 +994,7 @@ bool RoomEditor::panel(Project& project, Room& room, Requests& requests){
             changed = true;
           }
         }
-        if (ImGui::Button("Edit script##character")){
+        if (ImGui::Button(tr("Edit script##character"))){
           requests.openScript = true;
           requests.scriptType = Script::Character;
           requests.script = inst.name;
@@ -1003,7 +1004,7 @@ bool RoomEditor::panel(Project& project, Room& room, Requests& requests){
         ImGui::TextDisabled("Instancename: none");
       ImGui::EndDisabled();
     }
-    if (mode_ == RoomMode::Walkmap && ImGui::CollapsingHeader("Walkmap", ImGuiTreeNodeFlags_DefaultOpen)){
+    if (mode_ == RoomMode::Walkmap && ImGui::CollapsingHeader(tr("Walkmap"), ImGuiTreeNodeFlags_DefaultOpen)){
       int free = penFree_ ? 0 : 1;
       if (radioButtons(free, {"Free", "Block"}, true))
         penFree_ = free == 0;
@@ -1016,7 +1017,7 @@ bool RoomEditor::panel(Project& project, Room& room, Requests& requests){
     }
   }
   else if (mode_ == RoomMode::Inventory){
-    if (ImGui::CollapsingHeader("Inventory field", ImGuiTreeNodeFlags_DefaultOpen))
+    if (ImGui::CollapsingHeader(tr("Inventory field"), ImGuiTreeNodeFlags_DefaultOpen))
       changed |= inputInt("Spacing", room.invSpacing, 2, 20);
   }
   else if (mode_ == RoomMode::SpecialFx && ImGui::BeginTabBar("shapes")){
@@ -1031,7 +1032,7 @@ bool RoomEditor::panel(Project& project, Room& room, Requests& requests){
       ImGui::BeginDisabled(!shape.active);
       const char* effects[] = {"Floor mirror", "Wall mirror", "Particle barrier"};
       int effect = std::clamp(shape.effect, 0, 2);
-      if (ImGui::Combo("Use effect", &effect, effects, 3) && effect != shape.effect){
+      if (ImGui::Combo(tr("Use effect"), &effect, effects, 3) && effect != shape.effect){
         shape.effect = effect;
         changed = true;
       }
@@ -1046,7 +1047,7 @@ bool RoomEditor::panel(Project& project, Room& room, Requests& requests){
       ImGui::BeginDisabled(!wall);
       changed |= checkbox("Depending on room position", shape.dependingOnRoomPosition);
       // the mirror image's offset: the light figure beside the dark one, dragged
-      ImGui::TextUnformatted("Position:");
+      ImGui::TextUnformatted(tr("Position:"));
       const ImVec2 pad(100, 100);
       const ImVec2 p = ImGui::GetCursorScreenPos();
       ImGui::InvisibleButton("position", pad);

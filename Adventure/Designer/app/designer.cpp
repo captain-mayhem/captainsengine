@@ -1,11 +1,16 @@
 #include "designer.h"
+#include "i18n.h"
 
 #include <algorithm>
 #include <cstdio>
+#include <ctime>
 #include <filesystem>
 #include <functional>
 
 #include <imgui_internal.h>
+
+#include <platform/settings.h>
+#include <platform/userdirs.h>
 
 #include <model/languages.h>
 #include <model/pcdkparser.h>
@@ -96,9 +101,114 @@ std::string Designer::View::title() const{
   return toUtf8(name) + " (" + kindText + ")###" + kindText + "/" + toUtf8(toLower(name));
 }
 
+void Designer::newPoolsInLanguage(){
+  newPools(project_);
+  //"1) CHARACTERS": the number stays
+  for (PoolNode& node : project_.gamePool){
+    size_t space = node.label.find(' ');
+    node.label = node.label.substr(0, space+1) + fromUtf8(tr(node.label.substr(space+1).c_str()));
+  }
+  for (PoolNode& node : project_.mediaPool)
+    node.label = fromUtf8(tr(node.label.c_str()));
+}
+
+void Designer::loadPreferences(){
+  CGE::Settings& s = CGE::Settings::user();
+  std::string lang = s.getString("language");
+  setUiLanguage(lang == "de" ? UiLanguage::German : lang == "en" ? UiLanguage::English : systemUiLanguage());
+  prefs_.createBackups = s.getBool("createBackups", prefs_.createBackups);
+  prefs_.fitImages = s.getBool("fitImages", prefs_.fitImages);
+  prefs_.cropTransparent = s.getBool("cropTransparentImages", prefs_.cropTransparent);
+  prefs_.projectFolder = s.getString("folders/project");
+  prefs_.imageFolder = s.getString("folders/images");
+  prefs_.musicFolder = s.getString("folders/music");
+  prefs_.soundFolder = s.getString("folders/sounds");
+  prefs_.videoFolder = s.getString("folders/videos");
+  charBackground_ = (ImU32)s.getInt("characterBackground", (int64_t)charBackground_);
+}
+
+void Designer::savePreferences(){
+  CGE::Settings& s = CGE::Settings::user();
+  //only a language chosen in the menu is kept; otherwise the system's decides
+  if (s.has("language") || uiLanguage() != systemUiLanguage())
+    s.setString("language", uiLanguage() == UiLanguage::German ? "de" : "en");
+  s.setBool("createBackups", prefs_.createBackups);
+  s.setBool("fitImages", prefs_.fitImages);
+  s.setBool("cropTransparentImages", prefs_.cropTransparent);
+  s.setString("folders/project", prefs_.projectFolder);
+  s.setString("folders/images", prefs_.imageFolder);
+  s.setString("folders/music", prefs_.musicFolder);
+  s.setString("folders/sounds", prefs_.soundFolder);
+  s.setString("folders/videos", prefs_.videoFolder);
+  s.setInt("characterBackground", (int64_t)charBackground_);
+}
+
+std::string Designer::dialogFolder() const{
+  return path_.empty() ? prefs_.projectFolder : parentFolder(path_);
+}
+
+void Designer::keepPreferences(){
+  if (prefs_ == savedPrefs_ && savedLanguage_ == (int)uiLanguage() && savedCharBackground_ == charBackground_)
+    return;
+  savePreferences();
+  savedPrefs_ = prefs_;
+  savedLanguage_ = (int)uiLanguage();
+  savedCharBackground_ = charBackground_;
+  CGE::Settings::saveUser();
+}
+
+std::string& Designer::mediaFolder(ResourceID kind){
+  switch (kind){
+    case ResourceID::Music: return prefs_.musicFolder;
+    case ResourceID::Sound: return prefs_.soundFolder;
+    case ResourceID::Video: return prefs_.videoFolder;
+    default: return prefs_.imageFolder;
+  }
+}
+
+std::string Designer::backupFile() const{
+  namespace fs = std::filesystem;
+  static const char* const kMonths[] = {"January", "February", "March", "April", "May", "June", "July",
+    "August", "September", "October", "November", "December"};
+  std::time_t now = std::time(nullptr);
+  std::tm date = *std::localtime(&now);
+  //the user's data folder is in the system's narrow encoding
+  fs::path dir = fs::path(CGE::UserDirs::getDataDir()) / "backups" / (std::to_string(date.tm_year + 1900) + " " + kMonths[date.tm_mon]) / std::to_string(date.tm_mday);
+  std::error_code ec;
+  fs::create_directories(dir, ec);
+  if (ec)
+    return std::string();
+  //numbered after the project's backups of the day
+  std::string name = toUtf8(project_.settings.projectName);
+  std::string lower = toLower(name);
+  int count = 1;
+  for (const fs::directory_entry& entry : fs::directory_iterator(dir, ec)){
+    std::u8string file = entry.path().filename().u8string();
+    if (toLower(std::string(file.begin(), file.end())).compare(0, lower.size(), lower) == 0)
+      ++count;
+  }
+  std::u8string utf8 = (dir / fs::path(std::u8string((const char8_t*)name.data(), name.size()) + u8" " + (const char8_t*)std::to_string(count).c_str() + u8".adv")).u8string();
+  return std::string(utf8.begin(), utf8.end());
+}
+
+void Designer::backupTimer(){
+  using namespace std::chrono;
+  if (!prefs_.createBackups || !backupNeeded_ || steady_clock::now() - backupTime_ < minutes(5))
+    return;
+  backupTime_ = steady_clock::now();
+  backupNeeded_ = false;
+  std::string file = backupFile();
+  //a project with a password keeps it in its backups
+  Project copy = project_;
+  if (!file.empty())
+    writeProject(file, copy);
+}
+
 void Designer::newProject(){
   project_ = Project();
-  newPools(project_);
+  newPoolsInLanguage();
+  backupNeeded_ = false;
+  backupTime_ = std::chrono::steady_clock::now();
   path_.clear();
   views_.clear();
   scriptEditors_.clear();
@@ -124,7 +234,7 @@ bool Designer::openProject(const std::string& path){
   stopMedia();
   //media moved since the project was saved are looked for next to it (the C# loadFile)
   if (std::filesystem::path(std::u8string(path.begin(), path.end())).extension() == ".adv" && !resolveMedia(project_, fromUtf8(parentFolder(path))))
-    error_ = "Not all media files were found. Project cannot work correctly.";
+    error_ = tr("Not all media files were found. Project cannot work correctly.");
   views_.clear();
   scriptEditors_.clear();
   frameEditors_.clear();
@@ -132,10 +242,24 @@ bool Designer::openProject(const std::string& path){
   images_.clear();
   language_.clear();
   modified_ = false;
+  backupNeeded_ = false;
+  backupTime_ = std::chrono::steady_clock::now();
+  prefs_.projectFolder = parentFolder(path);
   return true;
 }
 
 bool Designer::save(const std::string& path){
+  namespace fs = std::filesystem;
+  //the file as it was goes into the backups (the C# Save)
+  std::error_code ec;
+  fs::path file(std::u8string(path.begin(), path.end()));
+  if (prefs_.createBackups && fs::is_regular_file(file, ec)){
+    std::string backup = backupFile();
+    if (!backup.empty())
+      fs::copy_file(file, fs::path(std::u8string(backup.begin(), backup.end())), ec);
+    backupTime_ = std::chrono::steady_clock::now();
+    backupNeeded_ = false;
+  }
   std::string error;
   if (!writeProject(path, project_, &error)){
     error_ = error;
@@ -143,6 +267,7 @@ bool Designer::save(const std::string& path){
   }
   path_ = path;
   modified_ = false;
+  prefs_.projectFolder = parentFolder(path);
   return true;
 }
 
@@ -162,11 +287,11 @@ void Designer::runPending(){
       break;
     case Pending::Open:
       fileFor_ = FileFor::OpenProject;
-      fileDialog_.open(FileDialog::Mode::Open, "Open a project", parentFolder(path_), {".adv", ".dat"});
+      fileDialog_.open(FileDialog::Mode::Open, "Open a project", dialogFolder(), {".adv", ".dat"});
       break;
     case Pending::ImportAdz:
       fileFor_ = FileFor::ImportAdz;
-      fileDialog_.open(FileDialog::Mode::Open, "Import an exported project", parentFolder(path_), {".adz"});
+      fileDialog_.open(FileDialog::Mode::Open, "Import an exported project", dialogFolder(), {".adz"});
       break;
     case Pending::Quit:
       quit_ = true;
@@ -177,19 +302,19 @@ void Designer::runPending(){
 }
 
 void Designer::unsavedPopup(){
-  const char* const title = "Unsaved changes";
+  const char* const title = tr("Unsaved changes");
   //not while the save dialog of "Save" runs
   if (pending_ != Pending::None && modified_ && !fileDialog_.isOpen() && !ImGui::IsPopupOpen(title))
     ImGui::OpenPopup(title);
   if (!ImGui::BeginPopupModal(title, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
     return;
-  ImGui::Text("Save the changes to %s?", toUtf8(project_.settings.projectName).c_str());
+  ImGui::Text(tr("Save the changes to %s?"), toUtf8(project_.settings.projectName).c_str());
   const ImVec2 size(7*ImGui::GetFontSize(), 0);
-  if (ImGui::Button("Save", size)){
+  if (ImGui::Button(tr("Save"), size)){
     ImGui::CloseCurrentPopup();
     if (path_.empty()){
       fileFor_ = FileFor::SaveProject;
-      fileDialog_.open(FileDialog::Mode::Save, "Save the project as", parentFolder(path_), {".adv"});
+      fileDialog_.open(FileDialog::Mode::Save, "Save the project as", dialogFolder(), {".adv"});
     }
     else if (save(path_))
       runPending();
@@ -197,13 +322,13 @@ void Designer::unsavedPopup(){
       pending_ = Pending::None;
   }
   ImGui::SameLine();
-  if (ImGui::Button("Don't save", size)){
+  if (ImGui::Button(tr("Don't save"), size)){
     ImGui::CloseCurrentPopup();
     modified_ = false;
     runPending();
   }
   ImGui::SameLine();
-  if (ImGui::Button("Cancel", size) || ImGui::IsKeyPressed(ImGuiKey_Escape)){
+  if (ImGui::Button(tr("Cancel"), size) || ImGui::IsKeyPressed(ImGuiKey_Escape)){
     ImGui::CloseCurrentPopup();
     pending_ = Pending::None;
   }
@@ -248,47 +373,73 @@ void Designer::gui(){
   deletePopup();
   taskPopup();
   errorPopup();
+  if (showAbout_)
+    aboutWindow();
+  if (showRemote_)
+    remoteWindow();
+  backupTimer();
+  keepPreferences();
+}
+
+void Designer::insertMenu(){
+  if (!ImGui::BeginMenu(tr("Insert")))
+    return;
+  //into the kind's top folder, as the C# Insert menu does
+  static const std::pair<const char*, ResourceID> kMedia[] = {{"Image...", ResourceID::Image}, {"Soundeffect...", ResourceID::Sound},
+    {"Musicfile...", ResourceID::Music}, {"Video...", ResourceID::Video}};
+  for (const auto& media : kMedia){
+    if (ImGui::MenuItem(tr(media.first)))
+      addMediaFiles(media.second, PoolPath{(size_t)topFolder(media.second)});
+  }
+  ImGui::Separator();
+  static const std::pair<const char*, ResourceID> kResources[] = {{"Room", ResourceID::Room}, {"Object", ResourceID::Object},
+    {"Character", ResourceID::Character}, {"Item", ResourceID::Item}, {"Script", ResourceID::Script}};
+  for (const auto& res : kResources){
+    if (ImGui::MenuItem(tr(res.first)))
+      newResource(res.second, PoolPath{(size_t)topFolder(res.second)});
+  }
+  ImGui::EndMenu();
 }
 
 void Designer::menu(){
   if (!ImGui::BeginMainMenuBar())
     return;
-  if (ImGui::BeginMenu("File")){
-    if (ImGui::MenuItem("New"))
+  if (ImGui::BeginMenu(tr("File"))){
+    if (ImGui::MenuItem(tr("New")))
       whenSaved(Pending::New);
-    if (ImGui::MenuItem("Open..."))
+    if (ImGui::MenuItem(tr("Open...")))
       whenSaved(Pending::Open);
-    if (ImGui::MenuItem("Save", nullptr, false, !path_.empty()))
+    if (ImGui::MenuItem(tr("Save"), nullptr, false, !path_.empty()))
       save(path_);
-    if (ImGui::MenuItem("Save as...")){
+    if (ImGui::MenuItem(tr("Save as..."))){
       fileFor_ = FileFor::SaveProject;
-      fileDialog_.open(FileDialog::Mode::Save, "Save the project as", parentFolder(path_), {".adv"});
+      fileDialog_.open(FileDialog::Mode::Save, "Save the project as", dialogFolder(), {".adv"});
     }
     ImGui::Separator();
     //the imported project replaces this one
-    if (ImGui::MenuItem("Import project (.adz)..."))
+    if (ImGui::MenuItem(tr("Import project (.adz)...")))
       whenSaved(Pending::ImportAdz);
-    if (ImGui::MenuItem("Export project (.adz)...")){
+    if (ImGui::MenuItem(tr("Export project (.adz)..."))){
       fileFor_ = FileFor::ExportAdz;
-      fileDialog_.open(FileDialog::Mode::Save, "Export the project", parentFolder(path_), {".adz"});
+      fileDialog_.open(FileDialog::Mode::Save, "Export the project", dialogFolder(), {".adz"});
     }
-    if (ImGui::MenuItem("Import character (.adc)...")){
+    if (ImGui::MenuItem(tr("Import character (.adc)..."))){
       fileFor_ = FileFor::ImportCharacter;
-      fileDialog_.open(FileDialog::Mode::Open, "Import a character", parentFolder(path_), {".adc"});
+      fileDialog_.open(FileDialog::Mode::Open, "Import a character", dialogFolder(), {".adc"});
     }
-    if (ImGui::MenuItem("Import room (.adr)...")){
+    if (ImGui::MenuItem(tr("Import room (.adr)..."))){
       fileFor_ = FileFor::ImportRoom;
-      fileDialog_.open(FileDialog::Mode::Open, "Import a room", parentFolder(path_), {".adr"});
+      fileDialog_.open(FileDialog::Mode::Open, "Import a room", dialogFolder(), {".adr"});
     }
     ImGui::Separator();
-    if (ImGui::MenuItem("Create game...", nullptr, false, !task_)){
+    if (ImGui::MenuItem(tr("Create game..."), nullptr, false, !task_)){
       fileFor_ = FileFor::CreateGame;
       //the game made before is offered again (the C# "update the previous game")
       std::string folder = gamePath_.empty() ? toUtf8(project_.settings.directory) : parentFolder(gamePath_);
       //a folder of another computer gives the project's
       std::error_code ec;
       if (folder.empty() || !std::filesystem::is_directory(std::filesystem::path(std::u8string(folder.begin(), folder.end())), ec))
-        folder = parentFolder(path_);
+        folder = dialogFolder();
       fileDialog_.open(FileDialog::Mode::Save, "Create the game as", folder, {});
       if (gamePath_.empty())
         fileDialog_.setName(toUtf8(project_.settings.projectName));
@@ -297,28 +448,53 @@ void Designer::menu(){
         fileDialog_.setName(std::string(file.begin(), file.end()));
       }
     }
-    if (ImGui::MenuItem("Run game", nullptr, false, !task_))
+    if (ImGui::MenuItem(tr("Run game"), nullptr, false, !task_))
       startRunGame();
     ImGui::Separator();
-    if (ImGui::MenuItem("Quit"))
+    if (ImGui::MenuItem(tr("Quit")))
       whenSaved(Pending::Quit);
     ImGui::EndMenu();
   }
-  if (ImGui::BeginMenu("Project")){
-    ImGui::MenuItem("Settings", nullptr, &showSettings_);
-    ImGui::MenuItem("Commands and bools", nullptr, &showCommands_);
-    ImGui::MenuItem(kMouseIcons, nullptr, &showMouseIcons_);
-    ImGui::MenuItem(kFonts, nullptr, &showFonts_);
-    if (ImGui::MenuItem("Languages", nullptr, &showLanguages_) && showLanguages_){
+  insertMenu();
+  if (ImGui::BeginMenu(tr("Project"))){
+    ImGui::MenuItem(tr("Settings"), nullptr, &showSettings_);
+    ImGui::MenuItem(tr("Commands and bools"), nullptr, &showCommands_);
+    ImGui::MenuItem(tr(kMouseIcons), nullptr, &showMouseIcons_);
+    ImGui::MenuItem(tr(kFonts), nullptr, &showFonts_);
+    if (ImGui::MenuItem(tr("Languages"), nullptr, &showLanguages_) && showLanguages_){
       //the C# StoryDesigner gathers the texts when its language tools open
       updateLanguageList(project_);
       changed();
     }
     ImGui::EndMenu();
   }
-  if (ImGui::BeginMenu("View")){
-    ImGui::MenuItem(kGamePool, nullptr, &showGamePool_);
-    ImGui::MenuItem(kMediaPool, nullptr, &showMediaPool_);
+  if (ImGui::BeginMenu(tr("View"))){
+    ImGui::MenuItem(tr(kGamePool), nullptr, &showGamePool_);
+    ImGui::MenuItem(tr(kMediaPool), nullptr, &showMediaPool_);
+    //the room editors' views (the C# "Walkmap on" and so on): on, or off back to the objects
+    ImGui::Separator();
+    static const std::pair<const char*, RoomMode> kModes[] = {{"Walkmap on", RoomMode::Walkmap}, {"Deepmap on", RoomMode::Deepmap},
+      {"Inventoryfield on", RoomMode::Inventory}, {"FX Shapes on", RoomMode::SpecialFx}};
+    for (const auto& mode : kModes){
+      if (ImGui::MenuItem(tr(mode.first), nullptr, roomMode_ == mode.second))
+        roomMode_ = roomMode_ == mode.second ? RoomMode::Objects : mode.second;
+    }
+    ImGui::EndMenu();
+  }
+  if (ImGui::BeginMenu(tr("Plugins"))){
+    ImGui::MenuItem(tr("Remote control"), nullptr, &showRemote_);
+    ImGui::EndMenu();
+  }
+  if (ImGui::BeginMenu(tr("Language"))){
+    //the C# StoryDesigner needs a restart for this; here it changes at once
+    if (ImGui::MenuItem("English", nullptr, uiLanguage() == UiLanguage::English))
+      setUiLanguage(UiLanguage::English);
+    if (ImGui::MenuItem("Deutsch", nullptr, uiLanguage() == UiLanguage::German))
+      setUiLanguage(UiLanguage::German);
+    ImGui::EndMenu();
+  }
+  if (ImGui::BeginMenu(tr("Help"))){
+    ImGui::MenuItem(tr("About..."), nullptr, &showAbout_);
     ImGui::EndMenu();
   }
   //the project's name on the right, with a star for unsaved changes
@@ -338,19 +514,19 @@ void Designer::layout(ImGuiID dockspace){
   ImGui::DockBuilderSplitNode(dockspace, ImGuiDir_Left, 0.25f, &left, &right);
   ImGuiID top, bottom;
   ImGui::DockBuilderSplitNode(left, ImGuiDir_Up, 0.6f, &top, &bottom);
-  ImGui::DockBuilderDockWindow(kGamePool, top);
-  ImGui::DockBuilderDockWindow(kMediaPool, bottom);
-  ImGui::DockBuilderDockWindow(kSettings, right);
-  ImGui::DockBuilderDockWindow(kCommands, right);
-  ImGui::DockBuilderDockWindow(kLanguages, right);
-  ImGui::DockBuilderDockWindow(kMouseIcons, right);
-  ImGui::DockBuilderDockWindow(kFonts, right);
+  ImGui::DockBuilderDockWindow(windowTitle(kGamePool), top);
+  ImGui::DockBuilderDockWindow(windowTitle(kMediaPool), bottom);
+  ImGui::DockBuilderDockWindow(windowTitle(kSettings), right);
+  ImGui::DockBuilderDockWindow(windowTitle(kCommands), right);
+  ImGui::DockBuilderDockWindow(windowTitle(kLanguages), right);
+  ImGui::DockBuilderDockWindow(windowTitle(kMouseIcons), right);
+  ImGui::DockBuilderDockWindow(windowTitle(kFonts), right);
   ImGui::DockBuilderFinish(dockspace);
   mainDock_ = right;
 }
 
 void Designer::pool(const char* title, std::vector<PoolNode>& nodes, bool* open){
-  if (ImGui::Begin(title, open)){
+  if (ImGui::Begin(windowTitle(title), open)){
     if (nodes.empty())
       ImGui::TextDisabled("(empty)");
     std::vector<size_t> path;
@@ -450,7 +626,7 @@ void Designer::poolMenu(PoolNode& node, bool game, const PoolPath& path){
       else
         addMediaFiles(kind, path);
     }
-    if (ImGui::MenuItem("New folder")){
+    if (ImGui::MenuItem(tr("New folder"))){
       poolActions_.push_back([this, game, path]{
         std::vector<PoolNode>& pool = game ? project_.gamePool : project_.mediaPool;
         PoolPath created = newFolder(project_, game, path);
@@ -467,34 +643,34 @@ void Designer::poolMenu(PoolNode& node, bool game, const PoolPath& path){
     //the top folders stay as they are
     if (path.size() > 1){
       ImGui::Separator();
-      if (ImGui::MenuItem("Rename...")){
+      if (ImGui::MenuItem(tr("Rename..."))){
         nameFor_ = NameFor::RenameFolder;
         nameGame_ = game;
         namePath_ = path;
         snprintf(nameBuf_, sizeof(nameBuf_), "%s", toUtf8(node.label).c_str());
       }
-      if (ImGui::MenuItem("Delete"))
+      if (ImGui::MenuItem(tr("Delete")))
         askDelete(game, path);
     }
   }
   else{
     ResourceID id = (ResourceID)node.id;
-    if (ImGui::MenuItem("Open"))
+    if (ImGui::MenuItem(tr("Open")))
       openView(id, node.label);
     //the media keep their files' names
     if (game){
-      if (ImGui::MenuItem("Rename...")){
+      if (ImGui::MenuItem(tr("Rename..."))){
         nameFor_ = NameFor::Rename;
         nameKind_ = id;
         nameTarget_ = node.label;
         snprintf(nameBuf_, sizeof(nameBuf_), "%s", toUtf8(node.label).c_str());
       }
-      if (ImGui::MenuItem("Duplicate")){
+      if (ImGui::MenuItem(tr("Duplicate"))){
         std::string label = node.label;
         poolActions_.push_back([this, id, label]{duplicateResource(id, label);});
       }
     }
-    if (ImGui::MenuItem("Delete"))
+    if (ImGui::MenuItem(tr("Delete")))
       askDelete(game, path);
   }
   ImGui::EndPopup();
@@ -604,19 +780,19 @@ void Designer::deleteNode(bool game, const PoolPath& path){
 }
 
 void Designer::deletePopup(){
-  if (deleteAsked_ && !ImGui::IsPopupOpen("Delete"))
-    ImGui::OpenPopup("Delete");
-  if (!ImGui::BeginPopupModal("Delete", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+  if (deleteAsked_ && !ImGui::IsPopupOpen(tr("Delete")))
+    ImGui::OpenPopup(tr("Delete"));
+  if (!ImGui::BeginPopupModal(tr("Delete"), nullptr, ImGuiWindowFlags_AlwaysAutoResize))
     return;
   ImGui::TextUnformatted(deleteText_.c_str());
   const ImVec2 size(6*ImGui::GetFontSize(), 0);
-  if (ImGui::Button("Delete", size)){
+  if (ImGui::Button(tr("Delete"), size)){
     deleteNode(deleteGame_, deletePath_);
     deleteAsked_ = false;
     ImGui::CloseCurrentPopup();
   }
   ImGui::SameLine();
-  if (ImGui::Button("Cancel", size) || ImGui::IsKeyPressed(ImGuiKey_Escape)){
+  if (ImGui::Button(tr("Cancel"), size) || ImGui::IsKeyPressed(ImGuiKey_Escape)){
     deleteAsked_ = false;
     ImGui::CloseCurrentPopup();
   }
@@ -703,7 +879,7 @@ void Designer::addMediaFiles(ResourceID kind, const PoolPath& folder){
   fileFor_ = FileFor::AddMedia;
   mediaKind_ = kind;
   mediaFolder_ = folder;
-  fileDialog_.open(FileDialog::Mode::Open, title, mediaFolderPath_.empty() ? parentFolder(path_) : mediaFolderPath_, *exts, true);
+  fileDialog_.open(FileDialog::Mode::Open, title, mediaFolder(kind).empty() ? dialogFolder() : mediaFolder(kind), *exts, true);
 }
 
 void Designer::namePopup(){
@@ -715,18 +891,18 @@ void Designer::namePopup(){
   if (!ImGui::BeginPopupModal(title, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
     return;
   if (nameFor_ == NameFor::Language)
-    ImGui::TextUnformatted("The new language's name:");
+    ImGui::TextUnformatted(tr("The new language's name:"));
   else if (nameFor_ == NameFor::RenameFolder)
-    ImGui::TextUnformatted("The folder's name:");
+    ImGui::TextUnformatted(tr("The folder's name:"));
   else
     ImGui::Text("The %s's name:", kindName(nameKind_));
   if (ImGui::IsWindowAppearing())
     ImGui::SetKeyboardFocusHere();
   bool ok = ImGui::InputText("##name", nameBuf_, sizeof(nameBuf_), ImGuiInputTextFlags_EnterReturnsTrue);
   const ImVec2 size(6*ImGui::GetFontSize(), 0);
-  ok = ImGui::Button("OK", size) || ok;
+  ok = ImGui::Button(tr("OK"), size) || ok;
   ImGui::SameLine();
-  bool cancel = ImGui::Button("Cancel", size) || ImGui::IsKeyPressed(ImGuiKey_Escape);
+  bool cancel = ImGui::Button(tr("Cancel"), size) || ImGui::IsKeyPressed(ImGuiKey_Escape);
   if (ok){
     std::string name = trim(fromUtf8(nameBuf_));
     bool done = false;
@@ -854,8 +1030,11 @@ void Designer::view(View& v){
 void Designer::showRoom(Room& room){
   RoomEditor& editor = roomEditors_[toLower(room.name)];
   RoomEditor::Requests requests;
+  //one view for all rooms; a key in one room changes it for all
+  editor.setMode(roomMode_);
   if (editor.draw(project_, room, images_, projectFolder(), requests))
     changed();
+  roomMode_ = editor.mode();
   if (requests.openScript)
     openScript(requests.scriptType, requests.script);
   if (requests.show)
@@ -866,7 +1045,7 @@ void Designer::showScript(Script::Type type, const std::string& name){
   Script* scr = project_.scripts[type].find(name);
   if (scr == nullptr){
     ImGui::TextDisabled("(no script)");
-    if (ImGui::Button("Create script")){
+    if (ImGui::Button(tr("Create script"))){
       Script created;
       created.type = type;
       created.name = name;
@@ -882,11 +1061,11 @@ void Designer::showScript(Script::Type type, const std::string& name){
 }
 
 void Designer::errorPopup(){
-  if (!error_.empty() && !ImGui::IsPopupOpen("Error"))
-    ImGui::OpenPopup("Error");
-  if (ImGui::BeginPopupModal("Error", nullptr, ImGuiWindowFlags_AlwaysAutoResize)){
+  if (!error_.empty() && !ImGui::IsPopupOpen(tr("Error")))
+    ImGui::OpenPopup(tr("Error"));
+  if (ImGui::BeginPopupModal(tr("Error"), nullptr, ImGuiWindowFlags_AlwaysAutoResize)){
     ImGui::TextUnformatted(error_.c_str());
-    if (ImGui::Button("OK", ImVec2(6*ImGui::GetFontSize(), 0))){
+    if (ImGui::Button(tr("OK"), ImVec2(6*ImGui::GetFontSize(), 0))){
       error_.clear();
       ImGui::CloseCurrentPopup();
     }

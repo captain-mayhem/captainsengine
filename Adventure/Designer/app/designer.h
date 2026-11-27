@@ -2,6 +2,7 @@
 #define SD_DESIGNER_H
 
 #include <atomic>
+#include <chrono>
 #include <functional>
 #include <map>
 #include <memory>
@@ -17,6 +18,7 @@
 
 #include "filedialog.h"
 #include "imagecache.h"
+#include "remotecontrol.h"
 #include "roomeditor.h"
 #include "stateframeeditor.h"
 #include "scripteditor.h"
@@ -89,7 +91,7 @@ private:
   void whenSaved(Pending action);
   void runPending();
   bool save(const std::string& path);
-  void changed() {modified_ = true;}
+  void changed() {modified_ = true; backupNeeded_ = true;}
 
   //! the context menu of a pool's node
   void poolMenu(PoolNode& node, bool game, const PoolPath& path);
@@ -111,6 +113,20 @@ private:
   void fileChosen();
   //! a new project with the pools' folders
   void newProject();
+  //! the new project's pools, their top folders named in the StoryDesigner's language
+  void newPoolsInLanguage();
+  //! the Insert menu: a new resource or media files in its top folder
+  void insertMenu();
+  void aboutWindow();
+  //! the C# RemoteControl plugin: the running game driven over the network
+  void remoteWindow();
+  //! the editor's own settings (the C# Persistence), kept in the user's settings
+  void loadPreferences();
+  void savePreferences();
+  //! a backup's file, in the user's data folder by date (the C# getBackupFileName); empty if it can't be made
+  std::string backupFile() const;
+  //! writes a backup every five minutes while there are changes
+  void backupTimer();
 
   void showRoom(Room& room);
   void showObject(Object& obj);
@@ -160,7 +176,40 @@ private:
   ResourceID mediaKind_ = ResourceID::Image;
   PoolPath mediaFolder_;
   //! the folder the media files were added from last (UTF-8)
-  std::string mediaFolderPath_;
+  //! the editor's own settings (the C# Persistence)
+  struct Preferences{
+    bool createBackups = true;
+    //! an object's first image sets its size (the C# "Fit images")
+    bool fitImages = true;
+    //! added images lose their transparent border (changing the files)
+    bool cropTransparent = false;
+    //! the folders the projects and each kind of media were taken from last (UTF-8)
+    std::string projectFolder;
+    std::string imageFolder;
+    std::string musicFolder;
+    std::string soundFolder;
+    std::string videoFolder;
+    bool operator==(const Preferences&) const = default;
+  };
+  Preferences prefs_;
+  //! the preferences as they were saved last, and the language and background with them
+  Preferences savedPrefs_;
+  int savedLanguage_ = -1;
+  ImU32 savedCharBackground_ = 0;
+  //! saves the preferences when they changed
+  void keepPreferences();
+  //! where the file dialogs for projects start: the project's folder, or where the last one was
+  std::string dialogFolder() const;
+  //! the folder media of a kind were added from last
+  std::string& mediaFolder(ResourceID kind);
+  //! changes since the last backup, and when it was written (or the project saved or opened)
+  bool backupNeeded_ = false;
+  std::chrono::steady_clock::time_point backupTime_ = std::chrono::steady_clock::now();
+  //! the room editors' view, shared by all of them as in the C# editor
+  RoomMode roomMode_ = RoomMode::Objects;
+  bool showAbout_ = false;
+  bool showRemote_ = false;
+  std::unique_ptr<RemoteControl> remote_;
   bool showGamePool_ = true;
   bool showMediaPool_ = true;
   bool showSettings_ = false;

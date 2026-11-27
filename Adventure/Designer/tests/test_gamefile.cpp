@@ -1,19 +1,26 @@
 #include <filesystem>
+#include <fstream>
+#include <memory>
 #include <string>
 #include <vector>
 
 #include <gtest/gtest.h>
+#include <png.h>
 
+#include <image/image.h>
+#include <image/loader.h>
 #include <io/MemReader.h>
 #include <io/ZipReader.h>
 
 #include <model/bitmapfont.h>
 #include <model/gamefile.h>
+#include <model/images.h>
 #include <model/projectfile.h>
 #include <model/resources.h>
 
 // The resources' rules (new, rename, duplicate, delete, folders), the bitmap
-// fonts, and the game, export and import files, on the repository's test game.
+// fonts, cropping added images, and the game, export and import files, on the
+// repository's test game.
 
 using namespace sd;
 namespace fs = std::filesystem;
@@ -55,6 +62,27 @@ std::string unpackTestGame(const fs::path& dir, Project& project){
   EXPECT_TRUE(readProject(adv, project, &error)) << error;
   EXPECT_TRUE(resolveMedia(project, utf8(dir/"game")));
   return adv;
+}
+
+//! writes an 8-bit PNG of width x height pixels, RGBA or RGB
+void writePng(const fs::path& file, int width, int height, bool alpha, const std::vector<unsigned char>& pixels){
+  FILE* f = fopen(utf8(file).c_str(), "wb");
+  ASSERT_NE(f, nullptr);
+  png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+  png_infop info = png_create_info_struct(png);
+  png_init_io(png, f);
+  png_set_IHDR(png, info, width, height, 8, alpha ? PNG_COLOR_TYPE_RGBA : PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+  png_write_info(png, info);
+  const int channels = alpha ? 4 : 3;
+  for (int y = 0; y < height; ++y)
+    png_write_row(png, (png_bytep)pixels.data() + (size_t)y*width*channels);
+  png_write_end(png, nullptr);
+  png_destroy_write_struct(&png, &info);
+  fclose(f);
+}
+
+std::unique_ptr<CGE::Image> readPng(const fs::path& file){
+  return std::unique_ptr<CGE::Image>(CGE::ImageLoader::load(utf8(file).c_str(), CGE::ImageLoader::PNG));
 }
 
 }
@@ -136,6 +164,44 @@ TEST(Resources, MediaAreNamedAfterTheirFiles){
   EXPECT_EQ(*p.images.find("Tree"), "/somewhere/Tree.png");
   EXPECT_FALSE(addMedia(p, ResourceID::Image, "/elsewhere/tree.jpg", PoolPath(), &error));
   EXPECT_FALSE(pathInPool(p.mediaPool, ResourceID::Image, "Tree").empty());
+}
+
+TEST(Images, CropsTheTransparentBorder){
+  fs::path dir = testFolder("crop");
+  //6x5, transparent but for a 3x2 block at (2,1) with one half transparent pixel
+  std::vector<unsigned char> pixels(6*5*4, 0);
+  for (int y = 1; y <= 2; ++y){
+    for (int x = 2; x <= 4; ++x){
+      unsigned char* p = &pixels[(y*6+x)*4];
+      p[0] = (unsigned char)(10*x);
+      p[1] = (unsigned char)(10*y);
+      p[2] = 200;
+      p[3] = x == 4 && y == 2 ? 128 : 255;
+    }
+  }
+  writePng(dir/"sprite.png", 6, 5, true, pixels);
+  std::string error;
+  ASSERT_TRUE(cropTransparentImage(utf8(dir/"sprite.png"), &error)) << error;
+  std::unique_ptr<CGE::Image> image = readPng(dir/"sprite.png");
+  ASSERT_TRUE(image);
+  ASSERT_EQ(image->getWidth(), 3u);
+  ASSERT_EQ(image->getHeight(), 2u);
+  ASSERT_TRUE(image->hasAlpha());
+  const unsigned char* data = image->getData();
+  EXPECT_EQ(data[0], 20);
+  EXPECT_EQ(data[1], 10);
+  EXPECT_EQ(data[(1*3+2)*4+3], 128);
+  //an image without a border, or without alpha, stays as it is
+  std::vector<unsigned char> rgb(4*4*3, 90);
+  writePng(dir/"opaque.png", 4, 4, false, rgb);
+  auto before = fs::file_size(dir/"opaque.png");
+  ASSERT_TRUE(cropTransparentImage(utf8(dir/"opaque.png"), &error)) << error;
+  EXPECT_EQ(fs::file_size(dir/"opaque.png"), before);
+  EXPECT_EQ(readPng(dir/"opaque.png")->getWidth(), 4u);
+  //nothing but transparency isn't cut to nothing
+  writePng(dir/"empty.png", 3, 3, true, std::vector<unsigned char>(3*3*4, 0));
+  ASSERT_TRUE(cropTransparentImage(utf8(dir/"empty.png"), &error)) << error;
+  EXPECT_EQ(readPng(dir/"empty.png")->getWidth(), 3u);
 }
 
 TEST(BitmapFont, RendersEveryCharacter){

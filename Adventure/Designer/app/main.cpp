@@ -1,6 +1,8 @@
 // The StoryDesigner: the Adventure's editor, on the engine's ImGui with
 // docked windows. "Designer <project.adv>" opens a project at the start.
 
+#include <memory>
+
 #include <imgui.h>
 
 #include <renderer/renderdevice.h>
@@ -17,8 +19,10 @@ public:
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     //the layout is made at the start (Designer::layout), not kept
     io.IniFilename = nullptr;
+    //made here, since its preferences need the engine's settings (appName)
+    designer_ = std::make_unique<sd::Designer>();
     if (argc > 1)
-      designer_.openProject(argv[1]);
+      designer_->openProject(argv[1]);
     updateTitle();
   }
 
@@ -29,18 +33,20 @@ public:
     pass.clearColor = {0.12f, 0.12f, 0.13f, 1.0f};
     if (device->beginPass(pass))
       device->endPass();
-    designer_.gui();
+    designer_->gui();
     updateTitle();
-    if (designer_.quitRequested())
+    if (designer_->quitRequested())
       engine->requestShutdown();
   }
 
   void shutdown() override{
-    designer_.releaseTextures();
+    if (designer_)
+      designer_->releaseTextures();
   }
 
   void onDeviceLost() override{
-    designer_.releaseTextures();
+    if (designer_)
+      designer_->releaseTextures();
   }
 
   //! Escape belongs to the dialogs, the main menu quits
@@ -48,7 +54,7 @@ public:
 
 private:
   void updateTitle(){
-    std::string title = "StoryDesigner - " + sd::toUtf8(designer_.project().settings.projectName) + (designer_.modified() ? " *" : "");
+    std::string title = "StoryDesigner - " + sd::toUtf8(designer_->project().settings.projectName) + (designer_->modified() ? " *" : "");
     if (title != title_){
       title_ = title;
       if (CGE::AppWindow* win = CGE::Engine::instance()->getWindow())
@@ -56,7 +62,7 @@ private:
     }
   }
 
-  sd::Designer designer_;
+  std::unique_ptr<sd::Designer> designer_;
   std::string title_;
 };
 

@@ -99,6 +99,13 @@ bool Socket::accept(Socket& new_socket) const{
 #ifdef WIN32
   typedef int socklen_t;
 #endif
+  //an earlier connection of new_socket is closed
+  if (new_socket.is_valid())
+#ifdef WIN32
+    closesocket(new_socket.sock_);
+#else
+    ::close(new_socket.sock_);
+#endif
   new_socket.sock_ = ::accept(sock_, (sockaddr*)&addr_, (socklen_t *)&addr_length);
 
 #ifdef WIN32
@@ -148,6 +155,24 @@ int Socket::recv(std::string& s) const{
     //std::cerr << "r: "<< s << "\n";
     return status;
   }
+}
+
+int Socket::poll(std::string& s) const{
+  char buf[MAXRECV+1];
+  s.clear();
+  int status = ::recv(sock_, buf, MAXRECV, 0);
+  if (status > 0){
+    s.assign(buf, status);
+    return status;
+  }
+  if (status == 0)
+    return -1;
+#ifdef WIN32
+  int error = WSAGetLastError();
+  return error == WSAEWOULDBLOCK ? 0 : -1;
+#else
+  return errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR ? 0 : -1;
+#endif
 }
 
 //connect to a socket

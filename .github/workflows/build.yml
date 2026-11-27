@@ -8,7 +8,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # all projects, including the StoryDesigner (C#, built by MSBuild)
+          # all projects
           - os: windows-latest
             preset: windows
             build_dir: build/windows

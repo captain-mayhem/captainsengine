@@ -7,8 +7,6 @@
 #include <memory>
 #include <set>
 
-#include <jpeglib.h>
-
 #include <image/image.h>
 #include <image/loader.h>
 #include <io/ZipReader.h>
@@ -18,6 +16,21 @@
 #include "images.h"
 #include "projectfile.h"
 #include "resources.h"
+
+//jpeglib after the engine's headers, which may bring windows.h: its INT32
+//and boolean are typedefs of other types there (as in the engine's loader)
+#ifdef WIN32
+#undef FAR
+#define INT32 jpeg_int32
+#define boolean jpeg_boolean
+#endif
+extern "C"{
+#include <jpeglib.h>
+}
+#ifdef WIN32
+#undef INT32
+#undef boolean
+#endif
 
 namespace fs = std::filesystem;
 
@@ -97,7 +110,7 @@ std::string encodeJpeg(const uint8_t* pixels, int width, int height, int channel
   cinfo.err = jpeg_std_error(&jerr);
   jpeg_create_compress(&cinfo);
   unsigned char* buffer = nullptr;
-  unsigned long size = 0;
+  size_t size = 0;
   jpeg_mem_dest(&cinfo, &buffer, &size);
   cinfo.image_width = width;
   cinfo.image_height = height;

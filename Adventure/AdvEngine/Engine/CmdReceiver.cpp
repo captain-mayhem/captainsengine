@@ -49,22 +49,25 @@ void CommandReceiver::threadLoop(){
     msg.clear();
     std::string cmd;
     while(!mStopRequested){
-      if (mConnSocket.recv(msg) < 0)
+      //a closed connection ends, so that the next one is accepted
+      if (mConnSocket.poll(msg) < 0)
         break;
       if (msg.length() > 0){
         cmd += msg;
         size_t pos = cmd.find('\n');
         while (pos != cmd.npos){
-          std::string begin = cmd.substr(0, pos-1);
+          //without the \r, and without the separator of the engine's own
+          //sockets (CGE::Socket::send ends every message with it)
+          size_t start = cmd.find_first_not_of(CGE::SEPARATOR);
+          std::string begin = start < pos ? cmd.substr(start, pos-1-start) : std::string();
           cmd = cmd.substr(pos+1);
           pos = cmd.find('\n');
           parseCommand(begin);
         }
-        cmd.clear();
+        //a line cut by the network stays for the next part
       }
       CGE::Thread::sleep(20);
     }
-    //mConnSocket.close();
   }
 }
 
@@ -86,7 +89,7 @@ void CommandReceiver::parseCommand(const std::string& cmd){
     }
   }
   else if (cmd[0] == 'm'){
-    sscanf(cmd.c_str(), "%s %i %i", cmdid, &x, &y);
+    sscanf(cmd.c_str(), "%3s %i %i", cmdid, &x, &y);
     if (strcmp(cmdid, "mps") == 0){
       Command c;
       c.type = MOUSE_MOVE;
@@ -110,7 +113,7 @@ void CommandReceiver::parseCommand(const std::string& cmd){
     }
   }
   else if (cmd[0] == 's'){
-    sscanf(cmd.c_str(), "%s\n", cmdid);
+    sscanf(cmd.c_str(), "%3s", cmdid);
     if (strcmp(cmdid, "scr") == 0){
       mMultiline = true;
     }

@@ -3,6 +3,7 @@
 // LanguageDlg dialogs, changing the project directly.
 
 #include "designer.h"
+#include "i18n.h"
 
 #include <algorithm>
 #include <cfloat>
@@ -37,7 +38,7 @@ bool fading(const char* label, int& value){
   ImGui::SetNextItemWidth(8*ImGui::GetFontSize());
   bool changed = inputInt(label, value, 0, 2000, 100);
   ImGui::SameLine();
-  ImGui::TextDisabled("%s", fadingText(value));
+  ImGui::TextDisabled("%s", tr(fadingText(value)));
   return changed;
 }
 
@@ -54,7 +55,7 @@ std::vector<std::string> imageNames(const Project& project){
 
 void Designer::settingsWindow(){
   ImGui::SetNextWindowDockID(mainDock_, ImGuiCond_FirstUseEver);
-  if (!ImGui::Begin(kSettings, &showSettings_)){
+  if (!ImGui::Begin(windowTitle(kSettings), &showSettings_)){
     ImGui::End();
     return;
   }
@@ -65,10 +66,10 @@ void Designer::settingsWindow(){
   const float fieldWidth = 16*ImGui::GetFontSize();
   bool c = false;
   if (ImGui::BeginTabBar("pages")){
-    if (ImGui::BeginTabItem("General")){
+    if (ImGui::BeginTabItem(tr("General"))){
       ImGui::SetNextItemWidth(fieldWidth);
       c |= inputText("Project name", s.projectName);
-      ImGui::TextUnformatted("Aspect ratio:");
+      ImGui::TextUnformatted(tr("Aspect ratio:"));
       ImGui::SameLine();
       int wide = s.is16to9 ? 0 : 1;
       if (radioButtons(wide, {"16:9", "4:3"}, true)){
@@ -86,7 +87,7 @@ void Designer::settingsWindow(){
       }
       const char* const* resNames = s.is16to9 ? kNames169 : kNames43;
       ImGui::SetNextItemWidth(fieldWidth);
-      if (ImGui::BeginCombo("Game resolution", res >= 0 ? resNames[res] : "(other)")){
+      if (ImGui::BeginCombo(tr("Game resolution"), res >= 0 ? resNames[res] : "(other)")){
         for (int i = 0; i < 6; ++i){
           if (ImGui::Selectable(resNames[i], i == res) && i != res){
             s.resolution = kResolutions[i];
@@ -109,24 +110,27 @@ void Designer::settingsWindow(){
       c |= checkbox("Silent delete", s.silentDelete);
       c |= checkbox("Info line", s.infoLine);
       c |= checkbox("Protect game files", s.protectGameFile);
+      //the editor's own settings, kept for all projects
+      checkbox("Create backups", prefs_.createBackups);
+      checkbox("Fit images", prefs_.fitImages);
       ImGui::SetNextItemWidth(fieldWidth);
       c |= nameCombo("\"Loading\" image", s.loadingImage, images);
       ImGui::SetNextItemWidth(fieldWidth);
       c |= nameCombo("\"Settings\" picture", s.settingsPicture, images);
       ImGui::EndTabItem();
     }
-    if (ImGui::BeginTabItem("Script and taskbar")){
+    if (ImGui::BeginTabItem(tr("Script and taskbar"))){
       ImGui::SetNextItemWidth(fieldWidth);
       c |= nameCombo("Start cutscene", s.startScript, scripts);
       ImGui::SetNextItemWidth(fieldWidth);
       c |= nameCombo("Main script", s.mainScript, scripts);
-      ImGui::SeparatorText("Screen change");
+      ImGui::SeparatorText(tr("Screen change"));
       int sc = (int)s.screenChange;
       if (radioButtons(sc, {"Direct", "Fade out to black", "Rectangle", "Circle", "Shutters", "Clock", "Blend", "Blend slow"})){
         s.screenChange = (ScreenChange)sc;
         c = true;
       }
-      ImGui::SeparatorText("Taskbar");
+      ImGui::SeparatorText(tr("Taskbar"));
       c |= checkbox("Taskbar", s.showTaskbar);
       ImGui::BeginDisabled(!s.showTaskbar);
       ImGui::SetNextItemWidth(8*ImGui::GetFontSize());
@@ -134,25 +138,25 @@ void Designer::settingsWindow(){
       ImGui::SetNextItemWidth(fieldWidth);
       c |= nameCombo("Room with the taskbar", s.taskRoom, rooms);
       c |= checkbox("When down, hide completely", s.taskHideCompletely);
-      ImGui::TextUnformatted("Appears from:");
+      ImGui::TextUnformatted(tr("Appears from:"));
       ImGui::SameLine();
       int top = s.taskbarFromTop ? 0 : 1;
       if (radioButtons(top, {"Top", "Bottom"}, true)){
         s.taskbarFromTop = top == 0;
         c = true;
       }
-      ImGui::TextUnformatted("Taskbar style:");
+      ImGui::TextUnformatted(tr("Taskbar style:"));
       c |= radioButtons(s.taskPopup, {"Always there", "Direct popup", "Scrolling popup"}, true);
       ImGui::EndDisabled();
-      ImGui::SeparatorText("Anywhere");
+      ImGui::SeparatorText(tr("Anywhere"));
       ImGui::SetNextItemWidth(fieldWidth);
       c |= nameCombo("Room for \"anywhere\" objects", s.anywhereRoom, rooms);
       ImGui::SetNextItemWidth(8*ImGui::GetFontSize());
       c |= inputInt("Transparency", s.anywhereTransparency, 0, 100);
       ImGui::EndTabItem();
     }
-    if (ImGui::BeginTabItem("Menus and colors")){
-      ImGui::SeparatorText("Menu colors");
+    if (ImGui::BeginTabItem(tr("Menus and colors"))){
+      ImGui::SeparatorText(tr("Menu colors"));
       c |= colorEdit("Border", s.borderColor);
       c |= colorEdit("Background", s.backgroundColor);
       c |= colorEdit("Text", s.textColor);
@@ -169,20 +173,20 @@ void Designer::settingsWindow(){
       c |= colorEdit("Targa transparent color", s.targaColor);
       ImGui::EndTabItem();
     }
-    if (ImGui::BeginTabItem("Textscene")){
-      ImGui::SeparatorText("Style");
+    if (ImGui::BeginTabItem(tr("Textscene"))){
+      ImGui::SeparatorText(tr("Style"));
       c |= radioButtons(s.tsStyle, {"Solid", "50% transparent", "Additive", "None"}, true);
-      ImGui::SeparatorText("Border");
+      ImGui::SeparatorText(tr("Border"));
       ImGui::PushID("border");
       c |= radioButtons(s.tsBorderStyle, {"Rectangles", "Lines", "Box", "None"}, true);
       ImGui::PopID();
       c |= fading("Fading##textscene", s.textSceneFading);
-      ImGui::SeparatorText("Colors");
+      ImGui::SeparatorText(tr("Colors"));
       c |= colorEdit("Area color", s.tsAreaColor);
       c |= colorEdit("Border color", s.tsBorderColor);
       c |= colorEdit("Text color", s.tsTextColor);
       c |= colorEdit("Selection color", s.tsSelectionColor);
-      ImGui::SeparatorText("Appearance");
+      ImGui::SeparatorText(tr("Appearance"));
       int symbols = s.tsUseSymbols ? 1 : 0;
       if (radioButtons(symbols, {"Text", "Symbol"}, true)){
         s.tsUseSymbols = symbols == 1;
@@ -195,7 +199,7 @@ void Designer::settingsWindow(){
       ImGui::EndDisabled();
       ImGui::EndTabItem();
     }
-    if (ImGui::BeginTabItem("Coin interface")){
+    if (ImGui::BeginTabItem(tr("Coin interface"))){
       c |= checkbox("Activate coin interface", s.coinActivated);
       ImGui::BeginDisabled(!s.coinActivated);
       ImGui::SetNextItemWidth(fieldWidth);
@@ -203,7 +207,7 @@ void Designer::settingsWindow(){
       c |= checkbox("Auto-popup with right mouse click", s.coinAutoPopup);
       c |= fading("Fading##coin", s.coinFading);
       //the centre on a 190 x 140 field, as in the C# dialog; drag the cross
-      ImGui::TextUnformatted("Interface center (drag the cross):");
+      ImGui::TextUnformatted(tr("Interface center (drag the cross):"));
       const ImVec2 size(190, 140);
       ImVec2 origin = ImGui::GetCursorScreenPos();
       ImGui::InvisibleButton("##center", size);
@@ -227,11 +231,12 @@ void Designer::settingsWindow(){
       ImGui::EndDisabled();
       ImGui::EndTabItem();
     }
-    if (ImGui::BeginTabItem("Advanced")){
+    if (ImGui::BeginTabItem(tr("Advanced"))){
       c |= checkbox("Png to Jpeg conversion", s.pngToJpeg);
+      checkbox("Crop transparent image parts", prefs_.cropTransparent);
       int lang = (int)s.scriptingLanguage;
       ImGui::SetNextItemWidth(fieldWidth);
-      if (ImGui::Combo("Scripting language", &lang, "PCDK\0Lua\0")){
+      if (ImGui::Combo(tr("Scripting language"), &lang, "PCDK\0Lua\0")){
         if (lang != (int)s.scriptingLanguage){
           s.scriptingLanguage = (ScriptLang)lang;
           c = true;
@@ -248,14 +253,14 @@ void Designer::settingsWindow(){
 
 void Designer::commandsWindow(){
   ImGui::SetNextWindowDockID(mainDock_, ImGuiCond_FirstUseEver);
-  if (!ImGui::Begin(kCommands, &showCommands_)){
+  if (!ImGui::Begin(windowTitle(kCommands), &showCommands_)){
     ImGui::End();
     return;
   }
   ProjectSettings& s = project_.settings;
   bool c = false;
   const float fontSize = ImGui::GetFontSize();
-  ImGui::SeparatorText("Commands");
+  ImGui::SeparatorText(tr("Commands"));
   int remove = -1;
   if (ImGui::BeginTable("commands", 3, ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_SizingStretchProp)){
     ImGui::TableSetupColumn("Command");
@@ -272,7 +277,7 @@ void Designer::commandsWindow(){
       ImGui::SetNextItemWidth(-FLT_MIN);
       c |= inputText("##text", s.commands[i].second);
       ImGui::TableNextColumn();
-      if (ImGui::SmallButton("-"))
+      if (ImGui::SmallButton(tr("-")))
         remove = (int)i;
       ImGui::PopID();
     }
@@ -282,12 +287,12 @@ void Designer::commandsWindow(){
     s.commands.erase(s.commands.begin()+remove);
     c = true;
   }
-  if (ImGui::Button("Add command")){
+  if (ImGui::Button(tr("Add command"))){
     s.commands.push_back(std::make_pair(std::string("command") + std::to_string(s.commands.size()+1), std::string("Command")));
     c = true;
   }
 
-  ImGui::SeparatorText("Bools");
+  ImGui::SeparatorText(tr("Bools"));
   ImGui::TextDisabled("Checked: true at the start");
   remove = -1;
   for (size_t i = 0; i < s.booleans.size(); ++i){
@@ -297,7 +302,7 @@ void Designer::commandsWindow(){
     ImGui::SetNextItemWidth(16*fontSize);
     c |= inputText("##name", s.booleans[i].first);
     ImGui::SameLine();
-    if (ImGui::SmallButton("-"))
+    if (ImGui::SmallButton(tr("-")))
       remove = (int)i;
     ImGui::PopID();
   }
@@ -305,13 +310,13 @@ void Designer::commandsWindow(){
     s.booleans.erase(s.booleans.begin()+remove);
     c = true;
   }
-  if (ImGui::Button("Add bool")){
+  if (ImGui::Button(tr("Add bool"))){
     std::string name = "bool" + std::to_string(s.booleans.size()+1);
     s.booleans.push_back(std::make_pair(name, false));
     c = true;
   }
 
-  ImGui::SeparatorText("Texts");
+  ImGui::SeparatorText(tr("Texts"));
   ImGui::SetNextItemWidth(16*fontSize);
   c |= inputText("Link text", s.linkText);
   ImGui::SetNextItemWidth(16*fontSize);
@@ -325,7 +330,7 @@ void Designer::commandsWindow(){
 
 void Designer::languagesWindow(){
   ImGui::SetNextWindowDockID(mainDock_, ImGuiCond_FirstUseEver);
-  if (!ImGui::Begin(kLanguages, &showLanguages_)){
+  if (!ImGui::Begin(windowTitle(kLanguages), &showLanguages_)){
     ImGui::End();
     return;
   }
@@ -340,8 +345,8 @@ void Designer::languagesWindow(){
   if (project_.languages.find(language_) == nullptr || toLower(language_) == "origin")
     language_.clear();
   ImGui::SetNextItemWidth(12*fontSize);
-  if (ImGui::BeginCombo("Translation", language_.empty() ? "(none)" : toUtf8(language_).c_str())){
-    if (ImGui::Selectable("(none)", language_.empty()))
+  if (ImGui::BeginCombo(tr("Translation"), language_.empty() ? "(none)" : toUtf8(language_).c_str())){
+    if (ImGui::Selectable(tr("(none)"), language_.empty()))
       language_.clear();
     for (const auto& lang : project_.languages){
       if (lang.key == "origin")
@@ -352,20 +357,20 @@ void Designer::languagesWindow(){
     ImGui::EndCombo();
   }
   ImGui::SameLine();
-  if (ImGui::Button("Add language...")){
+  if (ImGui::Button(tr("Add language..."))){
     nameFor_ = NameFor::Language;
     nameBuf_[0] = '\0';
   }
   ImGui::SameLine();
   ImGui::BeginDisabled(language_.empty());
-  if (ImGui::Button("Delete language")){
+  if (ImGui::Button(tr("Delete language"))){
     project_.languages.remove(language_);
     language_.clear();
     c = true;
   }
   ImGui::EndDisabled();
   ImGui::SameLine();
-  if (ImGui::Button("Gather texts")){
+  if (ImGui::Button(tr("Gather texts"))){
     updateLanguageList(project_);
     c = true;
   }

@@ -1,4 +1,5 @@
 #include "filedialog.h"
+#include "i18n.h"
 
 #include <algorithm>
 #include <cfloat>
@@ -139,7 +140,7 @@ bool FileDialog::draw(){
       accept = true;
     ImGui::EndDisabled();
     ImGui::SameLine();
-    if (ImGui::Button("Cancel", ImVec2(6*ImGui::GetFontSize(), 0)))
+    if (ImGui::Button(tr("Cancel"), ImVec2(6*ImGui::GetFontSize(), 0)))
       keepOpen = false;
     if (accept && name_[0] != '\0'){
       std::string name = name_;

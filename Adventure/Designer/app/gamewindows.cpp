@@ -2,6 +2,7 @@
 // imports and the export, the fonts, and the media's players.
 
 #include "designer.h"
+#include "i18n.h"
 
 #include <cstdio>
 #include <filesystem>
@@ -187,7 +188,7 @@ public:
         }
       }
       ImGui::SameLine();
-      ImGui::Checkbox("Loop", &loop_);
+      ImGui::Checkbox(tr("Loop"), &loop_);
       ImGui::Text("%.1f of %.1f s", player_->getPosition(), player_->getLength());
     }
     else if (video_){
@@ -250,7 +251,7 @@ void Designer::showMedia(ResourceID kind, const std::string& name){
 
 void Designer::fontsWindow(){
   ImGui::SetNextWindowDockID(mainDock_, ImGuiCond_FirstUseEver);
-  if (!ImGui::Begin(kFonts, &showFonts_)){
+  if (!ImGui::Begin(windowTitle(kFonts), &showFonts_)){
     ImGui::End();
     return;
   }
@@ -272,7 +273,7 @@ void Designer::fontsWindow(){
     ImGui::EndListBox();
   }
   const ImVec2 button(4*ImGui::GetFontSize(), 0);
-  if (ImGui::Button("Add", button)){
+  if (ImGui::Button(tr("Add"), button)){
     FontInfo info;
     info.name = "Arial";
     info.size = 12;
@@ -282,7 +283,7 @@ void Designer::fontsWindow(){
   }
   ImGui::SameLine();
   ImGui::BeginDisabled(font_ < 0);
-  if (ImGui::Button("Remove", button)){
+  if (ImGui::Button(tr("Remove"), button)){
     fonts.erase(fonts.begin()+font_);
     if (font_ >= (int)fonts.size())
       --font_;
@@ -291,7 +292,7 @@ void Designer::fontsWindow(){
   ImGui::EndDisabled();
   ImGui::SameLine();
   ImGui::BeginDisabled(font_ <= 0);
-  if (ImGui::Button("up", button)){
+  if (ImGui::Button(tr("up"), button)){
     std::swap(fonts[font_], fonts[font_-1]);
     --font_;
     changed();
@@ -299,7 +300,7 @@ void Designer::fontsWindow(){
   ImGui::EndDisabled();
   ImGui::SameLine();
   ImGui::BeginDisabled(font_ < 0 || font_ >= (int)fonts.size()-1);
-  if (ImGui::Button("down", button)){
+  if (ImGui::Button(tr("down"), button)){
     std::swap(fonts[font_], fonts[font_+1]);
     ++font_;
     changed();
@@ -317,7 +318,7 @@ void Designer::fontsWindow(){
   bool changedFont = false;
   ImGui::SetNextItemWidth(16*ImGui::GetFontSize());
   std::string family = toUtf8(info.name);
-  if (ImGui::BeginCombo("Font", family.c_str())){
+  if (ImGui::BeginCombo(tr("Font"), family.c_str())){
     for (const std::string& f : fontFamilies_){
       if (ImGui::Selectable(f.c_str(), f == family)){
         info.name = fromUtf8(f);
@@ -329,7 +330,7 @@ void Designer::fontsWindow(){
   static const char* const charsets[] = {"Western", "East european", "Russian", "Greek", "Turkish", "Arabic", "Hebrew",
     "Vietnamese", "Thai", "Baltic", "Japanese ShiftJIS", "Dos OEM", "Symbol"};
   ImGui::SetNextItemWidth(16*ImGui::GetFontSize());
-  if (ImGui::Combo("Charset", &info.charset, charsets, IM_ARRAYSIZE(charsets)))
+  if (ImGui::Combo(tr("Charset"), &info.charset, charsets, IM_ARRAYSIZE(charsets)))
     changedFont = true;
   changedFont |= checkbox("Bold", info.bold);
   ImGui::SameLine();
@@ -338,11 +339,11 @@ void Designer::fontsWindow(){
   changedFont |= inputInt("Size", info.size, 6, 40);
   ImGui::SetNextItemWidth(8*ImGui::GetFontSize());
   changedFont |= inputInt("Letter spacing", info.spacing, -5, 5);
-  ImGui::SeparatorText("Outline");
+  ImGui::SeparatorText(tr("Outline"));
   changedFont |= radioButtons(info.outline, {"None", "Shadow A", "Shadow B", "Shadow A+B"}, true);
-  ImGui::SeparatorText("Shadow");
+  ImGui::SeparatorText(tr("Shadow"));
   changedFont |= radioButtons(info.shadow, {"None", "25 %", "50 %", "75 %"}, true);
-  ImGui::SeparatorText("Fill");
+  ImGui::SeparatorText(tr("Fill"));
   changedFont |= radioButtons(info.fill, {"Normal", "Falloff 1", "Falloff 2", "Scanlines"}, true);
   ImGui::SetNextItemWidth(8*ImGui::GetFontSize());
   changedFont |= inputInt("Fading", info.fading, 0, 2000, 100);
@@ -362,7 +363,7 @@ void Designer::fontsWindow(){
   ImGui::EndGroup();
   if (changedFont)
     changed();
-  ImGui::SeparatorText("Preview");
+  ImGui::SeparatorText(tr("Preview"));
   fontPreview_->draw(info);
   ImGui::End();
 }
@@ -382,7 +383,7 @@ void Designer::fileChosen(){
         runPending();
       break;
     case FileFor::AddMedia:{
-      mediaFolderPath_ = fileDialog_.folder();
+      mediaFolder(mediaKind_) = fileDialog_.folder();
       std::string errors;
       for (const std::string& file : fileDialog_.paths()){
         std::string cp1252 = fromUtf8(file);
@@ -408,6 +409,11 @@ void Designer::fileChosen(){
           continue;
         }
         std::string error;
+        //the C# editor crops before adding; only PNG files, which it writes back as PNG
+        if (mediaKind_ == ResourceID::Image && prefs_.cropTransparent && toLower(file).ends_with(".png") && !cropTransparentImage(file, &error)){
+          errors += error + "\n";
+          continue;
+        }
         if (addMedia(project_, mediaKind_, cp1252, mediaFolder_, &error))
           changed();
         else
@@ -444,7 +450,7 @@ void Designer::fileChosen(){
       else{
         changed();
         images_.clear();
-        message_ = "Done.";
+        message_ = tr("Done.");
       }
       break;
     }
@@ -537,6 +543,10 @@ void Designer::startRunGame(){
       }
       fs::copy_file(engine, stamp, fs::copy_options::overwrite_existing, ec);
     }
+    //the game started from here listens for the remote control (Plugins)
+    fs::path ini = runtimeDir / "engine.ini";
+    if (!fs::exists(ini, ec))
+      std::ofstream(ini) << "debugPorts = true\n";
     options.progress("the project");
     std::string file = writeTestGame(task->project, projectFolderCp, fromUtf8(fromPath(dataDir)), options, task->warnings, &task->error);
     if (!file.empty()){
@@ -564,7 +574,7 @@ void Designer::taskPopup(){
         std::lock_guard<std::mutex> lock(task_->mutex);
         step = task_->step;
       }
-      ImGui::TextUnformatted(task_->run ? "Preparing the game..." : "Creating the game...");
+      ImGui::TextUnformatted(tr(task_->run ? "Preparing the game..." : "Creating the game..."));
       ImGui::TextDisabled("%s", step.c_str());
       if (task_->done)
         ImGui::CloseCurrentPopup();
@@ -588,33 +598,35 @@ void Designer::taskPopup(){
     else{
       //the C# StoryDesigner keeps the game's folder in the project
       project_.settings.directory = fromUtf8(task_->folder);
-      message_ = "The game was created under " + task_->program + "." + (warnings.empty() ? "" : "\nLeft out:" + warnings);
+      char text[1024];
+      snprintf(text, sizeof(text), tr("The game was created under %s."), task_->program.c_str());
+      message_ = text + (warnings.empty() ? std::string() : tr("\nLeft out:") + warnings);
       askStart_ = true;
     }
     task_.reset();
   }
-  const char* const done = "Information";
+  const char* const done = tr("Information");
   if (!message_.empty() && !ImGui::IsPopupOpen(done) && error_.empty())
     ImGui::OpenPopup(done);
   if (ImGui::BeginPopupModal(done, nullptr, ImGuiWindowFlags_AlwaysAutoResize)){
     ImGui::TextUnformatted(message_.c_str());
     const ImVec2 size(6*ImGui::GetFontSize(), 0);
     if (askStart_){
-      ImGui::TextUnformatted("Start it now?");
-      if (ImGui::Button("Yes", size)){
+      ImGui::TextUnformatted(tr("Start it now?"));
+      if (ImGui::Button(tr("Yes"), size)){
         startGame(gamePath_, {}, parentOf(gamePath_));
         message_.clear();
         askStart_ = false;
         ImGui::CloseCurrentPopup();
       }
       ImGui::SameLine();
-      if (ImGui::Button("No", size) || ImGui::IsKeyPressed(ImGuiKey_Escape)){
+      if (ImGui::Button(tr("No"), size) || ImGui::IsKeyPressed(ImGuiKey_Escape)){
         message_.clear();
         askStart_ = false;
         ImGui::CloseCurrentPopup();
       }
     }
-    else if (ImGui::Button("OK", size) || ImGui::IsKeyPressed(ImGuiKey_Escape)){
+    else if (ImGui::Button(tr("OK"), size) || ImGui::IsKeyPressed(ImGuiKey_Escape)){
       message_.clear();
       ImGui::CloseCurrentPopup();
     }
@@ -632,7 +644,8 @@ void Designer::releaseTextures(){
 
 //the previews' types are complete here
 Designer::Designer(){
-  newPools(project_);
+  loadPreferences();
+  newPoolsInLanguage();
 }
 
 Designer::~Designer(){
