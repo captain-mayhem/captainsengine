@@ -28,4 +28,4 @@ SET(Engine_io_HDRS
   ${PRE}/ZipWriter.h
 )
 
-INSTALL(FILES ${Engine_io_HDRS} DESTINATION Engine/include/${PRE})
+cge_install_sdk(FILES ${Engine_io_HDRS} DESTINATION Engine/include/${PRE})

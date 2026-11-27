@@ -7,4 +7,4 @@ ADD_LIBRARY(xml STATIC
 target_include_directories(xml PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 cge_extern_defaults(xml)
 
-INSTALL(TARGETS xml ARCHIVE DESTINATION Engine/lib)
+cge_install_sdk(TARGETS xml ARCHIVE DESTINATION Engine/lib)

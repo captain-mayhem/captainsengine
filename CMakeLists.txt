@@ -87,6 +87,16 @@ else()
 endif()
 option(CGE_BUILD_TESTS "build the engine's unit tests" ${CGE_BUILD_TESTS_DEFAULT})
 
+# The engine's SDK (its headers, static libraries, engine.ini and fonts in
+# Engine/) is installed only for the engine's own build. A project that includes
+# the engine installs just what its application needs (cge_install_runtime).
+option(CGE_INSTALL_SDK "install the engine's headers and libraries (INSTALL, PACKAGE)" ${CGE_IS_TOP_LEVEL})
+function(cge_install_sdk)
+  if (CGE_INSTALL_SDK)
+    install(${ARGN})
+  endif()
+endfunction()
+
 include(FindFBX)
 
 add_subdirectory(extern)

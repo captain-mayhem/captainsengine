@@ -11,4 +11,4 @@ SET(Engine_input_HDRS
 	${PRE}/touch.h
 )
 
-INSTALL(FILES ${Engine_input_HDRS} DESTINATION Engine/include/${PRE})
+cge_install_sdk(FILES ${Engine_input_HDRS} DESTINATION Engine/include/${PRE})

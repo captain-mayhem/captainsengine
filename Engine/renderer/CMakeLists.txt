@@ -44,7 +44,7 @@ SET(RENDERER_HDRS_CORE
 	${PRE}/uniformstream.h
 )
 
-INSTALL(FILES ${RENDERER_HDRS_CORE} DESTINATION Engine/include/${PRE} COMPONENT CGE)
+cge_install_sdk(FILES ${RENDERER_HDRS_CORE} DESTINATION Engine/include/${PRE} COMPONENT CGE)
 
 # The built-in shaders (Engine/shaders/) are compiled into the engine library
 # as string literals, regenerated when a shader file changes.

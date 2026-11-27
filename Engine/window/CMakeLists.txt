@@ -18,4 +18,4 @@ SET(Engine_window_HDRS
 	${PRE}/nativeEmscripten.h
 )
 
-INSTALL(FILES ${Engine_window_HDRS} DESTINATION Engine/include/${PRE})
+cge_install_sdk(FILES ${Engine_window_HDRS} DESTINATION Engine/include/${PRE})

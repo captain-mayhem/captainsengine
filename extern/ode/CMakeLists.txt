@@ -121,4 +121,4 @@ if (OS STREQUAL "linux")
 endif()
 cge_extern_defaults(ode)
 
-INSTALL(TARGETS ode ARCHIVE DESTINATION Engine/lib)
+cge_install_sdk(TARGETS ode ARCHIVE DESTINATION Engine/lib)

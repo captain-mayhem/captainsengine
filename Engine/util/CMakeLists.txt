@@ -8,4 +8,4 @@ SET(Engine_util_HDRS
 	${PRE}/activeobject.h
 )
 
-INSTALL(FILES ${Engine_util_HDRS} DESTINATION Engine/include/${PRE})
+cge_install_sdk(FILES ${Engine_util_HDRS} DESTINATION Engine/include/${PRE})

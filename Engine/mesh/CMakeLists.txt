@@ -14,4 +14,4 @@ SET(Engine_mesh_HDRS
 	${PRE}/SimpleMesh.h
 	${PRE}/triangle.h)
 
-INSTALL(FILES ${Engine_mesh_HDRS} DESTINATION Engine/include/${PRE})
+cge_install_sdk(FILES ${Engine_mesh_HDRS} DESTINATION Engine/include/${PRE})

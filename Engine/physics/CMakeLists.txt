@@ -25,4 +25,4 @@ SET(Engine_physics_HDRS
 	${PRE}/Simulator.h
 )
 
-INSTALL(FILES ${Engine_physics_HDRS} DESTINATION Engine/include/${PRE})
+cge_install_sdk(FILES ${Engine_physics_HDRS} DESTINATION Engine/include/${PRE})

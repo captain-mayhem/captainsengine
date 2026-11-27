@@ -10,4 +10,4 @@ SET(Engine_common_HDRS
 	${PRE}/RefCountedObject.h
 )
 
-INSTALL(FILES ${Engine_common_HDRS} DESTINATION Engine/include/${PRE})
+cge_install_sdk(FILES ${Engine_common_HDRS} DESTINATION Engine/include/${PRE})

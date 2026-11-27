@@ -12,4 +12,4 @@ SET(Engine_renderpass_HDRS
 	${PRE}/Technique.h
 )
 
-INSTALL(FILES ${Engine_renderpass_HDRS} DESTINATION Engine/include/${PRE})
+cge_install_sdk(FILES ${Engine_renderpass_HDRS} DESTINATION Engine/include/${PRE})

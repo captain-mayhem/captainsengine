@@ -22,4 +22,4 @@ SET(Engine_audio_internal_HDRS
 	${PRE}/audio_internal.h
 )
 
-INSTALL(FILES ${Engine_audio_HDRS} DESTINATION Engine/include/${PRE})
+cge_install_sdk(FILES ${Engine_audio_HDRS} DESTINATION Engine/include/${PRE})

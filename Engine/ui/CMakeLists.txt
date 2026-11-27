@@ -13,8 +13,8 @@ SET(Engine_ui_HDRS
 	${PRE}/imgui_impl_cge_render.h
 )
 
-INSTALL(FILES ${Engine_ui_HDRS} DESTINATION Engine/include/${PRE})
-INSTALL(FILES
+cge_install_sdk(FILES ${Engine_ui_HDRS} DESTINATION Engine/include/${PRE})
+cge_install_sdk(FILES
 	${CaptainsEngine_SOURCE_DIR}/extern/imgui/imgui.h
 	${CaptainsEngine_SOURCE_DIR}/extern/imgui/imconfig.h
 	DESTINATION Engine/include

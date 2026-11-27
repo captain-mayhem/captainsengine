@@ -17,4 +17,4 @@ if (WIN32)
 endif()
 cge_extern_defaults(gif)
 
-INSTALL(TARGETS gif ARCHIVE DESTINATION Engine/lib)
+cge_install_sdk(TARGETS gif ARCHIVE DESTINATION Engine/lib)

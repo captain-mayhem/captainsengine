@@ -17,4 +17,4 @@ SET(Engine_video_internal_HDRS
 	${PRE}/video_internal.h
 )
 
-INSTALL(FILES ${Engine_video_HDRS} DESTINATION Engine/include/${PRE})
+cge_install_sdk(FILES ${Engine_video_HDRS} DESTINATION Engine/include/${PRE})

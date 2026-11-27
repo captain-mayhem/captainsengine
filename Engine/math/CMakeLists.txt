@@ -25,4 +25,4 @@ SET(Engine_math_HDRS
 	${PRE}/ray.h 
 	${PRE}/vector.h)
 
-INSTALL(FILES ${Engine_math_HDRS} DESTINATION Engine/include/${PRE})
+cge_install_sdk(FILES ${Engine_math_HDRS} DESTINATION Engine/include/${PRE})

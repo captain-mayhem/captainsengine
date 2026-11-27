@@ -21,4 +21,4 @@ SET(Engine_platform_internal_HDRS
 	${PRE}/platform_internal.h
 )
 
-INSTALL(FILES ${Engine_platform_HDRS} DESTINATION Engine/include/${PRE})
+cge_install_sdk(FILES ${Engine_platform_HDRS} DESTINATION Engine/include/${PRE})

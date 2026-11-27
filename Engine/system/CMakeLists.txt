@@ -37,4 +37,4 @@ SET(Engine_system_HDRS
 	${PRE}/allocation.h
 )
 
-INSTALL(FILES ${Engine_system_HDRS} DESTINATION Engine/include/${PRE})
+cge_install_sdk(FILES ${Engine_system_HDRS} DESTINATION Engine/include/${PRE})
