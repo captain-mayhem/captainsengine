@@ -21,6 +21,14 @@ bool readProject(const std::string& filename, Project& project, std::string* err
 //! reads a project file from memory; filename names the project
 bool readProject(const void* data, size_t size, const std::string& filename, Project& project, std::string* error = nullptr);
 
+//! reads the resources of a character's or room's export (.adc's char.dat,
+//! .adr's room.dat: the .002 entry's list without its header, in the
+//! oldest version) into a project; createdObjects gets the objects made for
+//! placed objects the project hasn't got
+bool importObjects(const std::string& text, Project& project, std::vector<std::string>* createdObjects, std::string* error = nullptr);
+//! reads the scripts of a room's export (script.dat: the .003 entry without its header)
+bool importScripts(const std::string& text, Project& project, std::string* error = nullptr);
+
 //! the entries of a project file, by their extensions (".001", ...)
 /*! dat: written as a game's game.dat (PNG images named as JPEGs if the
     project converts them). A protected project without a password gets one. */

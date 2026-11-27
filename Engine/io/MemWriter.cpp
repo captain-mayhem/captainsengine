@@ -22,14 +22,15 @@ MemWriter::~MemWriter(){
 }
 
 unsigned int MemWriter::writeBytes(unsigned char* array, unsigned int length){
-  mStorage.resize(mStorage.size() + length);
-  memcpy(&mStorage[0], array, length);
+  size_t end = mStorage.size();
+  mStorage.resize(end + length);
+  if (length > 0)
+    memcpy(&mStorage[end], array, length);
   return length;
 }
 
 bool MemWriter::writeChar(char c){
-  mStorage.resize(mStorage.size() + sizeof(char));
-  memcpy(&mStorage[0], &c, sizeof(char));
+  mStorage.push_back((uint8)c);
   return true;
 }
 

@@ -699,6 +699,8 @@ public:
           newobj.name = objname;
           newobj.states.resize(kStatesMax);
           adv_.objects.add(objname, newobj);
+          if (createdObjects_)
+            createdObjects_->push_back(objname);
         }
         ObjectInstance inst;
         inst.object = objname;
@@ -753,7 +755,11 @@ public:
     int verMajor, verMinor;
     if (!readHeader(str, verMajor, verMinor))
       return false;
-    str = rdr.readLine();
+    return readScriptsLoop(rdr);
+  }
+
+  bool readScriptsLoop(LineReader& rdr){
+    std::string str = rdr.readLine();
     Script* last = nullptr;
     while (!rdr.endOfStream()){
       str = rdr.readLine();
@@ -888,6 +894,8 @@ public:
 
   int verMajor_ = 0;
   int verMinor_ = 0;
+  //! the objects a room's import created for its placed objects
+  std::vector<std::string>* createdObjects_ = nullptr;
 private:
   Project& adv_;
 };
@@ -1414,6 +1422,33 @@ private:
   Project& data_;
 };
 
+}
+
+bool importObjects(const std::string& text, Project& project, std::vector<std::string>* createdObjects, std::string* error){
+  Reader reader(project);
+  reader.createdObjects_ = createdObjects;
+  try{
+    LineReader rdr(text);
+    return reader.readObjectsLoop(rdr);
+  }
+  catch (const std::exception& e){
+    if (error)
+      *error = e.what();
+    return false;
+  }
+}
+
+bool importScripts(const std::string& text, Project& project, std::string* error){
+  Reader reader(project);
+  try{
+    LineReader rdr(text);
+    return reader.readScriptsLoop(rdr);
+  }
+  catch (const std::exception& e){
+    if (error)
+      *error = e.what();
+    return false;
+  }
 }
 
 bool readProject(const std::string& filename, Project& project, std::string* error){

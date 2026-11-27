@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include <image/image.h>
 
@@ -18,6 +19,14 @@ namespace sd{
     the .pna of the same name, as in the game. Null if it isn't found or can't
     be read. */
 std::unique_ptr<CGE::Image> loadProjectImage(const Project& project, const std::string& folder, const std::string& name);
+
+//! where a media file (image, sound, music, video) of the project is: the
+//! file the project names, or one of that name in folder or in its media pool
+//! folder's subfolder of folder; empty if none is there
+std::string findMediaFile(const Project& project, const std::string& folder, ResourceID kind, const std::string& name);
+//! the bytes of a media file, found as loadProjectImage finds an image
+//! (also in the game's .dat of its kind: gfx, sfx, music or movie); false if none
+bool readMediaFile(const Project& project, const std::string& folder, ResourceID kind, const std::string& name, std::vector<char>& data);
 
 //! the file name of a path with / or \ (a project's paths are Windows')
 std::string fileNameOf(const std::string& path);

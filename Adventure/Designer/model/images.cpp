@@ -47,12 +47,12 @@ CGE::Image* decode(std::vector<char>& data, const std::string& name){
   return CGE::ImageLoader::load(data.data(), (unsigned)data.size(), type);
 }
 
-//! the media pool folder that holds an image, empty if none
-std::string poolFolderOf(const std::vector<PoolNode>& nodes, const std::string& name, const std::string& parent){
+//! the media pool folder that holds a resource, empty if none
+std::string poolFolderOf(const std::vector<PoolNode>& nodes, ResourceID kind, const std::string& name, const std::string& parent){
   for (const PoolNode& node : nodes){
-    if (node.id == (int)ResourceID::Image && toLower(node.label) == toLower(name))
+    if (node.id == (int)kind && toLower(node.label) == toLower(name))
       return parent;
-    std::string found = poolFolderOf(node.children, name, node.label);
+    std::string found = poolFolderOf(node.children, kind, name, node.label);
     if (!found.empty())
       return found;
   }
@@ -60,7 +60,7 @@ std::string poolFolderOf(const std::vector<PoolNode>& nodes, const std::string& 
 }
 
 //! the bytes of a file of the project, by the ways loadProjectImage tries
-bool readImageFile(const std::string& file, const std::string& folder, const std::string& poolFolder, const std::string& password, std::vector<char>& data){
+bool readImageFile(const std::string& file, const std::string& folder, const std::string& poolFolder, const std::string& password, std::vector<char>& data, const char* dat = "gfx.dat"){
   if (readFile(toPath(file), data))
     return true;
   std::string name = fileNameOf(file);
@@ -71,7 +71,7 @@ bool readImageFile(const std::string& file, const std::string& folder, const std
   //an unpacked .adz has a folder for each of the media pool's folders
   if (!poolFolder.empty() && readFile(toPath(folder) / toPath(poolFolder) / toPath(name), data))
     return true;
-  fs::path gfx = toPath(folder) / "gfx.dat";
+  fs::path gfx = toPath(folder) / dat;
   std::error_code ec;
   if (!fs::is_regular_file(gfx, ec))
     return false;
@@ -91,11 +91,58 @@ std::string fileNameOf(const std::string& path){
   return pos == std::string::npos ? path : path.substr(pos+1);
 }
 
+std::string findMediaFile(const Project& project, const std::string& folder, ResourceID kind, const std::string& name){
+  const NamedList<std::string>* files = nullptr;
+  switch (kind){
+    case ResourceID::Image: files = &project.images; break;
+    case ResourceID::Sound: files = &project.sounds; break;
+    case ResourceID::Music: files = &project.music; break;
+    case ResourceID::Video: files = &project.videos; break;
+    default: return std::string();
+  }
+  const std::string* file = files->find(name);
+  if (file == nullptr || file->empty())
+    return std::string();
+  std::error_code ec;
+  if (fs::is_regular_file(toPath(*file), ec))
+    return *file;
+  std::string fname = fileNameOf(*file);
+  if (folder.empty() || fname.empty())
+    return std::string();
+  std::vector<fs::path> tries{toPath(folder) / toPath(fname)};
+  std::string poolFolder = poolFolderOf(project.mediaPool, kind, name, std::string());
+  if (!poolFolder.empty())
+    tries.push_back(toPath(folder) / toPath(poolFolder) / toPath(fname));
+  for (const fs::path& path : tries){
+    if (fs::is_regular_file(path, ec)){
+      std::u8string u8 = path.u8string();
+      return fromUtf8(std::string(u8.begin(), u8.end()));
+    }
+  }
+  return std::string();
+}
+
+bool readMediaFile(const Project& project, const std::string& folder, ResourceID kind, const std::string& name, std::vector<char>& data){
+  const char* dat = nullptr;
+  const NamedList<std::string>* files = nullptr;
+  switch (kind){
+    case ResourceID::Image: files = &project.images; dat = "gfx.dat"; break;
+    case ResourceID::Sound: files = &project.sounds; dat = "sfx.dat"; break;
+    case ResourceID::Music: files = &project.music; dat = "music.dat"; break;
+    case ResourceID::Video: files = &project.videos; dat = "movie.dat"; break;
+    default: return false;
+  }
+  const std::string* file = files->find(name);
+  if (file == nullptr || file->empty())
+    return false;
+  return readImageFile(*file, folder, poolFolderOf(project.mediaPool, kind, name, std::string()), project.zipPassword, data, dat);
+}
+
 std::unique_ptr<CGE::Image> loadProjectImage(const Project& project, const std::string& folder, const std::string& name){
   const std::string* file = project.images.find(name);
   if (file == nullptr || file->empty())
     return nullptr;
-  std::string poolFolder = poolFolderOf(project.mediaPool, name, std::string());
+  std::string poolFolder = poolFolderOf(project.mediaPool, ResourceID::Image, name, std::string());
   std::vector<char> data;
   if (!readImageFile(*file, folder, poolFolder, project.zipPassword, data))
     return nullptr;

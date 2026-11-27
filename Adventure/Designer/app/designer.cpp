@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <filesystem>
+#include <functional>
 
 #include <imgui_internal.h>
 
@@ -95,7 +96,19 @@ std::string Designer::View::title() const{
   return toUtf8(name) + " (" + kindText + ")###" + kindText + "/" + toUtf8(toLower(name));
 }
 
-Designer::Designer(){
+void Designer::newProject(){
+  project_ = Project();
+  newPools(project_);
+  path_.clear();
+  views_.clear();
+  scriptEditors_.clear();
+  frameEditors_.clear();
+  roomEditors_.clear();
+  images_.clear();
+  stopMedia();
+  language_.clear();
+  gamePath_.clear();
+  modified_ = false;
 }
 
 bool Designer::openProject(const std::string& path){
@@ -107,6 +120,11 @@ bool Designer::openProject(const std::string& path){
   }
   project_ = std::move(project);
   path_ = path;
+  gamePath_.clear();
+  stopMedia();
+  //media moved since the project was saved are looked for next to it (the C# loadFile)
+  if (std::filesystem::path(std::u8string(path.begin(), path.end())).extension() == ".adv" && !resolveMedia(project_, fromUtf8(parentFolder(path))))
+    error_ = "Not all media files were found. Project cannot work correctly.";
   views_.clear();
   scriptEditors_.clear();
   frameEditors_.clear();
@@ -140,16 +158,15 @@ void Designer::runPending(){
   pending_ = Pending::None;
   switch (action){
     case Pending::New:
-      project_ = Project();
-      path_.clear();
-      views_.clear();
-      scriptEditors_.clear();
-      language_.clear();
-      modified_ = false;
+      newProject();
       break;
     case Pending::Open:
-      saving_ = false;
+      fileFor_ = FileFor::OpenProject;
       fileDialog_.open(FileDialog::Mode::Open, "Open a project", parentFolder(path_), {".adv", ".dat"});
+      break;
+    case Pending::ImportAdz:
+      fileFor_ = FileFor::ImportAdz;
+      fileDialog_.open(FileDialog::Mode::Open, "Import an exported project", parentFolder(path_), {".adz"});
       break;
     case Pending::Quit:
       quit_ = true;
@@ -171,7 +188,7 @@ void Designer::unsavedPopup(){
   if (ImGui::Button("Save", size)){
     ImGui::CloseCurrentPopup();
     if (path_.empty()){
-      saving_ = true;
+      fileFor_ = FileFor::SaveProject;
       fileDialog_.open(FileDialog::Mode::Save, "Save the project as", parentFolder(path_), {".adv"});
     }
     else if (save(path_))
@@ -219,19 +236,17 @@ void Designer::gui(){
     if (!views_[i].open)
       views_.erase(views_.begin()+i);
   }
+  if (showFonts_)
+    fontsWindow();
   const bool dialogWasOpen = fileDialog_.isOpen();
-  if (fileDialog_.draw()){
-    if (saving_){
-      if (save(fileDialog_.path()) && pending_ != Pending::None)
-        runPending();
-    }
-    else
-      openProject(fileDialog_.path());
-  }
-  else if (dialogWasOpen && !fileDialog_.isOpen() && saving_)
+  if (fileDialog_.draw())
+    fileChosen();
+  else if (dialogWasOpen && !fileDialog_.isOpen() && fileFor_ == FileFor::SaveProject)
     pending_ = Pending::None; //the save was cancelled, and what waited for it
   unsavedPopup();
   namePopup();
+  deletePopup();
+  taskPopup();
   errorPopup();
 }
 
@@ -246,9 +261,44 @@ void Designer::menu(){
     if (ImGui::MenuItem("Save", nullptr, false, !path_.empty()))
       save(path_);
     if (ImGui::MenuItem("Save as...")){
-      saving_ = true;
+      fileFor_ = FileFor::SaveProject;
       fileDialog_.open(FileDialog::Mode::Save, "Save the project as", parentFolder(path_), {".adv"});
     }
+    ImGui::Separator();
+    //the imported project replaces this one
+    if (ImGui::MenuItem("Import project (.adz)..."))
+      whenSaved(Pending::ImportAdz);
+    if (ImGui::MenuItem("Export project (.adz)...")){
+      fileFor_ = FileFor::ExportAdz;
+      fileDialog_.open(FileDialog::Mode::Save, "Export the project", parentFolder(path_), {".adz"});
+    }
+    if (ImGui::MenuItem("Import character (.adc)...")){
+      fileFor_ = FileFor::ImportCharacter;
+      fileDialog_.open(FileDialog::Mode::Open, "Import a character", parentFolder(path_), {".adc"});
+    }
+    if (ImGui::MenuItem("Import room (.adr)...")){
+      fileFor_ = FileFor::ImportRoom;
+      fileDialog_.open(FileDialog::Mode::Open, "Import a room", parentFolder(path_), {".adr"});
+    }
+    ImGui::Separator();
+    if (ImGui::MenuItem("Create game...", nullptr, false, !task_)){
+      fileFor_ = FileFor::CreateGame;
+      //the game made before is offered again (the C# "update the previous game")
+      std::string folder = gamePath_.empty() ? toUtf8(project_.settings.directory) : parentFolder(gamePath_);
+      //a folder of another computer gives the project's
+      std::error_code ec;
+      if (folder.empty() || !std::filesystem::is_directory(std::filesystem::path(std::u8string(folder.begin(), folder.end())), ec))
+        folder = parentFolder(path_);
+      fileDialog_.open(FileDialog::Mode::Save, "Create the game as", folder, {});
+      if (gamePath_.empty())
+        fileDialog_.setName(toUtf8(project_.settings.projectName));
+      else{
+        std::u8string file = std::filesystem::path(std::u8string(gamePath_.begin(), gamePath_.end())).filename().u8string();
+        fileDialog_.setName(std::string(file.begin(), file.end()));
+      }
+    }
+    if (ImGui::MenuItem("Run game", nullptr, false, !task_))
+      startRunGame();
     ImGui::Separator();
     if (ImGui::MenuItem("Quit"))
       whenSaved(Pending::Quit);
@@ -258,6 +308,7 @@ void Designer::menu(){
     ImGui::MenuItem("Settings", nullptr, &showSettings_);
     ImGui::MenuItem("Commands and bools", nullptr, &showCommands_);
     ImGui::MenuItem(kMouseIcons, nullptr, &showMouseIcons_);
+    ImGui::MenuItem(kFonts, nullptr, &showFonts_);
     if (ImGui::MenuItem("Languages", nullptr, &showLanguages_) && showLanguages_){
       //the C# StoryDesigner gathers the texts when its language tools open
       updateLanguageList(project_);
@@ -293,6 +344,7 @@ void Designer::layout(ImGuiID dockspace){
   ImGui::DockBuilderDockWindow(kCommands, right);
   ImGui::DockBuilderDockWindow(kLanguages, right);
   ImGui::DockBuilderDockWindow(kMouseIcons, right);
+  ImGui::DockBuilderDockWindow(kFonts, right);
   ImGui::DockBuilderFinish(dockspace);
   mainDock_ = right;
 }
@@ -305,12 +357,14 @@ void Designer::pool(const char* title, std::vector<PoolNode>& nodes, bool* open)
     poolNodes(nodes, &nodes == &project_.gamePool, path);
   }
   ImGui::End();
+  std::vector<std::function<void()>> actions;
+  actions.swap(poolActions_);
+  for (auto& action : actions)
+    action();
 }
 
 void Designer::poolNodes(std::vector<PoolNode>& nodes, bool game, std::vector<size_t>& path){
-  //the actions change the pool: they wait until it is drawn
-  std::vector<size_t> newScriptIn;
-  bool newScript = false;
+  //what the menus and drops do to the pool waits until it is drawn (poolActions_)
   for (size_t i = 0; i < nodes.size(); ++i){
     PoolNode& node = nodes[i];
     std::string label = toUtf8(node.label);
@@ -318,13 +372,8 @@ void Designer::poolNodes(std::vector<PoolNode>& nodes, bool game, std::vector<si
     path.push_back(i);
     if (node.id == (int)ResourceID::Folder){
       bool open = ImGui::TreeNodeEx("##folder", ImGuiTreeNodeFlags_SpanAvailWidth, "%s/", label.c_str());
-      if (game && ImGui::BeginPopupContextItem()){
-        if (ImGui::MenuItem("New script")){
-          newScript = true;
-          newScriptIn = path;
-        }
-        ImGui::EndPopup();
-      }
+      poolDragDrop(node, game, path);
+      poolMenu(node, game, path);
       if (open){
         poolNodes(node.children, game, path);
         ImGui::TreePop();
@@ -336,171 +385,325 @@ void Designer::poolNodes(std::vector<PoolNode>& nodes, bool game, std::vector<si
         openView((ResourceID)node.id, node.label);
       if (ImGui::IsItemHovered())
         ImGui::SetTooltip("%s", kindName((ResourceID)node.id));
-      //images are dragged into the frames of items, objects, characters and the cursor
-      //objects and characters are dragged into rooms
-      const char* payload = nullptr;
-      if (node.id == (int)ResourceID::Image)
-        payload = kImagePayload;
-      else if (node.id == (int)ResourceID::Object)
-        payload = kObjectPayload;
-      else if (node.id == (int)ResourceID::Character)
-        payload = kCharacterPayload;
-      if (payload && ImGui::BeginDragDropSource()){
-        ImGui::SetDragDropPayload(payload, node.label.data(), node.label.size());
-        ImGui::TextUnformatted(label.c_str());
-        ImGui::EndDragDropSource();
-      }
-      if (node.id == (int)ResourceID::Script && ImGui::BeginPopupContextItem()){
-        if (ImGui::MenuItem("Open"))
-          openView(ResourceID::Script, node.label);
-        if (ImGui::MenuItem("Rename...")){
-          nameFor_ = NameFor::RenameScript;
-          nameTarget_ = node.label;
-          snprintf(nameBuf_, sizeof(nameBuf_), "%s", label.c_str());
-        }
-        if (ImGui::MenuItem("Delete")){
-          deleteKind_ = ResourceID::Script;
-          deleteName_ = node.label;
-        }
-        ImGui::EndPopup();
-      }
+      poolDragDrop(node, game, path);
+      poolMenu(node, game, path);
     }
     path.pop_back();
     ImGui::PopID();
   }
-  if (newScript)
-    this->newScript(newScriptIn);
-}
-
-PoolNode* Designer::poolNode(std::vector<PoolNode>& nodes, const std::vector<size_t>& path){
-  std::vector<PoolNode>* level = &nodes;
-  PoolNode* node = nullptr;
-  for (size_t idx : path){
-    if (idx >= level->size())
-      return nullptr;
-    node = &(*level)[idx];
-    level = &node->children;
-  }
-  return node;
 }
 
 namespace{
 
-//! the pool's nodes sorted by their labels, as the C# tree view sorts them
-void sortPool(std::vector<PoolNode>& nodes){
-  std::stable_sort(nodes.begin(), nodes.end(), [](const PoolNode& a, const PoolNode& b){
-    return toLower(a.label) < toLower(b.label);
-  });
+//! a pool path as a drag and drop payload: the pool, then the indices
+std::string encodePath(bool game, const PoolPath& path){
+  std::string out = game ? "g" : "m";
+  for (size_t idx : path)
+    out += "/" + std::to_string(idx);
+  return out;
 }
 
-//! removes a resource's node from the pool; true if it was there
-bool removeFromPool(std::vector<PoolNode>& nodes, ResourceID kind, const std::string& name){
-  for (size_t i = 0; i < nodes.size(); ++i){
-    if (nodes[i].id == (int)kind && toLower(nodes[i].label) == toLower(name)){
-      nodes.erase(nodes.begin()+i);
-      return true;
+bool decodePath(const std::string& text, bool& game, PoolPath& path){
+  if (text.empty() || (text[0] != 'g' && text[0] != 'm'))
+    return false;
+  game = text[0] == 'g';
+  path.clear();
+  size_t pos = 1;
+  while (pos < text.size() && text[pos] == '/'){
+    size_t end = text.find('/', pos+1);
+    path.push_back((size_t)std::stoul(text.substr(pos+1, end == std::string::npos ? std::string::npos : end-pos-1)));
+    pos = end == std::string::npos ? text.size() : end;
+  }
+  return true;
+}
+
+const char* const kPoolPayload = "SD_POOLNODE";
+
+const char* newName(ResourceID kind){
+  switch (kind){
+    case ResourceID::Character: return "New character";
+    case ResourceID::Script: return "New script";
+    case ResourceID::Item: return "New item";
+    case ResourceID::Object: return "New object";
+    case ResourceID::Room: return "New room";
+    case ResourceID::Image: return "Add images...";
+    case ResourceID::Music: return "Add music...";
+    case ResourceID::Sound: return "Add sounds...";
+    case ResourceID::Video: return "Add videos...";
+    case ResourceID::Folder: break;
+  }
+  return "New";
+}
+
+}
+
+void Designer::poolMenu(PoolNode& node, bool game, const PoolPath& path){
+  if (!ImGui::BeginPopupContextItem())
+    return;
+  std::vector<PoolNode>& pool = game ? project_.gamePool : project_.mediaPool;
+  ResourceID kind = kindAt(pool, game, path);
+  bool folder = node.id == (int)ResourceID::Folder;
+  if (folder){
+    if (kind != ResourceID::Folder && ImGui::MenuItem(newName(kind))){
+      if (game)
+        poolActions_.push_back([this, kind, path]{newResource(kind, path);});
+      else
+        addMediaFiles(kind, path);
     }
-    if (removeFromPool(nodes[i].children, kind, name))
-      return true;
+    if (ImGui::MenuItem("New folder")){
+      poolActions_.push_back([this, game, path]{
+        std::vector<PoolNode>& pool = game ? project_.gamePool : project_.mediaPool;
+        PoolPath created = newFolder(project_, game, path);
+        if (created.empty())
+          return;
+        changed();
+        //named right away, as the C# tree view edits its label
+        nameFor_ = NameFor::RenameFolder;
+        nameGame_ = game;
+        namePath_ = created;
+        snprintf(nameBuf_, sizeof(nameBuf_), "%s", toUtf8(poolNode(pool, created)->label).c_str());
+      });
+    }
+    //the top folders stay as they are
+    if (path.size() > 1){
+      ImGui::Separator();
+      if (ImGui::MenuItem("Rename...")){
+        nameFor_ = NameFor::RenameFolder;
+        nameGame_ = game;
+        namePath_ = path;
+        snprintf(nameBuf_, sizeof(nameBuf_), "%s", toUtf8(node.label).c_str());
+      }
+      if (ImGui::MenuItem("Delete"))
+        askDelete(game, path);
+    }
   }
-  return false;
-}
-
-//! the list of nodes that holds a resource
-std::vector<PoolNode>* poolListOf(std::vector<PoolNode>& nodes, ResourceID kind, const std::string& name){
-  for (PoolNode& node : nodes){
-    if (node.id == (int)kind && toLower(node.label) == toLower(name))
-      return &nodes;
-    if (std::vector<PoolNode>* found = poolListOf(node.children, kind, name))
-      return found;
+  else{
+    ResourceID id = (ResourceID)node.id;
+    if (ImGui::MenuItem("Open"))
+      openView(id, node.label);
+    //the media keep their files' names
+    if (game){
+      if (ImGui::MenuItem("Rename...")){
+        nameFor_ = NameFor::Rename;
+        nameKind_ = id;
+        nameTarget_ = node.label;
+        snprintf(nameBuf_, sizeof(nameBuf_), "%s", toUtf8(node.label).c_str());
+      }
+      if (ImGui::MenuItem("Duplicate")){
+        std::string label = node.label;
+        poolActions_.push_back([this, id, label]{duplicateResource(id, label);});
+      }
+    }
+    if (ImGui::MenuItem("Delete"))
+      askDelete(game, path);
   }
-  return nullptr;
+  ImGui::EndPopup();
 }
 
-PoolNode* findInPool(std::vector<PoolNode>& nodes, ResourceID kind, const std::string& name){
-  for (PoolNode& node : nodes){
-    if (node.id == (int)kind && toLower(node.label) == toLower(name))
-      return &node;
-    if (PoolNode* found = findInPool(node.children, kind, name))
-      return found;
+void Designer::poolDragDrop(PoolNode& node, bool game, const PoolPath& path){
+  //images, objects and characters are dragged into frames and rooms by
+  //name, the rest by their place in the pool
+  const char* payload = nullptr;
+  if (node.id == (int)ResourceID::Image)
+    payload = kImagePayload;
+  else if (node.id == (int)ResourceID::Object)
+    payload = kObjectPayload;
+  else if (node.id == (int)ResourceID::Character)
+    payload = kCharacterPayload;
+  if (path.size() > 1 && ImGui::BeginDragDropSource()){
+    if (payload)
+      ImGui::SetDragDropPayload(payload, node.label.data(), node.label.size());
+    else{
+      std::string encoded = encodePath(game, path);
+      ImGui::SetDragDropPayload(kPoolPayload, encoded.data(), encoded.size());
+    }
+    ImGui::TextUnformatted(toUtf8(node.label).c_str());
+    ImGui::EndDragDropSource();
   }
-  return nullptr;
-}
-
-}
-
-void Designer::newScript(const std::vector<size_t>& folder){
-  //into the scripts' folder (the pool's second), as in the C# StoryDesigner
-  PoolNode* parent = nullptr;
-  if (!folder.empty() && folder[0] == 1)
-    parent = poolNode(project_.gamePool, folder);
-  else if (project_.gamePool.size() > 1)
-    parent = &project_.gamePool[1];
-  if (parent == nullptr || parent->id != (int)ResourceID::Folder)
+  if (node.id != (int)ResourceID::Folder || !ImGui::BeginDragDropTarget())
     return;
-  NamedList<Script>& scripts = project_.scripts[Script::Cutscene];
-  int count = (int)scripts.size()+1;
-  std::string name = "Script" + std::to_string(count);
-  while (scripts.find(name) != nullptr)
-    name = "Script" + std::to_string(++count);
-  Script scr;
-  scr.type = Script::Cutscene;
-  scr.name = name;
-  scr.text = std::string();
-  scripts.add(name, scr);
-  PoolNode node;
-  node.id = (int)ResourceID::Script;
-  node.label = name;
-  parent->children.push_back(node);
-  sortPool(parent->children);
+  std::vector<PoolNode>& pool = game ? project_.gamePool : project_.mediaPool;
+  ResourceID kind = kindAt(pool, game, path);
+  bool fromGame = game;
+  PoolPath from;
+  if (const ImGuiPayload* p = ImGui::AcceptDragDropPayload(kPoolPayload)){
+    if (!decodePath(std::string((const char*)p->Data, p->DataSize), fromGame, from))
+      from.clear();
+  }
+  else{
+    struct Named{
+      const char* payload;
+      ResourceID kind;
+      bool game;
+    };
+    for (const Named& n : {Named{kImagePayload, ResourceID::Image, false}, Named{kObjectPayload, ResourceID::Object, true}, Named{kCharacterPayload, ResourceID::Character, true}}){
+      if (n.game != game || n.kind != kind)
+        continue;
+      if (const ImGuiPayload* p = ImGui::AcceptDragDropPayload(n.payload)){
+        from = pathInPool(pool, n.kind, std::string((const char*)p->Data, p->DataSize));
+        fromGame = n.game;
+      }
+    }
+  }
+  if (!from.empty() && fromGame == game){
+    poolActions_.push_back([this, game, from, path]{
+      if (movePoolNode(project_, game, from, path))
+        changed();
+    });
+  }
+  ImGui::EndDragDropTarget();
+}
+
+void Designer::newResource(ResourceID kind, const PoolPath& folder){
+  std::string name = sd::newResource(project_, kind, folder);
+  if (name.empty())
+    return;
   changed();
-  openView(ResourceID::Script, name);
+  openView(kind, name);
+  //named right away, as the C# StoryDesigner edits the new node's label
+  nameFor_ = NameFor::Rename;
+  nameKind_ = kind;
+  nameTarget_ = name;
+  snprintf(nameBuf_, sizeof(nameBuf_), "%s", toUtf8(name).c_str());
 }
 
-void Designer::deleteResource(ResourceID kind, const std::string& name){
-  if (kind != ResourceID::Script)
+void Designer::duplicateResource(ResourceID kind, const std::string& name){
+  std::string copy = sd::duplicateResource(project_, kind, name);
+  if (copy.empty())
     return;
-  project_.scripts[Script::Cutscene].remove(name);
-  removeFromPool(project_.gamePool, kind, name);
-  scriptEditors_.erase(std::to_string(Script::Cutscene) + "/" + toLower(name));
+  changed();
+  openView(kind, copy);
+  nameFor_ = NameFor::Rename;
+  nameKind_ = kind;
+  nameTarget_ = copy;
+  snprintf(nameBuf_, sizeof(nameBuf_), "%s", toUtf8(copy).c_str());
+}
+
+void Designer::askDelete(bool game, const PoolPath& path){
+  std::vector<PoolNode>& pool = game ? project_.gamePool : project_.mediaPool;
+  PoolNode* node = poolNode(pool, path);
+  if (node == nullptr || path.size() < 2)
+    return;
+  if (project_.settings.silentDelete){
+    poolActions_.push_back([this, game, path]{deleteNode(game, path);});
+    return;
+  }
+  deleteAsked_ = true;
+  deleteGame_ = game;
+  deletePath_ = path;
+  if (node->id == (int)ResourceID::Folder)
+    deleteText_ = "Delete subdirectory " + toUtf8(node->label) + " and all its entries?";
+  else
+    deleteText_ = "Delete " + toUtf8(node->label) + "?";
+}
+
+void Designer::deleteNode(bool game, const PoolPath& path){
+  deletePoolNode(project_, game, path);
+  pruneViews();
+  changed();
+}
+
+void Designer::deletePopup(){
+  if (deleteAsked_ && !ImGui::IsPopupOpen("Delete"))
+    ImGui::OpenPopup("Delete");
+  if (!ImGui::BeginPopupModal("Delete", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+    return;
+  ImGui::TextUnformatted(deleteText_.c_str());
+  const ImVec2 size(6*ImGui::GetFontSize(), 0);
+  if (ImGui::Button("Delete", size)){
+    deleteNode(deleteGame_, deletePath_);
+    deleteAsked_ = false;
+    ImGui::CloseCurrentPopup();
+  }
+  ImGui::SameLine();
+  if (ImGui::Button("Cancel", size) || ImGui::IsKeyPressed(ImGuiKey_Escape)){
+    deleteAsked_ = false;
+    ImGui::CloseCurrentPopup();
+  }
+  ImGui::EndPopup();
+}
+
+bool Designer::exists(ResourceID kind, const std::string& name, Script::Type scriptType) const{
+  switch (kind){
+    case ResourceID::Room: return project_.rooms.find(name) != nullptr;
+    case ResourceID::Object: return project_.objects.find(name) != nullptr;
+    case ResourceID::Item: return project_.items.find(name) != nullptr;
+    case ResourceID::Character: return project_.characters.find(name) != nullptr;
+    case ResourceID::Script: return project_.scripts[scriptType].find(name) != nullptr;
+    case ResourceID::Folder: return false;
+    default:{
+      const NamedList<std::string>* files = mediaFiles(project_, kind);
+      return files && files->find(name) != nullptr;
+    }
+  }
+}
+
+void Designer::pruneViews(){
   for (View& v : views_){
-    if (v.kind == kind && toLower(v.name) == toLower(name))
+    if (!exists(v.kind, v.name, v.scriptType))
       v.open = false;
   }
-  changed();
+  //the editors of what is gone; the others keep their state
+  for (auto it = roomEditors_.begin(); it != roomEditors_.end();){
+    if (!project_.rooms.find(it->first))
+      it = roomEditors_.erase(it);
+    else
+      ++it;
+  }
+  for (auto it = scriptEditors_.begin(); it != scriptEditors_.end();){
+    size_t slash = it->first.find('/');
+    int type = std::atoi(it->first.substr(0, slash).c_str());
+    if (type < 0 || type >= Script::NumTypes || !project_.scripts[type].find(it->first.substr(slash+1)))
+      it = scriptEditors_.erase(it);
+    else
+      ++it;
+  }
 }
 
-bool Designer::renameScript(const std::string& from, const std::string& to){
-  NamedList<Script>& scripts = project_.scripts[Script::Cutscene];
-  if (to.empty()){
-    error_ = "A script needs a name.";
-    return false;
-  }
-  Script* scr = scripts.find(from);
-  if (scr == nullptr)
-    return false;
-  if (toLower(from) != toLower(to) && scripts.find(to) != nullptr){
-    error_ = "There is a script called " + toUtf8(to) + " already.";
+bool Designer::rename(ResourceID kind, const std::string& from, const std::string& to){
+  std::string error;
+  if (!renameResource(project_, kind, from, to, &error)){
+    error_ = error;
     return false;
   }
   if (from == to)
     return true;
-  //as the C# StoryDesigner: taken out and added again with the new name
-  Script copy = *scr;
-  copy.name = to;
-  scripts.remove(from);
-  scripts.add(to, copy);
-  if (std::vector<PoolNode>* list = poolListOf(project_.gamePool, ResourceID::Script, from)){
-    findInPool(*list, ResourceID::Script, from)->label = to;
-    sortPool(*list);
-  }
-  scriptEditors_.erase(std::to_string(Script::Cutscene) + "/" + toLower(from));
   for (View& v : views_){
-    if (v.kind == ResourceID::Script && toLower(v.name) == toLower(from))
+    if (v.kind == kind && toLower(v.name) == toLower(from))
       v.name = to;
   }
+  //the editors keyed by the old name start again under the new one
+  frameEditors_.clear();
+  roomEditors_.erase(toLower(from));
+  scriptEditors_.clear();
+  pruneViews();
   changed();
   return true;
+}
+
+void Designer::addMediaFiles(ResourceID kind, const PoolPath& folder){
+  static const std::vector<std::string> images{".jpg", ".jpeg", ".png", ".bmp", ".tga", ".gif"};
+  static const std::vector<std::string> sounds{".wav", ".ogg", ".mp3", ".mp2", ".mp1"};
+  static const std::vector<std::string> music{".wav", ".ogg", ".mp3", ".mp2", ".mp1", ".it", ".xm", ".mod", ".s3m", ".mo3", ".umx"};
+  static const std::vector<std::string> videos{".avi", ".swf", ".mpeg", ".mpg", ".wmv", ".ogv"};
+  const std::vector<std::string>* exts = &images;
+  const char* title = "Add images";
+  if (kind == ResourceID::Sound){
+    exts = &sounds;
+    title = "Add sound effects";
+  }
+  else if (kind == ResourceID::Music){
+    exts = &music;
+    title = "Add music";
+  }
+  else if (kind == ResourceID::Video){
+    exts = &videos;
+    title = "Add videos";
+  }
+  fileFor_ = FileFor::AddMedia;
+  mediaKind_ = kind;
+  mediaFolder_ = folder;
+  fileDialog_.open(FileDialog::Mode::Open, title, mediaFolderPath_.empty() ? parentFolder(path_) : mediaFolderPath_, *exts, true);
 }
 
 void Designer::namePopup(){
@@ -509,27 +712,14 @@ void Designer::namePopup(){
     ImGui::OpenPopup(title);
     ImGui::SetNextWindowFocus();
   }
-  if (!ImGui::BeginPopupModal(title, nullptr, ImGuiWindowFlags_AlwaysAutoResize)){
-    if (!deleteName_.empty() && !ImGui::IsPopupOpen("Delete"))
-      ImGui::OpenPopup("Delete");
-    if (ImGui::BeginPopupModal("Delete", nullptr, ImGuiWindowFlags_AlwaysAutoResize)){
-      ImGui::Text("Delete %s?", toUtf8(deleteName_).c_str());
-      const ImVec2 size(6*ImGui::GetFontSize(), 0);
-      if (ImGui::Button("Delete", size)){
-        deleteResource(deleteKind_, deleteName_);
-        deleteName_.clear();
-        ImGui::CloseCurrentPopup();
-      }
-      ImGui::SameLine();
-      if (ImGui::Button("Cancel", size) || ImGui::IsKeyPressed(ImGuiKey_Escape)){
-        deleteName_.clear();
-        ImGui::CloseCurrentPopup();
-      }
-      ImGui::EndPopup();
-    }
+  if (!ImGui::BeginPopupModal(title, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
     return;
-  }
-  ImGui::TextUnformatted(nameFor_ == NameFor::Language ? "The new language's name:" : "The script's new name:");
+  if (nameFor_ == NameFor::Language)
+    ImGui::TextUnformatted("The new language's name:");
+  else if (nameFor_ == NameFor::RenameFolder)
+    ImGui::TextUnformatted("The folder's name:");
+  else
+    ImGui::Text("The %s's name:", kindName(nameKind_));
   if (ImGui::IsWindowAppearing())
     ImGui::SetKeyboardFocusHere();
   bool ok = ImGui::InputText("##name", nameBuf_, sizeof(nameBuf_), ImGuiInputTextFlags_EnterReturnsTrue);
@@ -540,8 +730,19 @@ void Designer::namePopup(){
   if (ok){
     std::string name = trim(fromUtf8(nameBuf_));
     bool done = false;
-    if (nameFor_ == NameFor::RenameScript)
-      done = renameScript(nameTarget_, name);
+    if (nameFor_ == NameFor::Rename)
+      done = rename(nameKind_, nameTarget_, name);
+    else if (nameFor_ == NameFor::RenameFolder){
+      PoolNode* node = poolNode(nameGame_ ? project_.gamePool : project_.mediaPool, namePath_);
+      if (node && node->label == name)
+        done = true;
+      else if (renameFolder(project_, nameGame_, namePath_, name)){
+        changed();
+        done = true;
+      }
+      else
+        error_ = name.empty() ? "A folder needs a name." : "There is a folder called " + toUtf8(name) + " already.";
+    }
     else if (nameFor_ == NameFor::Language){
       if (name.empty())
         error_ = "A language needs a name.";
@@ -641,6 +842,8 @@ void Designer::view(View& v){
         }
         if (v.kind == ResourceID::Image && file)
           showImage(v.name);
+        else if (file)
+          showMedia(v.kind, v.name);
         break;
       }
     }

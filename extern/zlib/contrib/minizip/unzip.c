@@ -68,9 +68,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifndef NOUNCRYPT
-        #define NOUNCRYPT
-#endif
+/* CGE: decryption is on, for the Adventure's password protected games */
 
 #include "zlib.h"
 #include "unzip.h"

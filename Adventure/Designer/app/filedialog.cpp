@@ -25,8 +25,11 @@ std::string fromPath(const fs::path& path){
 
 }
 
-void FileDialog::open(Mode mode, const std::string& title, const std::string& folder, const std::vector<std::string>& extensions){
+void FileDialog::open(Mode mode, const std::string& title, const std::string& folder, const std::vector<std::string>& extensions, bool multiple){
   mode_ = mode;
+  multiple_ = multiple && mode == Mode::Open;
+  chosen_.clear();
+  paths_.clear();
   title_ = title;
   std::error_code ec;
   folder_ = folder.empty() ? fromPath(fs::current_path(ec)) : folder;
@@ -36,6 +39,10 @@ void FileDialog::open(Mode mode, const std::string& title, const std::string& fo
   open_ = true;
   justOpened_ = true;
   list();
+}
+
+void FileDialog::setName(const std::string& name){
+  snprintf(name_, sizeof(name_), "%s", name.c_str());
 }
 
 bool FileDialog::matches(const std::string& name) const{
@@ -95,15 +102,31 @@ bool FileDialog::draw(){
     bool accept = false;
     if (ImGui::BeginListBox("##files", listSize)){
       for (const std::string& entry : files_){
-        if (ImGui::Selectable(entry.c_str(), entry == name_, ImGuiSelectableFlags_AllowDoubleClick)){
-          snprintf(name_, sizeof(name_), "%s", entry.c_str());
-          accept = ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left);
+        bool selected = entry == name_ || std::find(chosen_.begin(), chosen_.end(), entry) != chosen_.end();
+        if (ImGui::Selectable(entry.c_str(), selected, ImGuiSelectableFlags_AllowDoubleClick)){
+          if (multiple_ && ImGui::GetIO().KeyCtrl){
+            //Ctrl adds files to the chosen ones (the one chosen before too), or takes them off
+            if (chosen_.empty() && name_[0] != '\0' && entry != name_)
+              chosen_.push_back(name_);
+            auto it = std::find(chosen_.begin(), chosen_.end(), entry);
+            if (it != chosen_.end())
+              chosen_.erase(it);
+            else
+              chosen_.push_back(entry);
+            snprintf(name_, sizeof(name_), "%s", chosen_.empty() ? "" : chosen_.back().c_str());
+          }
+          else{
+            chosen_.clear();
+            snprintf(name_, sizeof(name_), "%s", entry.c_str());
+            accept = ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left);
+          }
         }
       }
       ImGui::EndListBox();
     }
     //after the lists, which it changes
     if (!dir.empty()){
+      chosen_.clear();
       fs::path folder = toPath(folder_);
       folder_ = fromPath(dir == ".." ? folder.parent_path() : folder / toPath(dir));
       list();
@@ -124,6 +147,13 @@ bool FileDialog::draw(){
       if (mode_ == Mode::Save && !extensions_.empty() && !matches(name))
         name += extensions_[0];
       path_ = fromPath(toPath(folder_) / toPath(name));
+      paths_.clear();
+      if (multiple_ && !chosen_.empty()){
+        for (const std::string& file : chosen_)
+          paths_.push_back(fromPath(toPath(folder_) / toPath(file)));
+      }
+      else
+        paths_.push_back(path_);
       chosen = true;
       keepOpen = false;
     }

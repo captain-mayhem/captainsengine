@@ -48,10 +48,6 @@ std::string Designer::projectFolder() const{
   return std::string(str.begin(), str.end());
 }
 
-void Designer::releaseTextures(){
-  images_.clear();
-}
-
 StateFrameEditor& Designer::frameEditor(const char* kind, const std::string& name){
   return frameEditors_[std::string(kind) + "/" + toLower(name)];
 }
