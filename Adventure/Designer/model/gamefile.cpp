@@ -18,18 +18,17 @@
 #include "resources.h"
 
 //jpeglib after the engine's headers, which may bring windows.h: its INT32
-//and boolean are typedefs of other types there (as in the engine's loader)
+//is another type there (basetsd.h), and jpeglib's own one is renamed for the
+//case that basetsd.h comes later; its boolean is windows.h's (jconfig.h)
 #ifdef WIN32
 #undef FAR
 #define INT32 jpeg_int32
-#define boolean jpeg_boolean
 #endif
 extern "C"{
 #include <jpeglib.h>
 }
 #ifdef WIN32
 #undef INT32
-#undef boolean
 #endif
 
 namespace fs = std::filesystem;
