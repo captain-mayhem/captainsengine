@@ -5,6 +5,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 #include <unzip.h>
 #include "MemReader.h"
 
@@ -17,6 +18,8 @@ public:
   ZipReader(void* address, uint32 length);
 	bool openFile(const std::string& filename);
   MemReader openEntry(const std::string& entry, const std::string& password="");
+  //! the names of the archive's entries, in the archive's order
+  std::vector<std::string> getEntries();
   virtual ~ZipReader();
   uint64 getPos();
   void setPos(uint64 pos);

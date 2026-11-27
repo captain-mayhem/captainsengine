@@ -434,7 +434,9 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream, int& ver_major, int& ver_
       while (str != "Sounds :"){
         std::string filename = txtstream.readLine();
         CGE::Utilities::replaceWith(filename, '\\', '/');
-        mImageNames[str] = toLower(filename);
+        //the path keeps its case for case sensitive file systems; the .dat files'
+        //entries are found ignoring case
+        mImageNames[str] = filename;
         str = txtstream.readLine();
       }
     }
@@ -444,7 +446,7 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream, int& ver_major, int& ver_
       while (str != "Music :"){
         std::string filename = txtstream.readLine();
         CGE::Utilities::replaceWith(filename, '\\', '/');
-        mSoundNames[str] = toLower(filename);
+        mSoundNames[str] = filename;
         str = txtstream.readLine();
       }
     }
@@ -943,7 +945,7 @@ CGE::Image* AdvDocument::getImage(const std::string& name){
     }
     size_t extpos = filename.find_last_of('.');
     CGE::Image* img = nullptr;
-    if (filename.substr(extpos + 1) == "pnj"){
+    if (toLower(filename.substr(extpos + 1)) == "pnj"){
       CGE::Image* rgbimage = CGE::ImageLoader::load(rdr.getData(), rdr.getSize(), CGE::ImageLoader::JPG);
       filename[filename.length() - 1] = 'a';
       rdr = zrdr.openEntry(filename.substr(namepos + 1), mZipPwd);

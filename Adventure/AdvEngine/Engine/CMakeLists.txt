@@ -183,7 +183,7 @@ endif()
 
 # engine2.dat is the StoryDesigner's package of the engine's other files (it
 # held the OpenAL and FFmpeg libraries): the engine's fonts in fonts/
-if (OS STREQUAL windows)
+if (NOT RENDER_EMBEDDED AND NOT EMSCRIPTEN)
 file(GLOB CGE_FONT_FILES CONFIGURE_DEPENDS ${CGE_FONTS_DIR}/*)
 add_custom_command(OUTPUT engine2.dat
 COMMAND ${Java_JAR_EXECUTABLE} cfM engine2.dat -C ${CGE_FONTS_DIR}/.. fonts

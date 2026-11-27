@@ -6,7 +6,7 @@ On top level is the code of the engine and its main projects. In this Readme, th
 * **Engine**: The core engine, renderer, system, io, physics, etc. Everything that is not adventure or project specific
 * **Adventure**: The adventure engine, based on the core engine.
   * AdvEngine/Engine: The adventure engine written in C++.
-  * Editor: the mighty adventure editor written in C# (StoryDesigner)
+  * Designer: the mighty adventure editor, the StoryDesigner (C++ on the engine's ImGui; Windows and Linux)
 * editor: A very basic 3D scene editor for the core engine
 * OSMRacer: A car racing game based on OpenStreetMap data
 * torchdelve: Torchdelve, a turn-based multiplayer dungeon crawler in 3D (client, server and the level compiler; Windows and Linux). `torchdelve/README.txt` is its manual; after installing, `python torchdelve/tools/install_pack.py build/install/<preset>` compiles its quests into the install folder
@@ -29,8 +29,6 @@ Requirements: CMake 3.21 or newer and a C++20 compiler (Visual Studio 2022/2026,
 cmake --preset default
 cmake --build --preset default
 ```
-
-On Windows, the StoryDesigner's C# projects are built by MSBuild in custom targets (`CSharpZip`, `StoryDesigner`, `RemoteControl`), so `cmake --build` and the generated solution build everything. With Ninja, MSBuild must be in `PATH` (a developer prompt). Edit the C# projects in their own solution, `Adventure/Editor/StoryDesigner/StoryDesigner.sln`.
 
 Paths that only exist on your machine (a JDK, an NDK) go into a `CMakeUserPresets.json` (not committed) with presets that inherit the ones above and set `environment` or `cacheVariables`.
 
@@ -77,7 +75,7 @@ Notes:
 * In the Adventure, Ctrl+R restarts the render device (as after a lost context on Android): the game is saved, rebuilt and loaded again.
 * 3D models (`Engine/mesh`): `CGE::ModelFile` loads glTF 2.0 (`.gltf` with external or embedded data, `.glb`; parsed by cgltf) into meshes, materials and a hierarchy of named `SceneNode`s, and OBJ and OFF as one node. `ModelFile`'s header lists what is read and what is left out. glTF's metallic-roughness materials are mapped onto the engine's lit shader (`BuiltinShader::Lit`, and `LitVertexColor` for meshes with vertex colours).
 * Video (`Engine/video`): `CGE::Video` plays MPEG-1 with MP2 sound (pl_mpeg) and Ogg Theora with Vorbis (libtheora), the pictures as RGBA timed by the sound, which goes through an `AudioStream`; `CGE::VideoDecoder` decodes them on their own.
-* The Adventure's sound goes through the engine's audio on every platform, and its videos (`playavi`, `playvideo`) through `CGE::Video`. The StoryDesigner converts other videos (AVI with any codec, WMV, MPEG-2) into Ogg Theora when they are added or when the game is packed, with `videoconv.exe` (`Adventure/Editor/VideoConverter`, a 32-bit program next to `StoryDesigner.exe`, which decodes with Windows' own codecs: Media Foundation, and Video for Windows for Cinepak and the like). Flash animations (`playswf`) play as before.
+* The Adventure's sound goes through the engine's audio on every platform, and its videos (`playavi`, `playvideo`) through `CGE::Video`. The StoryDesigner converts other videos (AVI with any codec, WMV, MPEG-2) into Ogg Theora when they are added or when the game is packed, with `videoconv.exe` (`Adventure/Designer/videoconv`, a 32-bit program next to `StoryDesigner.exe`, which decodes with Windows' own codecs: Media Foundation, and Video for Windows for Cinepak and the like). Flash animations (`playswf`) play as before.
 
 ## Using the engine from another project
 Add the engine with `add_subdirectory()` and link the `CGE::Engine` target. It carries the include directories, definitions and the C++20 requirement:

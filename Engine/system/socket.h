@@ -65,6 +65,11 @@ public:
   bool send(std::string s) const;
   //! receives a message from the socket
   int recv(std::string& s) const;
+  //! receives what has arrived, for non-blocking sockets
+  /*! \return the bytes received, 0 when nothing is waiting, -1 when the
+   *  connection is closed or failed (recv gives 0 for all of these)
+   */
+  int poll(std::string& s) const;
   //! set the socket to non-blocking system calls
   void set_non_blocking(const bool b);
   //! returns if the socket is valid

@@ -104,10 +104,13 @@ MemReader ZipReader::openEntry(const std::string& entry, const std::string& pass
   else{
     unzGoToFilePos(mHandle, &iter->second);
   }
+  int opened;
   if (password.empty())
-    unzOpenCurrentFile(mHandle);
+    opened = unzOpenCurrentFile(mHandle);
   else
-    unzOpenCurrentFilePassword(mHandle, password.c_str());
+    opened = unzOpenCurrentFilePassword(mHandle, password.c_str());
+  if (opened != UNZ_OK)
+    return MemReader(nullptr, 0);
   unz_file_info info;
   unzGetCurrentFileInfo(mHandle, &info, nullptr, 0, nullptr, 0, nullptr, 0);
   if (info.uncompressed_size > mBufferSize){
@@ -115,10 +118,23 @@ MemReader ZipReader::openEntry(const std::string& entry, const std::string& pass
     mBufferSize = info.uncompressed_size;
     mBuffer = new char[info.uncompressed_size];
   }
-  MemReader rdr(mBuffer, info.uncompressed_size);
-  unzReadCurrentFile(mHandle, mBuffer, info.uncompressed_size);
-  unzCloseCurrentFile(mHandle);
-  return rdr;
+  int read = unzReadCurrentFile(mHandle, mBuffer, info.uncompressed_size);
+  // a wrong password (or a damaged entry) ends in an error or with the CRC not matching
+  if (unzCloseCurrentFile(mHandle) != UNZ_OK || read != (int)info.uncompressed_size)
+    return MemReader(nullptr, 0);
+  return MemReader(mBuffer, info.uncompressed_size);
+}
+
+std::vector<std::string> ZipReader::getEntries(){
+  std::vector<std::string> entries;
+  if (!mHandle)
+    return entries;
+  char name[1024];
+  for (int ret = unzGoToFirstFile(mHandle); ret == UNZ_OK; ret = unzGoToNextFile(mHandle)){
+    if (unzGetCurrentFileInfo(mHandle, nullptr, name, sizeof(name), nullptr, 0, nullptr, 0) == UNZ_OK)
+      entries.push_back(name);
+  }
+  return entries;
 }
 
 voidpf ZipReader::open_file_func(voidpf opaque, const char* filename, int mode){

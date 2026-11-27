@@ -10,6 +10,7 @@
 #include "testwindow.h"
 
 #include <imgui.h>
+#include <imgui_internal.h>
 
 #include <input/keyboard.h>
 #include <input/touch.h>
@@ -198,6 +199,45 @@ TEST_F(ImGuiTest, RendererCreatesTheFontTextureAndDraws){
   EXPECT_EQ(atlas->TexID, ImTextureID_Invalid);
   EXPECT_EQ(atlas->BackendUserData, nullptr);
   EXPECT_EQ(atlas->Status, ImTextureStatus_WantCreate);
+}
+
+TEST_F(ImGuiTest, WindowsDockIntoADockSpace){
+  //ImGui is the docking branch, for the tools' docked panels
+  ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+  ImGuiID left = 0;
+  ImGuiID right = 0;
+  auto build = [&](){
+    ImGuiID space = ImGui::DockSpaceOverViewport();
+    if (left == 0){
+      ImGui::DockBuilderRemoveNode(space);
+      ImGui::DockBuilderAddNode(space, ImGuiDockNodeFlags_DockSpace);
+      ImGui::DockBuilderSetNodeSize(space, ImGui::GetMainViewport()->Size);
+      ImGui::DockBuilderSplitNode(space, ImGuiDir_Left, 0.25f, &left, &right);
+      ImGui::DockBuilderDockWindow("tree", left);
+      ImGui::DockBuilderDockWindow("room", right);
+      ImGui::DockBuilderDockWindow("script", right);
+      ImGui::DockBuilderFinish(space);
+    }
+    ImGui::Begin("tree");
+    ImGui::End();
+    ImGui::Begin("room");
+    ImGui::End();
+    ImGui::Begin("script");
+    ImGui::End();
+  };
+  frame(400, 300, build);
+  frame(400, 300, build);
+  ImGuiWindow* tree = ImGui::FindWindowByName("tree");
+  ImGuiWindow* room = ImGui::FindWindowByName("room");
+  ImGuiWindow* script = ImGui::FindWindowByName("script");
+  ASSERT_TRUE(tree && room && script);
+  EXPECT_EQ(tree->DockId, left);
+  EXPECT_EQ(room->DockId, right);
+  //two windows in one node are tabs
+  EXPECT_EQ(script->DockId, right);
+  EXPECT_FLOAT_EQ(tree->Pos.x, 0);
+  EXPECT_NEAR(tree->Size.x, 100, 1);
+  EXPECT_NEAR(room->Pos.x, tree->Size.x, 2);
 }
 
 // --- the console ---
