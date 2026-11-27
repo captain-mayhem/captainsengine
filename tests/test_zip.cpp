@@ -1,4 +1,5 @@
 #include <string>
+#include <vector>
 
 #include <gtest/gtest.h>
 
@@ -69,4 +70,15 @@ TEST(ZipReader, MissingEntryIsEmpty){
 TEST(ZipReader, MissingArchive){
   CGE::ZipReader zip;
   EXPECT_FALSE(zip.openFile(TestEnv::dataFile("missing.zip")));
+}
+
+TEST(ZipReader, ListsItsEntries){
+  CGE::ZipReader zip(TestEnv::dataFile("archive.zip"));
+  std::vector<std::string> entries = zip.getEntries();
+  ASSERT_EQ(entries.size(), 2u);
+  EXPECT_EQ(entries[0], "hello.txt");
+  EXPECT_EQ(entries[1], "dir/stored.bin");
+  //listing doesn't disturb reading
+  CGE::MemReader rdr = zip.openEntry("hello.txt");
+  EXPECT_EQ(readAll(rdr), repeated("Hello from the zip\n", 20));
 }

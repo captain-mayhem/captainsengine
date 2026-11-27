@@ -121,6 +121,18 @@ MemReader ZipReader::openEntry(const std::string& entry, const std::string& pass
   return rdr;
 }
 
+std::vector<std::string> ZipReader::getEntries(){
+  std::vector<std::string> entries;
+  if (!mHandle)
+    return entries;
+  char name[1024];
+  for (int ret = unzGoToFirstFile(mHandle); ret == UNZ_OK; ret = unzGoToNextFile(mHandle)){
+    if (unzGetCurrentFileInfo(mHandle, nullptr, name, sizeof(name), nullptr, 0, nullptr, 0) == UNZ_OK)
+      entries.push_back(name);
+  }
+  return entries;
+}
+
 voidpf ZipReader::open_file_func(voidpf opaque, const char* filename, int mode){
   ZipReader* rdr = static_cast<ZipReader*>(opaque);
   return rdr;
