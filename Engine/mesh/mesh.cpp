@@ -504,12 +504,21 @@ bool Mesh::createDeviceResources(Gfx::RenderDevice& device, const std::vector<fl
   mLayout = meshLayout(numTexCoords_ > 0, !mColors.empty());
   //the materials' textures, each file once
   mMaterialTextures.assign(mMaterials.size(), nullptr);
+  mPbrTextures.assign(mMaterials.size(), {nullptr, nullptr, nullptr, nullptr});
   mDeviceTextures.clear();
   std::map<std::string, Gfx::Texture*> loaded;
   for (unsigned i = 0; i < mMaterials.size(); ++i){
     Material* mat = mMaterials[i];
     if (!mat)
       continue;
+    if (mat->isMetallicRoughness()){
+      const std::shared_ptr<MaterialTexture>* textures[4] = {&mat->getMetallicRoughnessTexture(), &mat->getNormalTexture(),
+        &mat->getOcclusionTexture(), &mat->getEmissiveTexture()};
+      for (int t = 0; t < 4; ++t){
+        if (*textures[t])
+          mPbrTextures[i][t] = (*textures[t])->getTexture(device);
+      }
+    }
     //an image in memory, shared with other meshes
     if (mat->getDiffuseTexture()){
       mMaterialTextures[i] = mat->getDiffuseTexture()->getTexture(device);
@@ -548,9 +557,16 @@ void Mesh::draw(Gfx::DrawContext& ctx, DrawPart part){
     bool transparent = mat && mat->isTransparent();
     if ((transparent && part == DRAW_OPAQUE) || (!transparent && part == DRAW_TRANSPARENT))
       continue;
+    bool pbr = mat && mat->isMetallicRoughness();
     if (mat){
       ctx.setMaterial(*mat);
       ctx.setTexture(msh.material < (int)mMaterialTextures.size() ? mMaterialTextures[msh.material] : nullptr);
+      if (pbr && msh.material < (int)mPbrTextures.size()){
+        const std::array<Gfx::Texture*, 4>& t = mPbrTextures[msh.material];
+        ctx.setMaterialTextures(t[0], t[1], t[2], t[3]);
+      }
+      else
+        ctx.setMaterialTextures(nullptr, nullptr, nullptr, nullptr);
     }
     else{
       ctx.resetMaterial();
@@ -558,11 +574,17 @@ void Mesh::draw(Gfx::DrawContext& ctx, DrawPart part){
     }
     //double-sided materials are seen from behind too
     ctx.setCull(mat && mat->isDoubleSided() ? Gfx::CullMode::Off : cull);
-    ctx.drawIndexed(mColors.empty() ? Gfx::BuiltinShader::Lit : Gfx::BuiltinShader::LitVertexColor, mVertices.get(),
+    Gfx::BuiltinShader shader;
+    if (pbr)
+      shader = mColors.empty() ? Gfx::BuiltinShader::Pbr : Gfx::BuiltinShader::PbrVertexColor;
+    else
+      shader = mColors.empty() ? Gfx::BuiltinShader::Lit : Gfx::BuiltinShader::LitVertexColor;
+    ctx.drawIndexed(shader, mVertices.get(),
       mLayout, mIndices.get(), Gfx::IndexType::UInt32,
       Gfx::PrimitiveType::Triangles, msh.count, msh.offset);
   }
   ctx.setTexture(texture, sampler);
+  ctx.setMaterialTextures(nullptr, nullptr, nullptr, nullptr);
   ctx.setCull(cull);
 }
 
@@ -631,6 +653,7 @@ void Mesh::clear(){
   mIndices.reset();
   mLayout = Gfx::VertexLayout();
   mMaterialTextures.clear();
+  mPbrTextures.clear();
   mDeviceTextures.clear();
   mDeviceTried = false;
   min_ = Vector3D(FLT_MAX,FLT_MAX,FLT_MAX);

@@ -749,12 +749,26 @@ def quad_model(name, x0, y0, x1, y1, material, colors=None, texcoords=True, cloc
         attributes["TEXCOORD_0"] = g.accessor(uv, "VEC2", GL_FLOAT)
     if colors:
         attributes["COLOR_0"] = g.accessor(colors, "VEC3", GL_FLOAT)
-    if "image" in material:
-        material = dict(material)
-        image = material.pop("image")
-        pbr = dict(material.get("pbrMetallicRoughness", {}))
-        pbr["baseColorTexture"] = {"index": g.image(image[0], image[1])}
+    # images of the material's textures: (file name, PNG bytes) under
+    # "image" (the base colour), "mr_image", "normal_image",
+    # "occlusion_image" and "emissive_image"
+    material = dict(material)
+    pbr = dict(material.get("pbrMetallicRoughness", {}))
+    for key, texture in (("image", "baseColorTexture"), ("mr_image", "metallicRoughnessTexture")):
+        if key in material:
+            image = material.pop(key)
+            pbr[texture] = {"index": g.image(image[0], image[1])}
+    if pbr:
         material["pbrMetallicRoughness"] = pbr
+    for key, texture in (("normal_image", "normalTexture"), ("occlusion_image", "occlusionTexture"),
+                         ("emissive_image", "emissiveTexture")):
+        if key in material:
+            image = material.pop(key)
+            info = dict(material.get(texture, {}))
+            info["index"] = g.image(image[0], image[1])
+            material[texture] = info
+    if "extensions" in material:
+        g.doc["extensionsUsed"] = sorted(material["extensions"])
     g.add("materials", material)
     g.add("meshes", {"primitives": [{"attributes": attributes,
                                      "indices": g.accessor([0, 1, 2, 0, 2, 3], "SCALAR", GL_UNSIGNED_SHORT, indices=True),
@@ -790,6 +804,40 @@ def gltf_models():
              "doubleSided": True}
     quad_model("back", 0, 0, 3, 2, green, clockwise=True, normal=(0.0, 0.0, -1.0)).write(
         path("quad_back.gltf"), "embedded")
+
+    # the metallic-roughness material (BuiltinShader::Pbr): a red rough metal
+    # and a red rough dielectric side by side on a 2x1 quad, by the factors
+    # and by a metallic-roughness texture; a black quad giving off orange
+    # light (linear 0.5, 0.25, 0 with the strength 2); a 3x1 white quad with
+    # a normal map: flat, turned 60 degrees towards +x and towards +y (up)
+    red_metal = {"pbrMetallicRoughness": {"baseColorFactor": [1.0, 0.0, 0.0, 1.0], "metallicFactor": 1.0,
+                                          "roughnessFactor": 1.0}}
+    red_dielectric = {"pbrMetallicRoughness": {"baseColorFactor": [1.0, 0.0, 0.0, 1.0], "metallicFactor": 0.0,
+                                               "roughnessFactor": 1.0}}
+    quad_model("metal", 0, 0, 1, 1, red_metal).write(path("quad_metal.gltf"), "embedded")
+    quad_model("dielectric", 1, 0, 2, 1, red_dielectric).write(path("quad_dielectric.gltf"), "embedded")
+    quad_model("metal_texture", 0, 0, 2, 1, dict(red_metal, mr_image=(
+        "metal_roughness.png", png([[(0, 255, 255), (0, 255, 0)]], 2)))).write(path("quad_metal_texture.gltf"), "embedded")
+    quad_model("emissive", 0, 0, 1, 1, {
+        "pbrMetallicRoughness": {"baseColorFactor": [0.0, 0.0, 0.0, 1.0], "metallicFactor": 0.0},
+        "emissiveFactor": [0.5, 0.25, 0.0],
+        "extensions": {"KHR_materials_emissive_strength": {"emissiveStrength": 2.0}}}).write(
+        path("quad_emissive.gltf"), "embedded")
+    normals = [[(128, 128, 255), (238, 128, 191), (128, 238, 191)]]
+    quad_model("normals", 0, 0, 3, 1, dict(white, normal_image=("normals.png", png(normals, 2)))).write(
+        path("quad_normals.gltf"), "embedded")
+
+    # every part of the metallic-roughness material, for test_modelfile.cpp
+    quad_model("pbr", 0, 0, 1, 1, {
+        "name": "pbr",
+        "pbrMetallicRoughness": {"baseColorFactor": [0.5, 0.5, 0.5, 1.0], "metallicFactor": 0.25,
+                                 "roughnessFactor": 0.75},
+        "mr_image": ("metal_roughness.png", png([[(0, 255, 255), (0, 255, 0)]], 2)),
+        "normal_image": ("normals.png", png(normals, 2)), "normalTexture": {"scale": 0.5},
+        "occlusion_image": ("occlusion.png", png([[(128, 128, 128)]], 2)), "occlusionTexture": {"strength": 0.8},
+        "emissive_image": ("emissive.png", png([[(255, 255, 255)]], 2)), "emissiveFactor": [1.0, 0.5, 0.0],
+        "extensions": {"KHR_materials_emissive_strength": {"emissiveStrength": 2.0}}}).write(
+        path("pbr.gltf"), "embedded")
 
     # files with errors: the reader says why instead of crashing
     write("gltf/broken.gltf", b'{"asset": {"version": "2.0"}, "nodes": [')

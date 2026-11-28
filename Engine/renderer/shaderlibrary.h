@@ -39,6 +39,19 @@ const int SLOT_LIGHTS = 3;
 const int MAX_LIGHTS = 8;
 //! texture slot of the cge_texture sampler
 const int SLOT_TEXTURE = 0;
+//! texture slots of the metallic-roughness material's textures (pbr.glsl)
+const int SLOT_METALLIC_ROUGHNESS = 1;
+const int SLOT_NORMAL_MAP = 2;
+const int SLOT_OCCLUSION = 3;
+const int SLOT_EMISSIVE = 4;
+
+//! the bits of MaterialUniforms::flags[1]: which of the metallic-roughness textures are bound
+enum MaterialTextureBit{
+  TEX_METALLIC_ROUGHNESS = 1,
+  TEX_NORMAL_MAP = 2,
+  TEX_OCCLUSION = 4,
+  TEX_EMISSIVE = 8,
+};
 
 //! the CGE_Frame uniform block (std140)
 struct FrameUniforms{
@@ -66,13 +79,19 @@ struct MaterialUniforms{
   float ambient[4] = {0, 0, 0, 1};
   //! rgb, w: the shininess (specular exponent)
   float specular[4] = {0, 0, 0, 10};
-  //! x: 1 if the surface is textured (set by DrawContext::prepare)
+  //! x: 1 if the surface is textured, y: the MaterialTextureBits of the
+  //! bound metallic-roughness textures (both set by DrawContext::prepare)
   int32_t flags[4] = {0, 0, 0, 0};
   //! x: the alpha cutoff (0: none), y: 1 if double-sided (the back is lit
   //! as the front), z: 1 if opaque (the alpha is ignored)
   float params[4] = {0, 0, 0, 0};
+  //! the metallic-roughness material (pbr.glsl): x: the metalness,
+  //! y: the roughness, z: the normal map's scale, w: the occlusion's strength
+  float pbr[4] = {0, 1, 1, 1};
+  //! rgb: the emissive colour (sRGB), w: its strength (on the linear colour)
+  float emissive[4] = {0, 0, 0, 1};
 };
-static_assert(sizeof(MaterialUniforms) == 80, "MaterialUniforms must match CGE_Material");
+static_assert(sizeof(MaterialUniforms) == 112, "MaterialUniforms must match CGE_Material");
 
 //! the CGE_Lights block (std140) of lit shaders (lighting.glsl), in view space
 struct LightUniforms{
@@ -116,6 +135,14 @@ enum class BuiltinShader{
   //! Lit with a colour per vertex (ATTR_COLOR, multiplied with the surface's):
   //! lit.vert and lit.frag with CGE_VERTEX_COLOR defined
   LitVertexColor,
+  //! position, normal and texture coordinates, lit with glTF's metallic-roughness material
+  /*! lit.vert and pbr.frag. The material's textures are in SLOT_TEXTURE (the
+      base colour) and SLOT_METALLIC_ROUGHNESS to SLOT_EMISSIVE
+      (DrawContext::setMaterialTextures). Lit in linear colours and written
+      as sRGB. Unlit (the base and the emissive colour) without lights. */
+  Pbr,
+  //! Pbr with a colour per vertex (ATTR_COLOR, multiplied with the base colour)
+  PbrVertexColor,
 };
 
 //! Shader sources and the built-in shaders
@@ -136,7 +163,8 @@ public:
   static bool loadSource(const std::string& path, std::string& source);
   //! a shader description from a vertex and a fragment shader file
   /*! The description binds the engine's blocks and sampler (CGE_Frame,
-      CGE_Draw, CGE_Material, CGE_Lights, cge_texture); add more bindings
+      CGE_Draw, CGE_Material, CGE_Lights, cge_texture and the samplers of
+      pbr.glsl); add more bindings
       before creating the shader. */
   /*! defines: names #defined at the start of both sources, for variants of
       a shader (e.g. CGE_VERTEX_COLOR for lit.vert and lit.frag). */

@@ -13,10 +13,16 @@ layout(std140) uniform CGE_Material{
   vec4 cge_ambient;
   // rgb, w: the shininess (specular exponent)
   vec4 cge_specular;
-  // x: 1 if the surface is textured with cge_texture
+  // x: 1 if the surface is textured with cge_texture, y: the bits of the
+  // metallic-roughness textures that are bound (pbr.glsl)
   ivec4 cge_materialFlags;
   // x: the alpha cutoff (0: none), y: 1 if double-sided, z: 1 if opaque
   vec4 cge_materialParams;
+  // the metallic-roughness material (pbr.glsl): x: the metalness, y: the
+  // roughness, z: the normal map's scale, w: the occlusion's strength
+  vec4 cge_pbr;
+  // rgb: the emissive colour (sRGB), w: its strength (on the linear colour)
+  vec4 cge_emissive;
 };
 
 // uniform buffer slot 3 (Gfx::SLOT_LIGHTS): the lights in view space

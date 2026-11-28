@@ -41,7 +41,8 @@ float linearToSrgb(float c){
 
 //! the extensions the reader handles (the specular-glossiness material as far as its diffuse part)
 bool isSupported(const char* name){
-  return strcmp(name, "KHR_mesh_quantization") == 0 || strcmp(name, "KHR_materials_pbrSpecularGlossiness") == 0;
+  return strcmp(name, "KHR_mesh_quantization") == 0 || strcmp(name, "KHR_materials_pbrSpecularGlossiness") == 0 ||
+    strcmp(name, "KHR_materials_emissive_strength") == 0;
 }
 
 //! the extensions without which the meshes can't be read (compressed geometry)
@@ -278,6 +279,17 @@ private:
     return result;
   }
 
+  //! a material's texture, or nullptr if it has none or it can't be read
+  std::shared_ptr<MaterialTexture> texture(const cgltf_texture_view& view, const std::string& material, const char* kind){
+    if (!view.texture)
+      return nullptr;
+    if (view.texcoord != 0){
+      warn("material "+material+": the "+kind+" texture uses texture coordinates "+std::to_string(view.texcoord)+"; only the first are read");
+      return nullptr;
+    }
+    return texture(view.texture);
+  }
+
   //! the material (nullptr: glTF's default material)
   Material* readMaterial(const cgltf_material* mat){
     Material* result = new Material(mat ? nameOf(mat->name, "material", mat-mData->materials) : "default");
@@ -335,11 +347,26 @@ private:
     }
     else
       result->setAlphaMode(Material::AlphaMode::Opaque);
-    if (baseTexture && baseTexture->texture){
-      if (baseTexture->texcoord != 0)
-        warn("material "+result->getName()+": the base colour texture uses texture coordinates "+std::to_string(baseTexture->texcoord)+"; only the first are read");
-      else
-        result->setDiffuseTexture(texture(baseTexture->texture));
+    if (baseTexture)
+      result->setDiffuseTexture(texture(*baseTexture, result->getName(), "base colour"));
+    //the metallic-roughness material itself, for the Pbr shader
+    result->setShading(Material::Shading::MetallicRoughness);
+    result->setMetallic(metallic);
+    result->setRoughness(roughness);
+    if (mat){
+      if (mat->has_pbr_metallic_roughness)
+        result->setMetallicRoughnessTexture(texture(mat->pbr_metallic_roughness.metallic_roughness_texture, result->getName(), "metallic-roughness"));
+      result->setNormalTexture(texture(mat->normal_texture, result->getName(), "normal"));
+      if (mat->normal_texture.texture)
+        result->setNormalScale(mat->normal_texture.scale);
+      result->setOcclusionTexture(texture(mat->occlusion_texture, result->getName(), "occlusion"));
+      if (mat->occlusion_texture.texture)
+        result->setOcclusionStrength(mat->occlusion_texture.scale);
+      const float* e = mat->emissive_factor;
+      result->setEmissive(Color(linearToSrgb(e[0]), linearToSrgb(e[1]), linearToSrgb(e[2]), 1));
+      if (mat->has_emissive_strength)
+        result->setEmissiveStrength(mat->emissive_strength.emissive_strength);
+      result->setEmissiveTexture(texture(mat->emissive_texture, result->getName(), "emissive"));
     }
     return result;
   }

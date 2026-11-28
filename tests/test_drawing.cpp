@@ -637,9 +637,121 @@ TEST_F(Drawing, GltfDoubleSidedBacksAreDrawnAndLit){
   EXPECT_EQ(ctx_->getCull(), CullMode::Back);
   ctx_->setCull(CullMode::Off);
   end();
-  //fully lit (the ambient 0.2 on top saturates); the back's normals unflipped would leave only the ambient
-  for (const Pixel& p : read(rt.get()))
-    EXPECT_TRUE(isNear(p, 0, 255, 0));
+  //fully lit (the ambient on top saturates), with the white highlight of a
+  //dielectric; the back's normals unflipped would leave only the ambient
+  for (const Pixel& p : read(rt.get())){
+    EXPECT_EQ(p.g, 255);
+    EXPECT_LT(p.r, 64);
+    EXPECT_EQ(p.r, p.b);
+  }
+}
+
+namespace{
+
+//! a view from far in front, so that the metallic-roughness shader sees the
+//! surfaces head-on (an orthographic view's eye direction is from the origin)
+void viewFromAfar(DrawContext& ctx, RenderDevice& device, int width, int height){
+  ctx.setProjection(device.ortho(0, (float)width, 0, (float)height, 1, 2000));
+  ctx.setView(Matrix(Matrix::Translation, Vec3f(0, 0, -1000)));
+}
+
+}
+
+TEST_F(Drawing, MetallicRoughnessMaterialsReflectAsMetalsOrDielectrics){
+  //red, rough; a white light from the viewer. Expected: glTF's BRDF and the
+  //ambient 0.2 (sRGB) of an even surrounding, by hand: a metal reflects only
+  //its colour, (141, 0, 0); a dielectric mostly diffusely, and white light
+  //from its surface, (255, 26, 26)
+  std::unique_ptr<ModelFile> metal = ModelFile::load("gltf/quad_metal.gltf");
+  std::unique_ptr<ModelFile> dielectric = ModelFile::load("gltf/quad_dielectric.gltf");
+  std::unique_ptr<ModelFile> textured = ModelFile::load("gltf/quad_metal_texture.gltf");
+  ASSERT_NE(metal, nullptr);
+  ASSERT_NE(dielectric, nullptr);
+  ASSERT_NE(textured, nullptr);
+  Light light(Light::Directional, Vec3f(0, 0, 1));
+  auto rt = target(2, 1);
+  auto texturedTarget = target(2, 1);
+  begin(rt.get());
+  viewFromAfar(*ctx_, *device_, 2, 1);
+  ctx_->setLights({&light});
+  metal->render(*ctx_);
+  dielectric->render(*ctx_);
+  end();
+  //the same by a metallic-roughness texture: metal on the left
+  begin(texturedTarget.get());
+  viewFromAfar(*ctx_, *device_, 2, 1);
+  textured->render(*ctx_);
+  ctx_->clearLights();
+  end();
+  for (const std::vector<Pixel>& pixels : {read(rt.get()), read(texturedTarget.get())}){
+    EXPECT_TRUE(isNear(pixels[0], 141, 0, 0, 3));
+    EXPECT_TRUE(isNear(pixels[1], 255, 26, 26, 3));
+  }
+}
+
+TEST_F(Drawing, MetallicRoughnessMaterialsGiveOffTheirEmissiveLight){
+  //black, giving off linear (0.5, 0.25, 0) with the strength 2; unlit (no
+  //lights) the base colour and the emissive colour
+  std::unique_ptr<ModelFile> model = ModelFile::load("gltf/quad_emissive.gltf");
+  ASSERT_NE(model, nullptr);
+  auto rt = target(1, 1);
+  begin(rt.get());
+  model->render(*ctx_);
+  end();
+  EXPECT_TRUE(isNear(read(rt.get())[0], 255, 188, 0));
+}
+
+TEST_F(Drawing, NormalMapsTurnTheNormalsAlongTheTexture){
+  //a white quad, its normal map flat, turned towards +x (along u) and
+  //towards +y (up in the image); a grey light from the right, then from
+  //above, both towards the viewer. The turned normals face one light more
+  //and the other less (by hand: 126 and 81; the flat one 109)
+  std::unique_ptr<ModelFile> model = ModelFile::load("gltf/quad_normals.gltf");
+  ASSERT_NE(model, nullptr);
+  const int expected[2][3] = {{109, 126, 81}, {109, 81, 126}};
+  const Vec3f directions[2] = {Vec3f(1, 0, 1), Vec3f(0, 1, 1)};
+  for (int i = 0; i < 2; ++i){
+    Light light(Light::Directional, directions[i]);
+    light.setColor(Color(0.5f, 0.5f, 0.5f, 1));
+    auto rt = target(3, 1);
+    begin(rt.get());
+    viewFromAfar(*ctx_, *device_, 3, 1);
+    ctx_->setLights({&light});
+    model->render(*ctx_);
+    ctx_->clearLights();
+    end();
+    std::vector<Pixel> pixels = read(rt.get());
+    for (int x = 0; x < 3; ++x)
+      EXPECT_TRUE(isNear(pixels[x], expected[i][x], expected[i][x], expected[i][x], 3)) << "light " << i << ", pixel " << x;
+  }
+}
+
+TEST_F(Drawing, LightPrepassDrawsMetallicRoughnessMaterialsWithPhong){
+  //the G-buffer has Phong's terms; the material's Phong colours stand in
+  std::unique_ptr<ModelFile> model = ModelFile::load("gltf/quad_dielectric.gltf");
+  ASSERT_NE(model, nullptr);
+  Scene scene;
+  scene.addNode(model->getRoot()->clone());
+  Light* light = new Light(Light::Directional, Vec3f(0, 0, 1));
+  scene.addLight(light);
+  Camera cam;
+  cam.project(60, 1.0f, 0.1f, 100);
+  cam.lookAt(Vec3f(1.5f, 0.5f, 2), Vec3f(1.5f, 0.5f, 0), Vec3f(0, 1, 0));
+  scene.setActiveCam(&cam);
+  LightPrepassRenderer prepass;
+  prepass.setScene(scene);
+  ASSERT_TRUE(prepass.createResources(*ctx_));
+  auto rt = target(8, 8, Format::Depth24);
+  ASSERT_TRUE(device_->beginFrame());
+  PassDesc output;
+  output.target = rt.get();
+  prepass.render(*ctx_, output);
+  device_->endFrame();
+  prepass.releaseResources(*ctx_);
+  //the middle of the view is the red quad, with Phong's highlight in the
+  //dielectric's specular colour (linear 0.04, sRGB 0.22) seen head-on
+  EXPECT_TRUE(isNear(read(rt.get())[4*8+4], 255, 56, 56, 4));
+  scene.clear();
 }
 
 TEST_F(Drawing, ScenesLoadTheirTexturesOntoTheDevice){

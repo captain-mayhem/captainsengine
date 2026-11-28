@@ -24,7 +24,8 @@ Gfx::Texture* MaterialTexture::getTexture(Gfx::RenderDevice& device){
   return mTexture.get();
 }
 
-Material::Material(std::string const& name) : mName(name), mAlphaMode(AlphaMode::Default), mAlphaCutoff(0.5f), mDoubleSided(false){
+Material::Material(std::string const& name) : mName(name), mAlphaMode(AlphaMode::Default), mAlphaCutoff(0.5f), mDoubleSided(false),
+  mShading(Shading::Phong), mMetallic(0.0f), mRoughness(1.0f), mEmissive(0, 0, 0, 1), mEmissiveStrength(1.0f), mNormalScale(1.0f), mOcclusionStrength(1.0f){
   mAmbient = Color(0.0f,0.0f,0.0f,1.0f);
   mDiffuse = Color(1.0f,1.0f,1.0f,1.0f);
   mSpecular = Color(0.0f,0.0f,0.0f,1.0f);
