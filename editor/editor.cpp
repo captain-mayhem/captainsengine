@@ -12,6 +12,8 @@
 #include "mesh/model.h"
 #include "system/file.h"
 
+#include <imgui.h>
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -83,20 +85,21 @@ void Editor::mouseUp(int x, int y, int button){
 void Editor::_keypress(int key){
   if (key == KEY_ESCAPE)
     EXIT();
-  if (key == KEY_C){
-    Model* mdl = Graphic::instance()->getCurrModel();
-    if (!mdl)
-      return;
-    Model* copy = new Model(*mdl);
-    Graphic::instance()->getScene().addModel(copy);
-  }
+  //the keys are the view's while ImGui takes the keyboard (e.g. typing a file name)
+  if (ImGui::GetCurrentContext() && ImGui::GetIO().WantCaptureKeyboard)
+    return;
+  if (key == KEY_C)
+    Graphic::instance()->copyNode(Graphic::instance()->getCurrNode());
+  //the selection in view
+  if (key == KEY_F)
+    Graphic::instance()->frame(Graphic::instance()->getCurrNode());
   if (key == KEY_R)
     editMode_ = Rotation;
   if (key == KEY_T)
     editMode_ = Translation;
     //arcball_->update(false,true,Vector2D());
   if (key == KEY_UP){
-    Model* mdl = Graphic::instance()->getCurrModel();
+    CGE::SceneNode* mdl = Graphic::instance()->getCurrNode();
     if (!mdl)
       return;
     Matrix oldMat = mdl->getTrafo();
@@ -123,7 +126,7 @@ void Editor::_keypress(int key){
     }
   }
   if (key == KEY_DOWN){
-    Model* mdl = Graphic::instance()->getCurrModel();
+    CGE::SceneNode* mdl = Graphic::instance()->getCurrNode();
     if (!mdl)
       return;
     Matrix oldMat = mdl->getTrafo();
@@ -150,7 +153,7 @@ void Editor::_keypress(int key){
     }
   }
   if (key == KEY_LEFT){
-    Model* mdl = Graphic::instance()->getCurrModel();
+    CGE::SceneNode* mdl = Graphic::instance()->getCurrNode();
     if (!mdl)
       return;
     Matrix oldMat = mdl->getTrafo();
@@ -177,7 +180,7 @@ void Editor::_keypress(int key){
     }
   }
   if (key == KEY_RIGHT){
-    Model* mdl = Graphic::instance()->getCurrModel();
+    CGE::SceneNode* mdl = Graphic::instance()->getCurrNode();
     if (!mdl)
       return;
     Matrix oldMat = mdl->getTrafo();
@@ -204,12 +207,8 @@ void Editor::_keypress(int key){
       mdl->setTrafo(oldMat*newMat);
     }
   }
-  if (key == KEY_DELETE){
-    Model* mdl = Graphic::instance()->getCurrModel();
-    if (!mdl)
-      return;
-    Graphic::instance()->getScene().deleteModel(mdl->getID());
-  }
+  if (key == KEY_DELETE)
+    Graphic::instance()->deleteNode(Graphic::instance()->getCurrNode());
 }
 
 //! mouse down
@@ -233,9 +232,8 @@ void Editor::_mouseDown(int x, int y, int button){
     r.buildPickingRay((float)pixel.x, (float)pixel.y, (float)screen.getWindowWidth(), (float)screen.getWindowHeight(), proj.getData()[0], proj.getData()[5], proj.getData()[10]);
     Matrix view = Graphic::instance()->getCam().getViewMat();
     r.transform(view.inverse());
-    //get the picked model
-    Model* mdl = Graphic::instance()->getScene().pickModel(r);
-    Graphic::instance()->setCurrModel(mdl);
+    //the picked model, or the glTF model it is part of
+    Graphic::instance()->setCurrNode(Graphic::instance()->getScene().pickNode(r));
   }
 }
 
@@ -246,20 +244,21 @@ void Editor::_mouseUp(int x, int y, int button){
 void Editor::update(){
   Vector2D pos = Input::Mouse::instance()->getMousePos();
 
+  EditCam& cam = Graphic::instance()->getCam();
   //Translation
   if (Input::Mouse::instance()->isPressed(MB_MIDDLE)){
-    Vector3D dir = Vector3D(0,0,-1);
     float length = (pos.y-lastPos_.y)*TRANSLATION_SPEED;
     lastPos_ = pos;
-    Matrix trans = Matrix(Matrix::Translation, dir*length);
-    Graphic::instance()->getCam().multCamTrafo(trans);
+    cam.moveForward(-length);
   }
+  //the wheel moves a tenth of the way to the point the camera orbits
+  if (ImGui::GetCurrentContext() && !ImGui::GetIO().WantCaptureMouse && ImGui::GetIO().MouseWheel != 0)
+    cam.moveForward(ImGui::GetIO().MouseWheel*cam.getOrbitDistance()*0.1f);
   
-  //Rotation
+  //Rotation around the point the camera orbits
   bool active = Input::Mouse::instance()->isPressed(MB_RIGHT);
   arcball_->update(active,false,pos);
-  //Graphic::instance()->setCamRotation(arcball_->getTrafo());
-  Graphic::instance()->getCam().multCamTrafo(arcball_->getIncTrafo());
+  cam.orbit(arcball_->getIncTrafo());
 }
 
 //! get the string to an attribute
@@ -287,7 +286,13 @@ void Editor::startup(){
     Graphic::instance()->setFilename(mLoadScene);
   }
   for (unsigned i = 0; i < mLoadModels.size(); ++i){
+    if (Graphic::isModelFile(mLoadModels[i])){
+      Graphic::instance()->addModelFile(mLoadModels[i]);
+      continue;
+    }
+    size_t count = Graphic::instance()->getScene().getMeshes().size();
     Graphic::instance()->addMesh(mLoadModels[i]);
-    Graphic::instance()->addModel(Graphic::instance()->getScene().getMeshes().size()-1);
+    if (Graphic::instance()->getScene().getMeshes().size() > count)
+      Graphic::instance()->addModel(count);
   }
 }

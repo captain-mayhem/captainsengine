@@ -194,6 +194,12 @@ TEST_P(ModelFileParts, MaterialsAreMappedOntoTheEngines){
   EXPECT_FALSE(picture.isTransparent());
   //rough: the broadest highlight
   EXPECT_FLOAT_EQ(picture.getPower(), 1);
+  //and the metallic-roughness material itself
+  EXPECT_EQ(picture.getShading(), Material::Shading::MetallicRoughness);
+  EXPECT_FLOAT_EQ(picture.getMetallic(), 0);
+  EXPECT_FLOAT_EQ(picture.getRoughness(), 1);
+  EXPECT_EQ(picture.getMetallicRoughnessTexture(), nullptr);
+  EXPECT_EQ(picture.getNormalTexture(), nullptr);
   ASSERT_NE(picture.getDiffuseTexture(), nullptr);
   const Image* image = picture.getDiffuseTexture()->getImage();
   ASSERT_NE(image, nullptr);
@@ -215,6 +221,8 @@ TEST_P(ModelFileParts, MaterialsAreMappedOntoTheEngines){
   EXPECT_EQ(metal.getDiffuseTexture(), nullptr);
   //roughness 0.5: alpha 0.25, (2/alpha^2-2)/4
   EXPECT_FLOAT_EQ(metal.getPower(), 7.5f);
+  EXPECT_FLOAT_EQ(metal.getMetallic(), 1);
+  EXPECT_FLOAT_EQ(metal.getRoughness(), 0.5f);
 
   //no material: glTF's default, white and opaque
   const std::vector<Material*>& stripMaterials = model_->getMeshes()[1]->getMaterials();
@@ -222,6 +230,46 @@ TEST_P(ModelFileParts, MaterialsAreMappedOntoTheEngines){
   EXPECT_EQ(stripMaterials[1]->getAlphaMode(), Material::AlphaMode::Opaque);
   EXPECT_FLOAT_EQ(stripMaterials[1]->getDiffuse().g, 1);
   EXPECT_FALSE(stripMaterials[1]->isTransparent());
+  //glTF's default: a rough metal
+  EXPECT_TRUE(stripMaterials[1]->isMetallicRoughness());
+  EXPECT_FLOAT_EQ(stripMaterials[1]->getMetallic(), 1);
+  EXPECT_FLOAT_EQ(stripMaterials[1]->getRoughness(), 1);
+}
+
+TEST(ModelFiles, MetallicRoughnessMaterialsKeepTheirTexturesAndFactors){
+  std::string error;
+  std::unique_ptr<ModelFile> model = load("pbr.gltf", &error);
+  ASSERT_NE(model, nullptr) << error;
+  EXPECT_TRUE(model->getWarnings().empty());
+  const std::vector<Material*>& materials = model->getMeshes()[0]->getMaterials();
+  ASSERT_EQ(materials.size(), 2u);
+  const Material& pbr = *materials[1];
+  EXPECT_EQ(pbr.getName(), "pbr");
+  EXPECT_EQ(pbr.getShading(), Material::Shading::MetallicRoughness);
+  EXPECT_NEAR(pbr.getDiffuse().g, kHalfInSrgb, 1e-4);
+  EXPECT_FLOAT_EQ(pbr.getMetallic(), 0.25f);
+  EXPECT_FLOAT_EQ(pbr.getRoughness(), 0.75f);
+  EXPECT_FLOAT_EQ(pbr.getNormalScale(), 0.5f);
+  EXPECT_FLOAT_EQ(pbr.getOcclusionStrength(), 0.8f);
+  //the emissive factor in sRGB, its strength (KHR_materials_emissive_strength) apart
+  EXPECT_FLOAT_EQ(pbr.getEmissive().r, 1);
+  EXPECT_NEAR(pbr.getEmissive().g, kHalfInSrgb, 1e-4);
+  EXPECT_FLOAT_EQ(pbr.getEmissive().b, 0);
+  EXPECT_FLOAT_EQ(pbr.getEmissiveStrength(), 2);
+  //the textures, each its own image
+  ASSERT_NE(pbr.getMetallicRoughnessTexture(), nullptr);
+  ASSERT_NE(pbr.getNormalTexture(), nullptr);
+  ASSERT_NE(pbr.getOcclusionTexture(), nullptr);
+  ASSERT_NE(pbr.getEmissiveTexture(), nullptr);
+  EXPECT_EQ(pbr.getDiffuseTexture(), nullptr);
+  const Image* normals = pbr.getNormalTexture()->getImage();
+  ASSERT_NE(normals, nullptr);
+  EXPECT_EQ(normals->getWidth(), 3u);
+  EXPECT_EQ(normals->getHeight(), 1u);
+  const Image* metalRoughness = pbr.getMetallicRoughnessTexture()->getImage();
+  ASSERT_NE(metalRoughness, nullptr);
+  EXPECT_EQ(metalRoughness->getWidth(), 2u);
+  EXPECT_NE(pbr.getOcclusionTexture(), pbr.getEmissiveTexture());
 }
 
 TEST_P(ModelFileParts, BoundsCoverTheTransformedMeshes){

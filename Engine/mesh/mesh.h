@@ -33,6 +33,7 @@
 #include <windows.h>
 #endif
 
+#include <array>
 #include <memory>
 #include <string>
 
@@ -100,7 +101,9 @@ public:
       built gets its buffers when it is first drawn. */
   bool buildBuffers(Gfx::RenderDevice& device);
   //! draws the mesh through a render device with the context's lit shader
-  /*! Sets the context's material and texture per submesh. Submeshes
+  /*! BuiltinShader::Lit, or Pbr for metallic-roughness materials (with
+      LitVertexColor, PbrVertexColor for meshes with vertex colours).
+      Sets the context's material and textures per submesh. Submeshes
       without a material are drawn white with the texture the context had,
       and that texture is the context's again afterwards. */
   void draw(Gfx::DrawContext& ctx, DrawPart part);
@@ -243,6 +246,8 @@ protected:
   Gfx::VertexLayout mLayout;
   //! the materials' textures on the render device, by material index (nullptr: untextured)
   std::vector<Gfx::Texture*> mMaterialTextures;
+  //! the metallic-roughness materials' other textures (DrawContext::setMaterialTextures), by material index
+  std::vector<std::array<Gfx::Texture*, 4>> mPbrTextures;
   std::vector<std::unique_ptr<Gfx::Texture>> mDeviceTextures;
   //! the device resources were created (or failed)
   bool mDeviceTried;

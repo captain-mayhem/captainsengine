@@ -68,8 +68,18 @@ TEST(ShaderLibrary, BuiltinDescriptionsBindTheEngineSlots){
   EXPECT_EQ(desc.uniformBlocks[2].slot, SLOT_MATERIAL);
   EXPECT_EQ(desc.uniformBlocks[3].name, "CGE_Lights");
   EXPECT_EQ(desc.uniformBlocks[3].slot, SLOT_LIGHTS);
-  ASSERT_EQ(desc.textures.size(), 1u);
+  //cge_texture and the metallic-roughness material's textures (pbr.glsl)
+  ASSERT_EQ(desc.textures.size(), 5u);
+  EXPECT_EQ(desc.textures[0].name, "cge_texture");
   EXPECT_EQ(desc.textures[0].slot, SLOT_TEXTURE);
+  EXPECT_EQ(desc.textures[1].name, "cge_metallicRoughnessTexture");
+  EXPECT_EQ(desc.textures[1].slot, SLOT_METALLIC_ROUGHNESS);
+  EXPECT_EQ(desc.textures[2].name, "cge_normalTexture");
+  EXPECT_EQ(desc.textures[2].slot, SLOT_NORMAL_MAP);
+  EXPECT_EQ(desc.textures[3].name, "cge_occlusionTexture");
+  EXPECT_EQ(desc.textures[3].slot, SLOT_OCCLUSION);
+  EXPECT_EQ(desc.textures[4].name, "cge_emissiveTexture");
+  EXPECT_EQ(desc.textures[4].slot, SLOT_EMISSIVE);
 }
 
 #if defined(CGE_TEST_WINDOW)

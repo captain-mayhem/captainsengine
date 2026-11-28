@@ -117,7 +117,8 @@ bool ShaderLibrary::loadDesc(const std::string& vertexPath, const std::string& f
     desc.fragmentSource = header+desc.fragmentSource;
   }
   desc.uniformBlocks = {{"CGE_Frame", SLOT_FRAME}, {"CGE_Draw", SLOT_DRAW}, {"CGE_Material", SLOT_MATERIAL}, {"CGE_Lights", SLOT_LIGHTS}};
-  desc.textures = {{"cge_texture", SLOT_TEXTURE}};
+  desc.textures = {{"cge_texture", SLOT_TEXTURE}, {"cge_metallicRoughnessTexture", SLOT_METALLIC_ROUGHNESS},
+    {"cge_normalTexture", SLOT_NORMAL_MAP}, {"cge_occlusionTexture", SLOT_OCCLUSION}, {"cge_emissiveTexture", SLOT_EMISSIVE}};
   if (desc.name.empty())
     desc.name = vertexPath;
   return true;
@@ -149,6 +150,14 @@ ShaderDesc ShaderLibrary::getBuiltinDesc(BuiltinShader shader){
     case BuiltinShader::LitVertexColor:
       loadDesc("engine/lit.vert", "engine/lit.frag", desc, {"CGE_VERTEX_COLOR"});
       desc.name = "engine/lit_vertex_color";
+      return desc;
+    case BuiltinShader::Pbr:
+      loadDesc("engine/lit.vert", "engine/pbr.frag", desc);
+      desc.name = "engine/pbr";
+      return desc;
+    case BuiltinShader::PbrVertexColor:
+      loadDesc("engine/lit.vert", "engine/pbr.frag", desc, {"CGE_VERTEX_COLOR"});
+      desc.name = "engine/pbr_vertex_color";
       return desc;
   }
   //the built-in files are part of the engine library, so this can't fail

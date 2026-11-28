@@ -16,7 +16,11 @@ TR_CHANNEL(CGE_DrawContext);
 
 namespace{
 
-const int BUILTIN_COUNT = (int)BuiltinShader::LitVertexColor+1;
+const int BUILTIN_COUNT = (int)BuiltinShader::PbrVertexColor+1;
+
+//! the metallic-roughness textures' slots, in the order of MaterialTextureBit
+const int MATERIAL_SLOTS[] = {SLOT_METALLIC_ROUGHNESS, SLOT_NORMAL_MAP, SLOT_OCCLUSION, SLOT_EMISSIVE};
+const int MATERIAL_TEXTURES = 4;
 
 //! what a cached pipeline was made for
 struct PipelineKey{
@@ -122,6 +126,10 @@ struct DrawContext::Impl{
   Texture* texture = nullptr;
   Sampler* sampler = nullptr;
   std::unique_ptr<Sampler> defaultSampler;
+  //! the metallic-roughness textures, in the order of MaterialTextureBit
+  Texture* materialTextures[MATERIAL_TEXTURES] = {};
+  //! bound where a Pbr shader's texture is missing, so no slot of it keeps a texture of another pass
+  std::unique_ptr<Texture> whiteTexture;
   BlendMode blend = BlendMode::Opaque;
   bool depthTest = false;
   bool depthWrite = false;
@@ -201,6 +209,12 @@ void DrawContext::setMaterial(const Material& material){
   uniforms.params[0] = mode == Material::AlphaMode::Mask ? material.getAlphaCutoff() : 0.0f;
   uniforms.params[1] = material.isDoubleSided() ? 1.0f : 0.0f;
   uniforms.params[2] = mode == Material::AlphaMode::Opaque || mode == Material::AlphaMode::Mask ? 1.0f : 0.0f;
+  uniforms.pbr[0] = material.getMetallic();
+  uniforms.pbr[1] = material.getRoughness();
+  uniforms.pbr[2] = material.getNormalScale();
+  uniforms.pbr[3] = material.getOcclusionStrength();
+  const Color& emissive = material.getEmissive();
+  copy4(uniforms.emissive, emissive.r, emissive.g, emissive.b, material.getEmissiveStrength());
   setMaterial(uniforms);
 }
 
@@ -211,6 +225,17 @@ void DrawContext::setMaterial(const MaterialUniforms& material){
 
 void DrawContext::resetMaterial(){
   setMaterial(MaterialUniforms());
+  setMaterialTextures(nullptr, nullptr, nullptr, nullptr);
+}
+
+void DrawContext::setMaterialTextures(Texture* metallicRoughness, Texture* normal, Texture* occlusion, Texture* emissive){
+  Texture* textures[MATERIAL_TEXTURES] = {metallicRoughness, normal, occlusion, emissive};
+  for (int i = 0; i < MATERIAL_TEXTURES; ++i){
+    if (impl_->materialTextures[i] != textures[i]){
+      impl_->materialTextures[i] = textures[i];
+      impl_->materialDirty = true;
+    }
+  }
 }
 
 void DrawContext::setLights(const std::vector<Light*>& lights){
@@ -236,8 +261,11 @@ void DrawContext::setLightUniforms(LightUniforms& uniforms, int index, const Lig
   //positions with the view, directions with its inverse transpose, as the old renderers did
   Matrix normalView = view.inverse().transpose();
   Vec4f pos = light.getPosition();
-  if (light.getType() == Light::Directional)
-    pos = normalView*pos;
+  if (light.getType() == Light::Directional){
+    //a direction stays one (the inverse transpose would add the view's translation as w)
+    pos = normalView*Vec4f(pos.x, pos.y, pos.z, 0);
+    pos.w = 0;
+  }
   else
     pos = view*pos;
   copy4(uniforms.position[index], pos.x, pos.y, pos.z, pos.w);
@@ -297,8 +325,10 @@ CullMode DrawContext::getCull() const{
 Shader* DrawContext::getShader(BuiltinShader shader){
   if (shader == BuiltinShader::Lit && impl_->litShader)
     return impl_->litShader;
-  if (shader == BuiltinShader::LitVertexColor && impl_->litShader)
+  if ((shader == BuiltinShader::LitVertexColor || shader == BuiltinShader::PbrVertexColor) && impl_->litShader)
     return impl_->litVertexColorShader ? impl_->litVertexColorShader : impl_->litShader;
+  if (shader == BuiltinShader::Pbr && impl_->litShader)
+    return impl_->litShader;
   int idx = (int)shader;
   if (idx < 0 || idx >= BUILTIN_COUNT)
     return nullptr;
@@ -394,6 +424,12 @@ bool DrawContext::prepare(Shader* shader, const VertexLayout& layout, PrimitiveT
     return false;
 
   d.material.flags[0] = d.texture ? 1 : 0;
+  int materialBits = 0;
+  for (int i = 0; i < MATERIAL_TEXTURES; ++i){
+    if (d.materialTextures[i])
+      materialBits |= 1 << i;
+  }
+  d.material.flags[1] = materialBits;
   if (!d.bind(SLOT_MATERIAL, &d.material, sizeof(d.material), d.materialDirty, d.materialBound))
     return false;
   if (d.lightsDirty)
@@ -401,7 +437,9 @@ bool DrawContext::prepare(Shader* shader, const VertexLayout& layout, PrimitiveT
   if (!d.bind(SLOT_LIGHTS, &d.lightData, sizeof(d.lightData), d.lightsDirty, d.lightsBound))
     return false;
 
-  if (d.texture){
+  //the metallic-roughness shaders sample all their slots
+  bool pbr = shader == d.builtins[(int)BuiltinShader::Pbr].get() || shader == d.builtins[(int)BuiltinShader::PbrVertexColor].get();
+  if (d.texture || pbr){
     Sampler* sampler = d.sampler;
     if (!sampler){
       if (!d.defaultSampler){
@@ -411,7 +449,23 @@ bool DrawContext::prepare(Shader* shader, const VertexLayout& layout, PrimitiveT
       }
       sampler = d.defaultSampler.get();
     }
-    d.device.setTexture(SLOT_TEXTURE, d.texture, sampler);
+    if (pbr && !d.whiteTexture){
+      TextureDesc desc;
+      desc.width = desc.height = 1;
+      const uint8_t white[4] = {255, 255, 255, 255};
+      d.whiteTexture = d.device.createTexture(desc, white);
+    }
+    if (d.texture)
+      d.device.setTexture(SLOT_TEXTURE, d.texture, sampler);
+    else if (d.whiteTexture)
+      d.device.setTexture(SLOT_TEXTURE, d.whiteTexture.get(), sampler);
+    if (pbr){
+      for (int i = 0; i < MATERIAL_TEXTURES; ++i){
+        Texture* texture = d.materialTextures[i] ? d.materialTextures[i] : d.whiteTexture.get();
+        if (texture)
+          d.device.setTexture(MATERIAL_SLOTS[i], texture, sampler);
+      }
+    }
   }
   return true;
 }

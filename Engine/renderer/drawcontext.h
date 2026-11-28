@@ -77,11 +77,16 @@ public:
 
   // --- CGE_Material and CGE_Lights, for lit draws ---
 
-  //! the material's colours, opacity and shininess (not its textures)
+  //! the material's colours, opacity, shininess and metallic-roughness factors (not its textures)
   void setMaterial(const Material& material);
   void setMaterial(const MaterialUniforms& material);
-  //! white, unlit by ambient light, not shiny
+  //! white, unlit by ambient light, not shiny; also no metallic-roughness textures
   void resetMaterial();
+  //! the textures of a metallic-roughness material (BuiltinShader::Pbr); nullptr for none
+  /*! In SLOT_METALLIC_ROUGHNESS, SLOT_NORMAL_MAP, SLOT_OCCLUSION and
+      SLOT_EMISSIVE, with the sampler of setTexture. The base colour is the
+      texture of setTexture. */
+  void setMaterialTextures(Texture* metallicRoughness, Texture* normal, Texture* occlusion, Texture* emissive);
   //! the lights in world space; the first MAX_LIGHTS are used
   /*! They're copied, and taken into view space with the view at the next
       draw. */
@@ -90,7 +95,7 @@ public:
   int getNumLights() const;
   //! writes a light into entry index of uniforms, in the view space of view
   static void setLightUniforms(LightUniforms& uniforms, int index, const Light& light, const Matrix& view);
-  //! the shaders that lit draws use instead of BuiltinShader::Lit and LitVertexColor; nullptr for those
+  //! the shaders that lit draws use instead of BuiltinShader::Lit and LitVertexColor (and Pbr, PbrVertexColor); nullptr for those
   /*! They have to take the same vertex inputs and blocks; render techniques
       use them, e.g. for the light prepass's G-buffer. Without a
       vertexColorShader, draws with vertex colours use shader too (without

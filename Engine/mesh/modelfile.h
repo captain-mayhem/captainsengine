@@ -30,14 +30,19 @@ class RenderDevice;
     Positions, normals (as they are; flat normals for primitives without),
     the first texture coordinates, the first vertex colours and the indices
     (8, 16 and 32 bit) are read; quantized attributes
-    (KHR_mesh_quantization) and sparse accessors too. The metallic-roughness
-    material is mapped onto Material: the base colour (factor and texture)
-    as the diffuse colour, the roughness as the shininess, the specular
-    colour from the metalness; the alpha modes and double-sided materials
-    are kept. The colour factors and vertex colours, which glTF keeps
-    linear, are converted to sRGB like the textures' colours. Cameras,
-    lights, skins, animations, morph targets, tangents, normal and other
-    textures are left out; getWarnings lists what a file had of them.
+    (KHR_mesh_quantization) and sparse accessors too. The materials are
+    metallic-roughness materials (Material::Shading::MetallicRoughness):
+    the base colour (factor and texture) as the diffuse colour, the
+    metalness, the roughness, the emissive colour (with
+    KHR_materials_emissive_strength) and the metallic-roughness, normal,
+    occlusion and emissive textures, all with the first texture
+    coordinates; the alpha modes and double-sided materials are kept. For
+    what draws them with Phong (the light prepass), the roughness is also a
+    shininess and the metalness a specular colour. The colour factors and
+    vertex colours, which glTF keeps linear, are converted to sRGB like the
+    textures' colours. Cameras, lights, skins, animations, morph targets,
+    tangents (the Pbr shader makes its own), samplers and texture
+    transforms are left out; getWarnings lists what a file had of them.
     glTF's coordinate system (y up, front faces counter-clockwise) and
     column-major matrices are the engine's.
 

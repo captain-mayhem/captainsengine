@@ -128,16 +128,20 @@ void Scene::save(const std::string& filename) const{
     flt = lt->getAttenuation();
     out.write((const char*)&flt, sizeof(float));
   }
-  //models
-  size = (unsigned)mNodes.size();
+  //models; the file has no other nodes
+  size = 0;
+  for (const SceneNode* node : mNodes){
+    if (node->getType() == SceneNode::MESH)
+      ++size;
+  }
   out.write((char*)&size, sizeof(size));
   list<SceneNode*>::const_iterator iter;
   for (iter = mNodes.begin(); iter != mNodes.end(); iter++){
+    if ((*iter)->getType() != SceneNode::MESH)
+      continue;
     //model id
     unsigned id = (*iter)->getID();
     out.write((char*)&id, sizeof(id));
-    if ((*iter)->getType() != SceneNode::MESH)
-      continue;
     Model* mdl = (Model*)*iter;
     //mesh link
     Mesh* mesh = mdl->getMesh();
@@ -335,6 +339,51 @@ Model* Scene::pickModel(const Ray& ray) const {
       //return mdl;
     }
     delete tmp;
+  }
+  return nearest;
+}
+
+namespace{
+
+//! the distance of the nearest of the models on the ray at and below node, in trafo (FLT_MAX: none)
+float nearestHit(const SceneNode* node, const Matrix& parent, const Ray& ray){
+  Matrix trafo = parent*node->getTrafo();
+  float nearest = FLT_MAX;
+  if (node->getType() == SceneNode::MESH){
+    const Model* mdl = (const Model*)node;
+    BoundingObject* bound = mdl->getBoundingObject();
+    if (mdl->getMesh() && bound){
+      BoundingObject* tmp = bound->copy();
+      tmp->transform(trafo);
+      if (tmp->hit(ray) < FLT_MAX){
+        //the real intersection, in the model's space; its distances are along the transformed ray
+        Ray r(ray);
+        r.transform(trafo.inverse());
+        float hit = mdl->getMesh()->intersect(r);
+        if (hit < FLT_MAX){
+          Vec3f point = trafo*(r.getOrigin()+r.getDirection()*hit);
+          nearest = (point-ray.getOrigin()).length();
+        }
+      }
+      delete tmp;
+    }
+  }
+  for (const SceneNode* child : node->getChildren())
+    nearest = std::min(nearest, nearestHit(child, trafo, ray));
+  return nearest;
+}
+
+}
+
+SceneNode* Scene::pickNode(const Ray& ray) const{
+  SceneNode* nearest = nullptr;
+  float nearDistance = FLT_MAX;
+  for (SceneNode* node : mNodes){
+    float distance = nearestHit(node, Matrix(Matrix::Identity), ray);
+    if (distance < nearDistance){
+      nearDistance = distance;
+      nearest = node;
+    }
   }
   return nearest;
 }

@@ -37,6 +37,9 @@ public:
   std::vector<Mesh*> const& getMeshes() const {return meshes_;}
   //! Add a model
   void addModel(Model* model) {mNodes.push_back(model);}
+  //! adds a node with its children (e.g. a copy of a ModelFile's root) and takes it over
+  /*! Only models (SceneNode::MESH) are saved. */
+  void addNode(SceneNode* node) {mNodes.push_back(node);}
   //! Delete a model
   void deleteModel(const unsigned id);
   //! Get a model
@@ -69,7 +72,10 @@ public:
       loaded onto it and assigned to the models as device textures. */
   void load(const std::string& filename, Gfx::RenderDevice& device);
   //! Get the model that is the nearest one on the ray
+  /*! Only the scene's own models, not the models below its nodes. */
   Model* pickModel(const CGE::Ray& ray) const;
+  //! the scene's node with the nearest model on the ray, itself or below it; nullptr if none is hit
+  SceneNode* pickNode(const CGE::Ray& ray) const;
   //! get the models
   const std::list<SceneNode*>& getNodes() const {return mNodes;}
   //! set active camera

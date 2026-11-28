@@ -60,6 +60,18 @@ private:
 
 class CGE_API Material{
 public:
+  //! how a lit draw shades the material
+  enum class Shading{
+    //! Phong with the diffuse, ambient and specular colours and the shininess (BuiltinShader::Lit)
+    Phong,
+    //! glTF's metallic-roughness material (BuiltinShader::Pbr)
+    /*! The diffuse colour and texture are the base colour, with the
+        metalness, the roughness, the emissive colour and the
+        metallic-roughness, normal, occlusion and emissive textures. The
+        ambient colour is the light from everywhere, as with Phong. The
+        Phong colours stay for what draws without it (the light prepass). */
+    MetallicRoughness,
+  };
   //! how the alpha of the diffuse colour and texture is used
   enum class AlphaMode{
     //! blended if the opacity is below 1 or there is an opacity texture (as in MTL files)
@@ -101,6 +113,40 @@ public:
   void setDoubleSided(bool doubleSided) { mDoubleSided = doubleSided; }
   bool isDoubleSided() const { return mDoubleSided; }
 
+  void setShading(Shading shading) { mShading = shading; }
+  Shading getShading() const { return mShading; }
+  bool isMetallicRoughness() const { return mShading == Shading::MetallicRoughness; }
+  //! 0 for a dielectric, 1 for a metal (MetallicRoughness); 0 by default
+  void setMetallic(float metallic) { mMetallic = metallic; }
+  float getMetallic() const { return mMetallic; }
+  //! 0 for a mirror, 1 for a fully rough surface (MetallicRoughness); 1 by default
+  void setRoughness(float roughness) { mRoughness = roughness; }
+  float getRoughness() const { return mRoughness; }
+  //! the light the surface gives off (sRGB, like the other colours); black by default
+  void setEmissive(const Color& emissive) { mEmissive = emissive; }
+  const Color& getEmissive() const { return mEmissive; }
+  //! the emissive colour (made linear) is multiplied with it; 1 by default
+  void setEmissiveStrength(float strength) { mEmissiveStrength = strength; }
+  float getEmissiveStrength() const { return mEmissiveStrength; }
+  //! the metalness (blue) and the roughness (green), multiplied with the factors
+  void setMetallicRoughnessTexture(std::shared_ptr<MaterialTexture> const& texture) { mMetallicRoughnessTexture = texture; }
+  std::shared_ptr<MaterialTexture> const& getMetallicRoughnessTexture() const { return mMetallicRoughnessTexture; }
+  //! a tangent-space normal map (glTF's: +x along u, +y up in the image)
+  void setNormalTexture(std::shared_ptr<MaterialTexture> const& texture) { mNormalTexture = texture; }
+  std::shared_ptr<MaterialTexture> const& getNormalTexture() const { return mNormalTexture; }
+  //! the normal map's x and y are multiplied with it; 1 by default
+  void setNormalScale(float scale) { mNormalScale = scale; }
+  float getNormalScale() const { return mNormalScale; }
+  //! how much of the light from everywhere reaches the surface (red)
+  void setOcclusionTexture(std::shared_ptr<MaterialTexture> const& texture) { mOcclusionTexture = texture; }
+  std::shared_ptr<MaterialTexture> const& getOcclusionTexture() const { return mOcclusionTexture; }
+  //! 0: the occlusion texture has no effect, 1: its full effect (the default)
+  void setOcclusionStrength(float strength) { mOcclusionStrength = strength; }
+  float getOcclusionStrength() const { return mOcclusionStrength; }
+  //! multiplied with the emissive colour
+  void setEmissiveTexture(std::shared_ptr<MaterialTexture> const& texture) { mEmissiveTexture = texture; }
+  std::shared_ptr<MaterialTexture> const& getEmissiveTexture() const { return mEmissiveTexture; }
+
   bool isTransparent() const {
     if (mAlphaMode == AlphaMode::Default)
       return mOpacity != 1.0f || !mOpacityTexFile.empty();
@@ -124,6 +170,17 @@ protected:
   AlphaMode mAlphaMode;
   float mAlphaCutoff;
   bool mDoubleSided;
+  Shading mShading;
+  float mMetallic;
+  float mRoughness;
+  Color mEmissive;
+  float mEmissiveStrength;
+  float mNormalScale;
+  float mOcclusionStrength;
+  std::shared_ptr<MaterialTexture> mMetallicRoughnessTexture;
+  std::shared_ptr<MaterialTexture> mNormalTexture;
+  std::shared_ptr<MaterialTexture> mOcclusionTexture;
+  std::shared_ptr<MaterialTexture> mEmissiveTexture;
 };
 
 }
