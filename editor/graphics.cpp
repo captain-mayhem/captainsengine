@@ -216,7 +216,7 @@ void Graphic::deleteNode(CGE::SceneNode* node){
 namespace{
 
 //! widens box by the meshes' boxes at and below node, in trafo
-void addBounds(const SceneNode* node, const Matrix& parent, Vec3f& min, Vec3f& max){
+void addBounds(const SceneNode* node, const Matrix& parent, Vec3f& lower, Vec3f& upper){
   Matrix trafo = parent*node->getTrafo();
   if (node->getType() == SceneNode::MESH && ((const Model*)node)->getMesh()){
     BBox box = ((const Model*)node)->getMesh()->getExtents();
@@ -225,12 +225,12 @@ void addBounds(const SceneNode* node, const Matrix& parent, Vec3f& min, Vec3f& m
     for (int i = 0; i < 8; ++i){
       Vec3f corner(i & 1 ? hi.x : lo.x, i & 2 ? hi.y : lo.y, i & 4 ? hi.z : lo.z);
       Vec3f p = trafo*corner;
-      min = Vec3f((std::min)(min.x, p.x), (std::min)(min.y, p.y), (std::min)(min.z, p.z));
-      max = Vec3f((std::max)(max.x, p.x), (std::max)(max.y, p.y), (std::max)(max.z, p.z));
+      lower = Vec3f((std::min)(lower.x, p.x), (std::min)(lower.y, p.y), (std::min)(lower.z, p.z));
+      upper = Vec3f((std::max)(upper.x, p.x), (std::max)(upper.y, p.y), (std::max)(upper.z, p.z));
     }
   }
   for (const SceneNode* child : node->getChildren())
-    addBounds(child, trafo, min, max);
+    addBounds(child, trafo, lower, upper);
 }
 
 }
@@ -238,13 +238,13 @@ void addBounds(const SceneNode* node, const Matrix& parent, Vec3f& min, Vec3f& m
 void Graphic::frame(CGE::SceneNode* node){
   if (!node)
     return;
-  Vec3f min(FLT_MAX, FLT_MAX, FLT_MAX);
-  Vec3f max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-  addBounds(node, Matrix(Matrix::Identity), min, max);
-  if (min.x > max.x)
+  Vec3f lower(FLT_MAX, FLT_MAX, FLT_MAX);
+  Vec3f upper(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+  addBounds(node, Matrix(Matrix::Identity), lower, upper);
+  if (lower.x > upper.x)
     return;
-  Vec3f center = (min+max)*0.5f;
-  float radius = (max-min).length()*0.5f;
+  Vec3f center = (lower+upper)*0.5f;
+  float radius = (upper-lower).length()*0.5f;
   if (radius < 0.001f)
     radius = 0.001f;
   //the bounding sphere fits the narrower side of the view
