@@ -369,7 +369,7 @@ float nearestHit(const SceneNode* node, const Matrix& parent, const Ray& ray){
     }
   }
   for (const SceneNode* child : node->getChildren())
-    nearest = std::min(nearest, nearestHit(child, trafo, ray));
+    nearest = (std::min)(nearest, nearestHit(child, trafo, ray));
   return nearest;
 }
 

@@ -225,8 +225,8 @@ void addBounds(const SceneNode* node, const Matrix& parent, Vec3f& min, Vec3f& m
     for (int i = 0; i < 8; ++i){
       Vec3f corner(i & 1 ? hi.x : lo.x, i & 2 ? hi.y : lo.y, i & 4 ? hi.z : lo.z);
       Vec3f p = trafo*corner;
-      min = Vec3f(std::min(min.x, p.x), std::min(min.y, p.y), std::min(min.z, p.z));
-      max = Vec3f(std::max(max.x, p.x), std::max(max.y, p.y), std::max(max.z, p.z));
+      min = Vec3f((std::min)(min.x, p.x), (std::min)(min.y, p.y), (std::min)(min.z, p.z));
+      max = Vec3f((std::max)(max.x, p.x), (std::max)(max.y, p.y), (std::max)(max.z, p.z));
     }
   }
   for (const SceneNode* child : node->getChildren())
